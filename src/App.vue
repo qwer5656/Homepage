@@ -67,10 +67,13 @@
       </div>
  
     </v-main>
+    <Loading v-if="isshow"></Loading>
   </v-app>
 </template>
 
 <script>
+import Loading from "./components/Loading.vue";
+import { useCounterStore } from '@/stores/counter'
 import {
   mdiAccount,
   mdiHome,
@@ -83,7 +86,15 @@ import {
 
 export default {
   name: "App",
-
+  components:{
+    Loading
+  },
+  computed:{
+    isshow(){
+      const counter = useCounterStore()
+      return counter.loading;
+    }
+  },
   data: () => ({
     loginshow: false,
     mdiAccount,
@@ -95,6 +106,7 @@ export default {
     mdiTranslate,
     footvalue: -1,
     icontouch: false,
+    loadingshow:true
   }),
   methods: {
     goto(val) {
