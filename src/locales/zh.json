@@ -1,0 +1,12 @@
+{
+    "Apppage":{
+        "Footer":{
+            "Index":"首頁",
+            "History":"歷史紀錄",
+            "Reserve":"預約排程",
+            "StartMode":"啟動模式",
+            "Setting":"參數設定"
+
+        }
+    }
+}

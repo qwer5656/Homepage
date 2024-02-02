@@ -1,0 +1,12 @@
+{
+    "Apppage":{
+        "Footer":{
+            "Index":"Index",
+            "History":"History",
+            "Reserve":"Reserve",
+            "StartMode":"StartMode",
+            "Setting":"Setting"
+
+        }
+    }
+}

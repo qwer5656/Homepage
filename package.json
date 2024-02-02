@@ -1,0 +1,31 @@
+{
+  "name": "vuehomepage",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "serve": "vite preview",
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mdi/font": "5.9.55",
+    "echarts": "^5.4.3",
+    "roboto-fontface": "*",
+    "vue": "^3.3.11",
+    "vue-echarts": "^6.6.8",
+    "vue-i18n": "^9.9.0",
+    "vue-router": "^4.2.5",
+    "vuetify": "npm:@vuetify/nightly@next",
+    "webfontloader": "^1.0.0"
+  },
+  "devDependencies": {
+    "@intlify/vite-plugin-vue-i18n": "^7.0.0",
+    "@mdi/js": "^7.4.47",
+    "@vitejs/plugin-vue": "^4.5.2",
+    "vite": "^5.0.8",
+    "vite-plugin-vuetify": "^1.0.0-alpha.12",
+    "vue-cli-plugin-vuetify": "~2.5.8"
+  },
+  "type": "module"
+}
