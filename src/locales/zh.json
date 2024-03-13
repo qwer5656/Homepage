@@ -8,5 +8,17 @@
             "Setting":"參數設定"
 
         }
+    },
+    "Historypage":{
+        "Date":"充電日期",
+        "Time":"充電時間",
+        "Degree":"充電度數"
+
+    },
+    "Indexpage":{
+       
+    },
+    "Reservepage":{
+
     }
 }

@@ -129,7 +129,6 @@ export default {
     openmenu(type) {
       let arr = ["accountwrap", "languagewrap"];
       this.icontouch = type;
-      console.log("1");
       document.querySelector(`#${type}`).style.display = "block";
 
       for (let i = 0; i < arr.length; i++) {
@@ -175,13 +174,6 @@ export default {
     if (object != null) {
       this.loginshow = true;
       return true;
-      // let dateString = object.timestamp;
-      // let nowtimes = new Date().getTime();
-
-      // if (nowtimes < dateString) {
-      //   this.loginshow = true;
-      //   return true;
-      // }
     }
 
     this.loginshow = false;

@@ -10,7 +10,7 @@ import { createPinia } from 'pinia'
 
 import en from "./locales/en.json";
 import zh from "./locales/zh.json";
-
+import axios from "./axios";
 const pinia = createPinia()
 
 
@@ -24,4 +24,6 @@ const i18n = createI18n({
 });
 
 loadFonts();
-createApp(App).use(router).use(vuetify).use(echarts).use(i18n).use(pinia).mount("#app");
+const app =createApp(App);
+app.config.globalProperties.$axios= axios
+app.use(router).use(vuetify).use(echarts).use(i18n).use(pinia).mount("#app");

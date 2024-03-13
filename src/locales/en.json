@@ -6,7 +6,18 @@
             "Reserve":"Reserve",
             "StartMode":"StartMode",
             "Setting":"Setting"
-
         }
+    },
+    "Historypage":{
+        "Date":"Charging Date",
+        "Time":"Charging Time",
+        "Degree":"Charging Degree"
+
+    },
+    "Indexpage":{
+        
+    },
+    "Reservepage":{
+
     }
 }

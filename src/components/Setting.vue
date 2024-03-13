@@ -45,6 +45,7 @@
               label="LTE"
               inset
             ></v-switch>
+            
           </v-window-item>
           <v-window-item value="Ocpp">
             <v-text-field
