@@ -47,6 +47,13 @@ const routes = [
     title: "開始模式",
     component: () => import("@/views/StartmodeView.vue"),
   },
+  ,
+  {
+    path: "/Touchstart",
+    name: "Touchstartmode",
+    title: "TouchStart模式",
+    component: () => import("@/views/TouchStartView.vue"),
+  },
   {
     path: "/EditPassword",
     name: "EditPassword",
@@ -58,6 +65,24 @@ const routes = [
     name: "CarNumber",
     title: "車牌號碼",
     component: () => import("@/views/CarNumberView.vue"),
+  },
+  {
+    path: "/QrcodeSetting",
+    name: "QrcodeSetting",
+    title: "QrcodeSetting",
+    component: () => import("@/views/QrcodeSettingView.vue"),
+  },
+  {
+    path: "/RfidSetting",
+    name: "RfidSetting",
+    title: "RfidSetting",
+    component: () => import("@/views/RfidSettingView.vue"),
+  },
+  {
+    path: "/CarNumberSetting",
+    name: "CarNumberSetting",
+    title: "CarNumberSetting",
+    component: () => import("@/views/CarNumberSettingView.vue"),
   }
 ];
 

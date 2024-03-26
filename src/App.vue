@@ -1,16 +1,13 @@
 <template>
-  <v-app @click="startDrag">
-    <v-main>
+  <v-app @click="startDrag" class="mainwrap">
+    <v-main class="maincontent" >
       <div class="navbar navmenu" v-if="loginshow">
-        <a href="#"> <img src="./assets/img/logo.jpg" width="80px" /></a>
+        <a href="#"> <img src="./assets/img/logo.png" /></a>
 
         <div class="midaccountwrap">
-          <v-icon
-            class="midtranslate"
-            @click="openmenu('languagewrap')"
-            :icon="mdiTranslate"
-          />
 
+          <img class="midtranslate" src="./assets/img/Language.png"   
+            @click="openmenu('languagewrap')">
           <v-icon
             class="midaccount"
             :icon="mdiAccount"
@@ -35,45 +32,48 @@
           </ul>
         </div>
       </div>
-
-      <div class="footer" v-if="loginshow">
-        <v-bottom-navigation v-model="footvalue" color="primary">
-          <v-btn value="Index" @click="goto('')">
-            <v-icon :icon="mdiHome" />
-            <span>{{ $t("Apppage.Footer.Index") }}</span>
-          </v-btn>
-
-          <v-btn value="History" @click="goto('History')">
-            <v-icon :icon="mdiHistory" />
-            <span>{{ $t("Apppage.Footer.History") }}</span>
-          </v-btn>
-
-          <v-btn value="Reserve" @click="goto('Reserve')">
-            <v-icon :icon="mdiCalendarClock" />
-            <span>{{ $t("Apppage.Footer.Reserve") }}</span>
-          </v-btn>
-          <v-btn value="StartMode" @click="goto('Startmode')">
-            <v-icon :icon="mdiGestureTapBox" />
-            <span>{{ $t("Apppage.Footer.StartMode") }}</span>
-          </v-btn>
-          <v-btn value="Setting" @click="goto('Setting')">
-            <v-icon :icon="mdiCog" />
-            <span>{{ $t("Apppage.Footer.Setting") }}</span>
-          </v-btn>
-        </v-bottom-navigation>
+      <div style="padding-top: 67px;" v-if="loginshow"></div>
+      <div style="display: flex;">
+        
+        <div class="leftbar" v-if="loginshow">
+          <div class="Charger">
+            <img src="./assets/img/Charger_On.png" v-if="curpage==''" alt="" @click="goto('')" />
+            <img src="./assets/img/Charger_Off.png" v-else alt="" @click="goto('')" />
+          </div>
+          <div>
+            <img src="./assets/img/History_On.png" v-if="curpage=='History'" alt="" @click="goto('History')" />
+            <img src="./assets/img/History_Off.png" v-else alt="" @click="goto('History')" />
+          </div>
+          <div>
+            <img src="./assets/img/Schdule_On.png" v-if="curpage=='Reserve'" alt="" @click="goto('Reserve')" />
+            <img src="./assets/img/Schdule__Off.png" v-else alt="" @click="goto('Reserve')" />
+          </div>
+          <div>
+            <img src="./assets/img/Touch Start_On.png" v-if="curpage=='Touchstart'" alt="" @click="goto('Touchstart')" />
+            <img src="./assets/img/Touch Start_Off.png" v-else alt="" @click="goto('Touchstart')" />
+          </div>
+          <div>
+            <img src="./assets/img/Mode_On.png" v-if="curpage=='Startmode'" alt="" @click="goto('Startmode')" />
+            <img src="./assets/img/Mode_Off.png" v-else alt="" @click="goto('Startmode')" />
+          </div>
+          <div>
+            <img src="./assets/img/Settings_On.png" v-if="curpage=='Setting'" alt="" @click="goto('Setting')" />
+            <img src="./assets/img/Settings_Off.png" v-else alt="" @click="goto('Setting')" />
+          </div>
+        </div>
+        <div class="leftbarconent" >
+          <router-view @loginstauts="loginchange" />
+        </div>
       </div>
-      <div style="padding-top: 10px">
-        <router-view @loginstauts="loginchange" />
-      </div>
- 
     </v-main>
     <Loading v-if="isshow"></Loading>
+    
   </v-app>
 </template>
 
 <script>
 import Loading from "./components/Loading.vue";
-import { useCounterStore } from '@/stores/counter'
+import { useMainStore } from "@/stores/main";
 import {
   mdiAccount,
   mdiHome,
@@ -86,13 +86,17 @@ import {
 
 export default {
   name: "App",
-  components:{
-    Loading
+  components: {
+    Loading,
   },
-  computed:{
-    isshow(){
-      const counter = useCounterStore()
-      return counter.loading;
+  computed: {
+    isshow() {
+      const mainstore = useMainStore();
+      return mainstore.loading;
+    },
+    curpage(){
+      const mainstore = useMainStore();
+      return mainstore.curpage;
     }
   },
   data: () => ({
@@ -106,7 +110,7 @@ export default {
     mdiTranslate,
     footvalue: -1,
     icontouch: false,
-    loadingshow:true
+    loadingshow: true,
   }),
   methods: {
     goto(val) {
@@ -178,16 +182,58 @@ export default {
 
     this.loginshow = false;
     this.$router.push(`/Login`);
+    
   },
 };
 </script>
+<style>
+   .v-list {
+  background-color:black !important;
+  overflow: hidden;
+   text-align: center;
+  
+}
+ .v-list-item{
+  color:white !important;
+}
+.v-list-item--active{
+  color:rgba(91, 228, 114, 1) !important;
+}
+.v-overlay-container{
+  scrollbar-color: rgba(91, 228, 114, 1) black;
+  scrollbar-width: thin;
+}
+</style>
 <style scoped>
-.footer {
-  position: fixed;
-  bottom: 0;
-  text-align: center;
-  width: 100%;
-  z-index: 100;
+*{
+  user-select: none;
+}
+.mainwrap {
+  background-color: black;
+}
+.maincontent {
+  width: 1280px;
+  margin: 0 auto;
+}
+.leftbar {
+  width: 65px;
+  height: 520px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.41),
+    inset 0px 0px 12px rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(100px);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 42px 0;
+  align-items: center;
+  
+}
+.leftbar img{
+  cursor: pointer;
+
 }
 .v-bottom-navigation .v-bottom-navigation__content > .v-btn {
   font-size: inherit;
@@ -202,9 +248,6 @@ export default {
 }
 .navbar {
   width: 100%;
-  background-color: white;
-
-  box-shadow: 0 2px 5px #e9e9e9;
   position: fixed;
   display: flex;
   align-items: center;
@@ -230,6 +273,7 @@ export default {
   transform: scale(1.5);
   margin-right: 20px;
   cursor: pointer;
+  color: white;
 }
 .midaccountwrap {
   margin-left: auto;
@@ -265,9 +309,16 @@ export default {
 
 .midtranslate {
   margin: 0 20px;
+  color: white;
+  vertical-align: middle;
+  cursor: pointer;
 }
-@media screen and (max-width: 500px) {
-  .midaccount {
-  }
+.leftbarconent{
+  width: calc(100% - 65px);
 }
+@media screen and (max-width: 675px) {
+  
+}
+
+
 </style>

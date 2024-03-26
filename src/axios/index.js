@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useCounterStore } from "@/stores/counter";
+import { useMainStore } from "@/stores/main";
 let config = {
   baseURL: "http://localhost:5173",
   timeout: 10000,
@@ -10,12 +10,12 @@ const instance = axios.create(config);
 
 let obj = {
   get(url) {
-    const counter = useCounterStore();
-    counter.loading = true;
+    const mainstore = useMainStore();
+    mainstore.loading = true;
     return axios
       .get(url)
       .then((res) => {
-        counter.loading = false;
+        mainstore.loading = false;
         return res.data;
       })
       .catch((res) => {

@@ -1,111 +1,139 @@
 <template lang="">
-  <div style="padding:10px">
-    <h2>Login</h2>
-
-    <form>
-      <div class="imgcontainer">
-      
+  <div class="loginwrap">
+    <div class="logincotainer">
+      <div class="logincontent">
+        <div class="logoimg">
+          <img src="../assets/img/logo.png" alt="" />
+        </div>
+        <div class="title">Log In Account</div>
+        <form class="formwrap">
+          <v-text-field
+          :prepend-inner-icon="mdiLockOutline"
+            :append-inner-icon="show1 ? mdiEye : mdiEyeOff"
+            :type="show1 ? 'text' : 'password'"
+            label="password"
+            @click:append-inner="show1 = !show1"
+            variant="solo"
+          ></v-text-field>
+          <div class="chargebt" @click="checklogin">Login</div>
+        </form>
       </div>
-
-      <div class="container">
-       
-
-        <label ><b>Password</b></label>
-        <input
-          type="password"
-          placeholder="Enter Password"
-          name="psw"
-          required
-        />
-
-        <button type="submit" @click="checklogin">Login</button>
-       
+      <div class="loginchargepilewrap">
+        <img src="../assets/img/loginlogo.png" alt="" />
       </div>
-
-     
-    </form>
+    </div>
   </div>
 </template>
 <script>
+import { mdiEye, mdiEyeOff,mdiLockOutline } from "@mdi/js";
 export default {
+  data() {
+    return {
+      show1: true,
+      mdiEye,
+      mdiEyeOff,
+      mdiLockOutline,
+      password: "",
+    };
+  },
   methods: {
     checklogin() {
       this.$emit("loginstauts");
-      var object = {value: "true", timestamp: new Date().getTime()+10000}
+      var object = { value: "true", timestamp: new Date().getTime() + 10000 };
       localStorage.setItem("login", JSON.stringify(object));
-  
     },
+  },
+  beforeMount(){
+    let val=localStorage.getItem("login");
+    if(val!=null){
+      this.$router.push("/");
+    }
   }
-
-
 };
 </script>
-<style scoped>
-body {
-  font-family: Arial, Helvetica, sans-serif;
+<style>
+.loginwrap .v-field {
+  
+ 
+ 
+  border-radius: 33px;
+  background-color: black;
+    cursor: text;
+    color: white;
+  border: 1px solid rgba(107, 107, 107, 1);
+  margin-bottom: 25px ;
+  
 }
-form {
-  border: 3px solid #f1f1f1;
+.loginwrap .formwrap {
+  margin-top: 33px;
 }
-
-input[type="text"],
-input[type="password"] {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-}
-
-button {
-  background-color: #04aa6d;
+.loginwrap {
   color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  cursor: pointer;
-  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
-
-button:hover {
-  opacity: 0.8;
+.loginwrap .loginchargepilewrap {
+  width: 570px;
+  height: 518px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0px;
 }
-
-.cancelbtn {
-  width: auto;
-  padding: 10px 18px;
-  background-color: #f44336;
+.loginwrap .logincotainer {
+  display: flex;
 }
-
-.imgcontainer {
+.loginwrap .loginformwrap span {
+  width: 92px;
+  height: 18px;
+  font-family: SF Pro;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 17.5px;
   text-align: center;
-  margin: 24px 0 12px 0;
+  color: rgba(107, 107, 107, 1);
 }
-
-img.avatar {
-  width: 40%;
-  border-radius: 50%;
+.loginwrap .logincontent {
+  width: 478px;
+  height: 518.49px;
+  padding: 74px 86px 74px 86px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
-
-.container {
-  padding: 16px;
+.loginwrap .chargebt {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 93px;
+  gap: 10px;
+  width: 306px;
+  height: 30px;
+  background: radial-gradient(
+    51.11% 51.11% at 50% 0%,
+    #c8ffd1 0%,
+    #66ff80 100%
+  );
+  border-radius: 32px;
+  cursor: pointer;
 }
-
-span.psw {
-  float: right;
-  padding-top: 16px;
+.loginwrap .title {
+  font-family: SF Pro;
+  font-size: 32px;
+  font-weight: 510;
+  line-height: 40px;
+  text-align: center;
+  margin-top: 55px;
 }
-
-/* Change styles for span and cancel button on extra small screens */
-@media screen and (max-width: 300px) {
-  span.psw {
-    display: block;
-    float: none;
-  }
-  .cancelbtn {
-    width: 100%;
-  }
+.loginwrap .logoimg {
+  width: 102px;
+  height: 13.49px;
+  margin-top: 35px;
 }
 </style>
-

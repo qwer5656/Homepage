@@ -14,11 +14,12 @@
     "echarts": "^5.4.3",
     "pinia": "^2.1.7",
     "roboto-fontface": "*",
-    "vue": "^3.3.11",                                                           
+    "swiper": "^11.0.7",
+    "vue": "^3.3.11",
     "vue-echarts": "^6.6.8",
     "vue-i18n": "^9.9.0",
     "vue-router": "^4.2.5",
-    "vuetify": "npm:@vuetify/nightly@next",
+    "vuetify": "^3.3.0",
     "webfontloader": "^1.0.0"
   },
   "devDependencies": {

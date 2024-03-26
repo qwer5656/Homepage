@@ -1,9 +1,16 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
-import vuetify from "./plugins/vuetify";
+
 import { loadFonts } from "./plugins/webfontloader";
+
 import * as echarts from "echarts";
+import vuetify from "./plugins/vuetify";
+import '@mdi/font/css/materialdesignicons.css'
+import 'vuetify/styles'
+
+
+
 
 import { createI18n } from "vue-i18n";
 import { createPinia } from 'pinia'
@@ -22,6 +29,9 @@ const i18n = createI18n({
     zh,
   },
 });
+
+
+
 
 loadFonts();
 const app =createApp(App);

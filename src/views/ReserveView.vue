@@ -2,18 +2,19 @@
     <Reserve />
   </template>
   
-  <script>
-  import { defineComponent } from 'vue';
-  
-  // Components
-  import Reserve from '../components/Reserve.vue';
-  
-  export default defineComponent({
-    name: 'ReserveView',
-  
-    components: {
-        Reserve,
-    },
-  });
-  </script>
+
+
+<script>
+import Reserve from "@/components/Reserve.vue";
+import { useMainStore } from "@/stores/main";
+export default {
+  components: {
+    Reserve,
+  },
+  mounted() {
+    const mainstore = useMainStore();
+    mainstore.curpage = "Reserve";
+  },
+};
+</script>
   

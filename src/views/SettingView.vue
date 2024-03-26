@@ -1,15 +1,19 @@
 <template lang="">
-    <div>
-      <Setting />
-    </div>
-  </template>
-  <script>
-  import Setting from "@/components/Setting.vue";
-  export default {
-    components: {
-        Setting,
-    },
-  };
-  </script>
-  <style lang=""></style>
-  
+  <div>
+    <Setting />
+  </div>
+</template>
+<script>
+import Setting from "@/components/Setting.vue";
+import { useMainStore } from "@/stores/main";
+export default {
+  components: {
+    Setting,
+  },
+  mounted() {
+    const mainstore = useMainStore();
+    mainstore.curpage = "Setting";
+  },
+};
+</script>
+<style lang=""></style>
