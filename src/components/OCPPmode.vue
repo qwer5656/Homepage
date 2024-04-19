@@ -40,7 +40,7 @@
               />
               <img :src="webtobackendlineimg" alt="" />
             </div>
-            <img :src="webtobackendimg"  alt="" />
+            <img :src="webtobackendimg" alt="" />
           </div>
           <Nbt :title="bttitle" :enabled="btenabled" @click="clickbt()" />
         </form>
@@ -52,6 +52,14 @@
 <script>
 import Nbt from "./public/Nbt.vue";
 import { useMainStore } from "@/stores/main";
+import No from "@/assets/img/No.png";
+import grayline from "@/assets/img/grayline.png";
+import greenline from "@/assets/img/greenline.png";
+import ocppweb from "@/assets/img/ocppweb.png";
+import ocppwebsuccess from "@/assets/img/ocppwebsuccess.png";
+import ocppbackend from "@/assets/img/ocppbackend.png";
+import ocppbackendsuccess from "@/assets/img/ocppbackendsuccess.png";
+import Yes from "@/assets/img/Yes.png";
 export default {
   data() {
     return {
@@ -64,12 +72,12 @@ export default {
       },
       bttitle: "Next",
       btenabled: true,
-      devicetowebprogressimg: "/src/assets/img/No.png",
-      devicetoweblineimg: "/src/assets/img/grayline.png",
-      webtobackendprogressimg: "/src/assets/img/No.png",
-      webtobackendlineimg: "/src/assets/img/grayline.png",
-      devicetowebimg:"",
-      webtobackendimg:""
+      devicetowebprogressimg: No,
+      devicetoweblineimg: grayline,
+      webtobackendprogressimg: No,
+      webtobackendlineimg: grayline,
+      devicetowebimg: "",
+      webtobackendimg: "",
     };
   },
   components: {
@@ -77,18 +85,17 @@ export default {
   },
   methods: {
     previous() {
-     this.mode="address";
+      this.mode = "address";
     },
-    clickbt(){
+    clickbt() {
       if (this.mode == "address") {
-       this.changemode("connent");
-      }
-      else{
+        this.changemode("connent");
+      } else {
         this.changemode("address");
       }
     },
     changemode(val) {
-      this.mode=val;
+      this.mode = val;
       this.chagetxt();
     },
     chagetxt() {
@@ -103,33 +110,32 @@ export default {
         this.ocppdata.describe = "Please wait to connection process.";
         this.bttitle = "OK";
         this.btenabled = false;
-        this.devicetowebprogressimg = "/src/assets/img/No.png";
-        this.devicetoweblineimg = "/src/assets/img/grayline.png";
-        this.webtobackendprogressimg = "/src/assets/img/No.png";
-        this.webtobackendlineimg = "/src/assets/img/grayline.png";
-        this.devicetowebimg="src/assets/img/ocppweb.png";
-        this.webtobackendimg="src/assets/img/ocppbackend.png";
+        this.devicetowebprogressimg = No;
+        this.devicetoweblineimg = grayline;
+        this.webtobackendprogressimg = No;
+        this.webtobackendlineimg = grayline;
+        this.devicetowebimg = ocppweb;
+        this.webtobackendimg = ocppbackend;
 
-        let self=this;
+        let self = this;
         const mainstore = useMainStore();
         mainstore.loading = true;
         setTimeout(function () {
           self.changemode("devicetoweb");
         }, 1000);
       } else if (this.mode == "devicetoweb") {
-        this.devicetowebprogressimg = "/src/assets/img/Yes.png";
-        this.devicetoweblineimg = "/src/assets/img/greenline.png";
-        this.devicetowebimg="src/assets/img/ocppwebsuccess.png";
+        this.devicetowebprogressimg = Yes;
+        this.devicetoweblineimg = greenline;
+        this.devicetowebimg = ocppwebsuccess;
 
-        let self=this;
+        let self = this;
         setTimeout(function () {
           self.changemode("webtobackend");
         }, 1000);
-      }
-      else if (this.mode == "webtobackend") {
-        this.webtobackendprogressimg = "/src/assets/img/Yes.png";
-        this.webtobackendlineimg = "/src/assets/img/greenline.png";
-        this.webtobackendimg="src/assets/img/ocppbackendsuccess.png";
+      } else if (this.mode == "webtobackend") {
+        this.webtobackendprogressimg = Yes;
+        this.webtobackendlineimg = greenline;
+        this.webtobackendimg = ocppbackendsuccess;
         this.btenabled = true;
         const mainstore = useMainStore();
         mainstore.loading = false;
@@ -206,5 +212,17 @@ export default {
   width: 22px;
   height: 22px;
   margin-bottom: 13px;
+}
+
+@media (max-width: 576px) {
+  .ocppwrap {
+    padding: 0 30px;
+  }
+  .content > img {
+    width: 30%;
+  }
+  .ocppwrap .formwrap .v-input {
+    width: 100%;
+  }
 }
 </style>

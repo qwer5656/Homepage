@@ -34,13 +34,13 @@ export default {
 </script>
 <style scoped>
 .mainwrap {
-  padding-top:89px ;
+  padding-top: 89px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
-.flex{
+.flex {
   display: flex;
 }
 .itemwrap {
@@ -104,5 +104,44 @@ export default {
   border-radius: 32px;
   cursor: pointer;
   margin-top: 100px;
+}
+@media (max-width: 576px) {
+  .itemwrap {
+    background: url(/src/assets/img/phonefinishbackground.png) no-repeat;
+    background-size: contain;
+    width: 95%;
+    height: calc( 100vw / 2.9);
+    padding: 0;
+    margin:10px;
+  }
+  .itemtxt{
+    font-size: 15px;
+    text-align: right;
+    margin-top:-50px;
+    padding-right: 10px;
+  }
+  .imgwrap{
+    width: 50px;
+    order: -1;
+  }
+  .line{
+    display: none;
+  }
+  .itembottomtxt{
+    font-size: 30px;
+    padding-right: 10px;
+    text-align: right;
+  }
+  .flex{
+    flex-direction: column;
+    width: 100%;
+    padding: 5px;
+  }
+  .chargebt{
+    margin: 20px 0;
+  }
+  .mainwrap{
+    padding-top:40px;
+  }
 }
 </style>

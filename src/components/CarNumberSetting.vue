@@ -21,11 +21,18 @@
             :class="{ btenabled: carnumberswitchval }"
             @click="changecarnumbershow"
           >
-            My Card
+          My Car License
           </div>
         </div>
         <div class="imgwrap">
           <img src="../assets/img/CarNumberEnabled.png" alt="" />
+          <div
+            class="phonebt bt"
+            :class="{ btenabled: carnumberswitchval }"
+            @click="changecarnumbershow"
+          >
+            My Car License
+          </div>
         </div>
       </div>
     </div>
@@ -157,5 +164,41 @@ export default {
   ) !important;
   color: black;
   cursor: pointer !important;
+}
+.CarNumberSettingwrap .phonebt {
+  display: none !important;
+}
+@media (max-width: 576px) {
+  .CarNumberSettingwrap .container {
+    flex-direction: column;
+    padding: 0 20px;
+    width: 100%;
+  }
+  .CarNumberSettingwrap .bt {
+    display: none;
+  }
+  .CarNumberSettingwrap .explain {
+    width: 100%;
+  }
+  .CarNumberSettingwrap {
+    margin-top: 0px;
+  }
+  .CarNumberSettingwrap .imgwrap {
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    text-align: center;
+  }
+  .CarNumberSettingwrap .imgwrap img {
+    width: 80%;
+    height: auto;
+  }
+  .CarNumberSettingwrap .phonebt {
+    display: block !important;
+    margin: 20px auto;
+    text-align: center;
+    height: auto;
+    padding: 2px 0;
+  }
 }
 </style>

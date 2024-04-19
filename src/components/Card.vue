@@ -6,17 +6,39 @@
     </div>
     <div class="addcontent">
       <div>My Card</div>
-      <div class="addiconwrap" @click="open">
+      <div class="addiconwrap" @click="addcard">
         Add
         <img src="../assets/img/Add_On.png" alt="" />
       </div>
     </div>
     <div class="cardmangerwrap">
-      <div class="cardcontent" v-for="item in carddata">
-        <img src="../assets/img/cardLogo.png" alt="" />
-        <span>{{item.CardNumber}}</span>
+      <div v-for="(item, index) in carddata" :key="item">
+        <h3>{{ item.CardNumberName }}</h3>
+        <div class="cardcontent" @click="cardclick(item)">
+          <img src="../assets/img/cardLogo.png" alt="" />
+          <div class="cardoperatewrap" v-if="item.select == true">
+            <div class="cardoperate" @click="editcard(item)">
+              <img
+                class="cardoperateimg"
+                src="../assets/img/Edit_black.png"
+                alt=""
+              />
+              <div class="cardoperatetxt">Edit</div>
+            </div>
+            <div class="cardoperate" @click="removecard(index)">
+              <img
+                class="cardoperateimg"
+                src="../assets/img/Remove_On_black.png"
+                alt=""
+              />
+              <div class="cardoperatetxt">Remove</div>
+            </div>
+          </div>
+
+          <span>{{ item.CardNumber }}</span>
+        </div>
       </div>
-      <div class="cardnone"></div>
+      <div class="cardnone" v-if="carddata.length == 0"></div>
     </div>
     <v-dialog
       v-model="deletedialog"
@@ -34,11 +56,22 @@
             cursor: pointer;
           "
         >
-        <img src="../assets/img/Close.png"   @click="close" alt="">
+          <img src="../assets/img/Close.png" @click="close" alt="" />
         </div>
         <form class="formwrap">
-          <v-text-field label="Fill in number" variant="solo" v-model="CardNumber"></v-text-field>
-          <div class="chargebt" @click="addcard">Create</div>
+          <v-text-field
+            label="Fill in Name"
+            variant="solo"
+            v-model="newCarddata.CardNumberName"
+          ></v-text-field>
+          <v-text-field
+            label="Fill in number"
+            variant="solo"
+            v-model="newCarddata.CardNumber"
+          ></v-text-field>
+          <div class="chargebt" @click="savecard">
+            {{ mode == "add" ? "Create" : "Save" }}
+          </div>
         </form>
       </div>
     </v-dialog>
@@ -51,13 +84,15 @@ export default {
   data() {
     return {
       deletedialog: false,
+      newCarddata: {},
       carddata: [],
+      tempdata: {},
+      mode: "",
     };
   },
   methods: {
     previous() {
-      this.$emit("changestatus",false);
-    
+      this.$emit("changestatus", false);
     },
     close() {
       this.deletedialog = false;
@@ -65,20 +100,51 @@ export default {
     open() {
       this.deletedialog = true;
     },
-    addcard(){
-      let data={};
-      data.CardNumber=this.CardNumber;
-      this.carddata.push(data);
+    savecard() {
+      if (this.mode == "edit") {
+        this.tempdata.CardNumberName = this.newCarddata.CardNumberName;
+        this.tempdata.CardNumber = this.newCarddata.CardNumber;
+      }
+      if (this.mode == "add") {
+        this.carddata.push(this.newCarddata);
+        this.newCarddata = {};
+      }
+
       this.deletedialog = false;
-      this.CardNumber="";
-    }
+    },
+    cardclick(item) {
+      item.select = true;
+      this.carddata.forEach((e) => {
+        if (e != item) {
+          e.select = false;
+        }
+      });
+    },
+    addcard() {
+      this.open();
+      this.mode = "add";
+    },
+    editcard(item) {
+      this.tempdata = item;
+      this.newCarddata = JSON.parse(JSON.stringify(item));
+      this.open();
+      this.mode = "edit";
+    },
+    removecard(index) {
+      this.carddata.splice(index, 1);
+    },
   },
 };
 </script>
 <style>
 .Cardwrap .cardmangerwrap {
   display: flex;
+  justify-content: center;
+  margin: 0 auto;
+  width: 450px;
+  height: 40vh;
 
+  overflow: auto;
   flex-wrap: wrap;
   gap: 50px;
 }
@@ -86,23 +152,21 @@ export default {
   width: 375px;
   height: 205px;
   border-radius: 10px;
-  opacity: 0px;
   background: rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   padding: 21.5px 27.5px;
-
+  cursor: pointer;
   box-shadow: 0px 0px 11.399999618530273px 0px rgba(255, 255, 255, 0.25) inset;
-
-box-shadow: 0px -6px 100.30000305175781px 0px rgba(255, 255, 255, 0.18) inset;
-
+  margin-top: 10px;
+  box-shadow: 0px -6px 100.30000305175781px 0px rgba(255, 255, 255, 0.18) inset;
 }
 .Cardwrap .cardcontent span {
   font-family: SF Pro;
   font-size: 20px;
   font-weight: 510;
   line-height: 25px;
-  margin-top: auto;
 }
 .Cardwrap .cardcontent img {
   width: 100%;
@@ -184,5 +248,77 @@ box-shadow: 0px -6px 100.30000305175781px 0px rgba(255, 255, 255, 0.18) inset;
   );
   border-radius: 32px;
   cursor: pointer;
+}
+.Cardwrap .cardoperate {
+  width: 128px;
+  height: 43px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.5);
+  color: black;
+  vertical-align: middle;
+  margin: 0 6px;
+}
+.Cardwrap .cardoperatetxt {
+  font-family: SF Pro;
+  font-size: 18px;
+  font-weight: 510;
+  line-height: 22.5px;
+  margin-left: 9px;
+}
+.Cardwrap .cardoperatewrap {
+  display: flex;
+  justify-content: center;
+}
+.Cardwrap .cardoperate .cardoperateimg {
+  width: 23px;
+  height: 23px;
+}
+
+@media (max-width: 576px) {
+  .Cardwrap {
+    padding: 0 10px;
+  }
+  .Cardwrap .cardmangerwrap {
+    width: 100%;
+    margin-top: 20px;
+    padding: 0px 20px;
+  }
+  .Cardwrap .cardnone {
+    width: 100%;
+    height: calc(90vw / 1.95);
+    background-image: url("/src/assets/img/RFID Card_None.png");
+    background-size: 100% 100%;
+  }
+  .Carddialogwrap .formwrap {
+    width: 100%;
+    padding: 20px 10px;
+  }
+  .Cardwrap .cardcontent {
+    width: 100%;
+    height: calc(90vw / 1.95);
+    padding: 20px;
+  }
+  .Cardwrap .cardoperate .cardoperateimg {
+    width: 18px;
+    height: 18px;
+  }
+  .Cardwrap .cardoperate {
+    width: 33%;
+  }
+  .Cardwrap .cardoperatetxt {
+    font-family: SF Pro;
+    font-size: 12px;
+    font-weight: 510;
+    line-height: 22.5px;
+    margin-left: 9px;
+  }
+  .Cardwrap .cardoperate {
+    width: 50%;
+    padding: 3px 10px;
+    height: auto;
+  }
 }
 </style>

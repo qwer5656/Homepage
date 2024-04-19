@@ -6,17 +6,19 @@
           <img src="../assets/img/logo.png" alt="" />
         </div>
         <div class="title">Log In Account</div>
-        <form class="formwrap">
+        <v-form class="formwrap" ref="entryForm">
           <v-text-field
-          :prepend-inner-icon="mdiLockOutline"
+            :prepend-inner-icon="mdiLockOutline"
             :append-inner-icon="show1 ? mdiEye : mdiEyeOff"
             :type="show1 ? 'text' : 'password'"
             label="password"
+            v-model="passworddata"
             @click:append-inner="show1 = !show1"
+            :rules="rules"
             variant="solo"
           ></v-text-field>
-          <div class="chargebt" @click="checklogin">Login</div>
-        </form>
+          <div class="chargebt" @click="passwordConfirmationRule">Log in</div>
+        </v-form>
       </div>
       <div class="loginchargepilewrap">
         <img src="../assets/img/loginlogo.png" alt="" />
@@ -25,7 +27,8 @@
   </div>
 </template>
 <script>
-import { mdiEye, mdiEyeOff,mdiLockOutline } from "@mdi/js";
+import { mdiEye, mdiEyeOff, mdiLockOutline } from "@mdi/js";
+import { useMainStore } from "@/stores/main";
 export default {
   data() {
     return {
@@ -33,46 +36,89 @@ export default {
       mdiEye,
       mdiEyeOff,
       mdiLockOutline,
-      password: "",
+      passworddata: "",
+      errormessage: "password is error",
+      sumbitenabled: false,
+      rules: [
+        (value) => {
+          if (this.sumbitenabled == true) {
+            this.sumbitenabled = false;
+            if (this.passworddata != "test1234") {
+              return "password is not correct";
+            }
+            return true;
+          }
+          if (value) return true;
+          return "password is error";
+        },
+      ],
     };
   },
   methods: {
     checklogin() {
-      this.$emit("loginstauts");
-      var object = { value: "true", timestamp: new Date().getTime() + 10000 };
-      localStorage.setItem("login", JSON.stringify(object));
+      if (this.passworddata == "test") {
+        this.$emit("loginstauts");
+        var object = { value: "true", timestamp: new Date().getTime() + 10000 };
+        localStorage.setItem("login", JSON.stringify(object));
+      } else {
+        console.log("test");
+      }
+    },
+    passwordConfirmationRule() {
+      this.sumbitenabled = true;
+      let self = this;
+      this.$refs.entryForm.validate().then(function (res) {
+        if (res.valid == true) {
+          var object = {
+            value: "true",
+            timestamp: new Date().getTime() + 10000,
+          };
+          localStorage.setItem("login", JSON.stringify(object));
+
+          const mainstore = useMainStore();
+          mainstore.loading = true;
+
+          setTimeout(function () {
+            mainstore.loading = false;
+            setTimeout(function () {
+              self.$emit("loginstauts");
+            }, 10);
+          }, 1000);
+        }
+      });
     },
   },
-  beforeMount(){
-    let val=localStorage.getItem("login");
-    if(val!=null){
+  beforeMount() {
+    let val = localStorage.getItem("login");
+    if (val != null) {
       this.$router.push("/");
     }
-  }
+  },
 };
 </script>
 <style>
+.loginwrap .error-message {
+  color: red;
+}
 .loginwrap .v-field {
-  
- 
- 
   border-radius: 33px;
   background-color: black;
-    cursor: text;
-    color: white;
+  cursor: text;
+  color: white;
   border: 1px solid rgba(107, 107, 107, 1);
-  margin-bottom: 25px ;
-  
+  margin-bottom: 25px;
 }
 .loginwrap .formwrap {
   margin-top: 33px;
 }
 .loginwrap {
+  max-height: -webkit-fill-available;
   color: white;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  box-sizing: border-box;
 }
 .loginwrap .loginchargepilewrap {
   width: 570px;
@@ -135,5 +181,19 @@ export default {
   width: 102px;
   height: 13.49px;
   margin-top: 35px;
+}
+@media (max-width: 576px) {
+  .loginwrap .loginchargepilewrap {
+    display: none;
+  }
+  .loginwrap .logincontent {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 50px 10px;
+    height: auto;
+  }
+  .loginwrap .title {
+    font-size: 25px;
+  }
 }
 </style>

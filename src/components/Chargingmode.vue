@@ -14,14 +14,14 @@
             <div class="circle"></div>
             <div class="txt">I</div>
           </div>
-          <div class="txtbottom">{{chargingdata.aval}} <span>A</span></div>
+          <div class="txtbottom">{{ chargingdata.aval }} <span>A</span></div>
         </div>
         <div class="chargingwrap">
           <div class="txtwrap">
             <div class="circle"></div>
             <div class="txt">TPC</div>
           </div>
-          <div class="txtbottom">{{chargingdata.wval}} <span>W</span></div>
+          <div class="txtbottom">{{ chargingdata.wval }} <span>W</span></div>
         </div>
       </div>
       <div class="container">
@@ -30,14 +30,14 @@
             <div class="circle"></div>
             <div class="txt">P</div>
           </div>
-          <div class="txtbottom">{{chargingdata.kwval}} <span>kw</span></div>
+          <div class="txtbottom">{{ chargingdata.kwval }} <span>kw</span></div>
         </div>
         <div class="chargingwrap">
           <div class="txtwrap">
             <div class="circle"></div>
             <div class="txt">V</div>
           </div>
-          <div class="txtbottom">{{chargingdata.vval}} <span>V</span></div>
+          <div class="txtbottom">{{ chargingdata.vval }} <span>V</span></div>
         </div>
       </div>
     </div>
@@ -46,8 +46,10 @@
         <div class="circle"></div>
         <div class="txt">Times</div>
       </div>
-      <div class="txtbottom" style="margin-top: 184px">
-        {{chargingdata.timesval.hour}} <span style="margin-right: 20px;">hrs</span>{{chargingdata.timesval.min}} <span>mins</span>
+      <div class="txtbottom timetxt">
+        {{ chargingdata.timesval.hour }}
+        <span style="margin-right: 20px">hrs</span
+        >{{ chargingdata.timesval.min }} <span>mins</span>
       </div>
     </div>
   </div>
@@ -56,41 +58,38 @@
 <script>
 import { useMainStore } from "@/stores/main";
 export default {
-  data(){
-    return{
-      chargingdata:{
-        aval:3,
-        wval:32.1,
-        kwval:10.7,
-        vval:218,
-        timesval:{
-          hour:0,
-          min:1
-        }
-      }
-      
-    }
+  data() {
+    return {
+      chargingdata: {
+        aval: 3,
+        wval: 32.1,
+        kwval: 10.7,
+        vval: 218,
+        timesval: {
+          hour: 0,
+          min: 1,
+        },
+      },
+    };
   },
   methods: {
     changemode(val) {
       const mainstore = useMainStore();
       mainstore.chargepilemode = val;
     },
-    random(){
-      let self=this;
-      setInterval(function(){
-        self.chargingdata.aval=Math.floor(Math.random(0,10)*10,2);
-        self.chargingdata.wval=Math.floor(Math.random(0,10)*20,2);
-        self.chargingdata.kwval=Math.floor(Math.random(0,10)*12,2);
-        self.chargingdata.vval=Math.floor(Math.random(0,10)*15,2);
-      },1000);
-
-      
-    }
+    random() {
+      let self = this;
+      setInterval(function () {
+        self.chargingdata.aval = Math.floor(Math.random(0, 10) * 10, 2);
+        self.chargingdata.wval = Math.floor(Math.random(0, 10) * 20, 2);
+        self.chargingdata.kwval = Math.floor(Math.random(0, 10) * 12, 2);
+        self.chargingdata.vval = Math.floor(Math.random(0, 10) * 15, 2);
+      }, 1000);
+    },
   },
-  mounted(){
+  mounted() {
     this.random();
-  }
+  },
 };
 </script>
 <style scoped>
@@ -109,6 +108,9 @@ export default {
   opacity: 0px;
 
   position: relative;
+}
+.timetxt {
+  margin-top: 184px !important;
 }
 .batterycontainer::before {
   content: url(/src/assets/img/batterytop.png);
@@ -265,5 +267,111 @@ export default {
   cursor: pointer;
   margin-top: 100px;
   margin: 50px auto;
+}
+@media (max-width: 1200px) {
+.mainwrap{
+  margin-left: 10vw;
+}
+
+
+
+
+}
+@media (max-width: 576px) {
+  .mainwrap {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 3vh;
+  }
+  .batterywrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 44.6px;
+    flex-direction: column;
+    margin: auto 0;
+    padding: 0 15px;
+    margin:0 0 10px 0;
+  }
+  .batterycontainer {
+    background: url(/src/assets/img/phonebatterybg.png) no-repeat;
+    width: 330px;
+    height: 55px;
+    position: relative;
+    background-size: contain;
+  }
+  .batterycontainer::before {
+    content: url(/src/assets/img/phonebatterytop.png);
+    display: inline-block;
+    top: 15px;
+    left: 101%;
+    transform: translateX(50%);
+    position: absolute;
+  }
+  .batteryoverflow::after {
+    content: url(/src/assets/img/phonebatterybottombg.png);
+    display: inline-block;
+    bottom: 3px;
+    right: 0px;
+
+    position: absolute;
+  }
+  .batteryoverflow {
+    position: absolute;
+    height: 55px;
+    width: 100%;
+    overflow: hidden;
+    left: 0;
+    top: 0px;
+    border-radius: 25px;
+  }
+  .batterycontent {
+    background: url("../assets/img/phonebattery.png") no-repeat;
+    height: 67px;
+    width: 241px;
+    gap: 0px;
+    border-radius: 8px 0px 0px 0px;
+    position: absolute;
+    left: 0px;
+    top: -10px;
+    animation: batteryrun 1.5s infinite ease-in;
+  }
+  .chargingwrap {
+    width: 170px;
+    background: url("../assets/img/phonebackground.png") no-repeat;
+    background-size: contain;
+    height: 120px;
+    box-sizing: border-box;
+    padding: 16px 29px 10px 29px;
+    margin: 5px;
+  }
+  .container {
+    justify-content: center;
+  }
+  .chargingbottomwrap {
+    background: url("../assets/img/phonebackground2.png") no-repeat;
+    width: 340px;
+    height: 120px;
+    padding: 26px 29px 20px 29px;
+    margin-top: 10px;
+    margin-left: 0;
+  }
+  .timetxt {
+    margin-top:10px !important;
+  }
+  @keyframes batteryrun {
+    from {
+      left: -100%;
+    }
+
+    to {
+      left: 100%;
+    }
+  }
+  .chargebt{
+    margin:20px auto;
+  }
 }
 </style>

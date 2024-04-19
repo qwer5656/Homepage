@@ -2,15 +2,17 @@
   <div>
     <Chargingmode v-if="getchargepilemode == 'charging'" />
     <Finishmode v-if="getchargepilemode == 'finish'" />
+    <Startmodeselect v-if="getchargepilemode == 'selectmode'" />
     <div class="headcontent" v-if="getchargepilemode == 'standby'">
       <div style="display: flex; flex-direction: column">
         <div class="contentwrap">
           <div class="contentleft">
             <div><img src="../assets/img/Buletooth-Off.png" /></div>
+            <div><img src="../assets/img/LTE-Off.png" /></div>
             <div><img src="../assets/img/Buletooth-On.png" /></div>
           </div>
           <div class="contentmid">
-            <img src="../assets/img/Device.png" style="height: 300px" />
+            <img src="../assets/img/Device.png" class="deviceimg" />
           </div>
           <div class="txt">
             <div class="timetxt">{{ Nowmonth }}</div>
@@ -25,7 +27,7 @@
           <div
             class="chargetxt"
             v-if="!touchstart"
-            @click="changemode('charging')"
+            @click="changemode('selectmode')"
           >
             Plug and charge
           </div>
@@ -46,12 +48,14 @@ import {
 
 import Chargingmode from "@/components/Chargingmode.vue";
 import Finishmode from "@/components/Finishmode.vue";
+import Startmodeselect from "@/components/Startmodeselect.vue";
 import { useMainStore } from "@/stores/main";
 export default {
   name: "App",
   components: {
     Chargingmode,
     Finishmode,
+    Startmodeselect,
   },
   data: () => ({
     mdiLightningBolt,
@@ -89,26 +93,28 @@ export default {
     gettime() {
       let date = new Date();
       let hour = date.getHours();
-      let min = date.getMinutes();
+      let min = date.getMinutes()>=10?date.getMinutes():"0"+date.getMinutes();
       this.Nowtime = hour + ":" + min;
       this.Nowdate = date.getDate();
       this.Nowmonth = this.monthNames[date.getMonth()];
     },
     changemode(val) {
       const mainstore = useMainStore();
-       mainstore.chargepilemode=val;
+      mainstore.chargepilemode = val;
     },
   },
-  computed:{
-    getchargepilemode(){
+  computed: {
+    getchargepilemode() {
       const mainstore = useMainStore();
       return mainstore.chargepilemode;
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped>
-
+.deviceimg {
+  height: 300px;
+}
 .txt {
   color: white;
 }
@@ -231,5 +237,18 @@ export default {
   to {
     opacity: 0.3;
   }
+}
+
+@media (max-width: 576px) {
+  .contentmid {
+    margin: 0 20px;
+  }
+  .deviceimg {
+    height: 250px;
+  }
+}
+
+@media (max-height: 740px) {
+ 
 }
 </style>

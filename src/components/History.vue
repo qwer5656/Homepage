@@ -210,7 +210,7 @@ function changeValue(value, obj) {
   flex-direction: row-reverse;
 }
 .historywrap .chart {
-  height: 80vh;
+  height: 70vh;
 }
 .historywrap tbody tr:hover {
   background-color: transparent !important;

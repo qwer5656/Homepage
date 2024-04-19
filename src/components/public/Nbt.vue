@@ -68,5 +68,11 @@ export default {
 .mid{
   justify-content: center;
 }
+@media (max-width: 576px) {
+  .nbt{
+    width: 100%;
+  }
 
+
+}
 </style>

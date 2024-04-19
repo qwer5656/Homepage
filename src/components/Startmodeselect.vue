@@ -1,27 +1,27 @@
 <template lang="">
   <div class="startmodegwrap">
-    <div class="wrap" @click="goto('QrcodeSetting')">
+    <div class="wrap" @click="goto('QrcodeStartmode')">
       <div>
-        <img src="../assets/img/QR Code.png" alt=""  />
+        <img src="../assets/img/QRCode.png" alt="" />
       </div>
       <div class="txt">QR Code</div>
     </div>
-    <div class="wrap" @click="goto('RfidSetting')">
+    <div class="wrap" @click="goto('Rfidloading')">
       <div>
         <img src="../assets/img/RFID.png" alt="" />
       </div>
       <div class="txt">RFID</div>
     </div>
-    <div class="wrap" @click="goto('CarNumberSetting')">
+    <div class="wrap" @click="goto('CarNumberloading')">
       <div>
-        <img src="../assets/img/Scan Car Number.png" alt="" />
+
+        <img src="../assets/img/ScanCarNumber.png" alt="" />
       </div>
       <div class="txt">Car Number</div>
     </div>
   </div>
 </template>
 <script>
-
 export default {
   data() {
     return {
@@ -32,7 +32,6 @@ export default {
   components: {},
   methods: {
     goto(val) {
-   
       this.$router.push(`/${val}`);
     },
   },
@@ -43,7 +42,7 @@ export default {
   color: white;
   display: flex;
   margin-left: 205px;
-  padding-top:52px ;
+  padding-top: 52px;
 }
 .wrap {
   display: flex;
@@ -64,5 +63,20 @@ export default {
   font-weight: 400;
   line-height: 28.75px;
   text-align: center;
+}
+@media (max-width: 576px) {
+  .startmodegwrap {
+    color: white;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-left: 0;
+  }
+  .wrap {
+    width: auto;
+    height: auto;
+    margin: 10px;
+    padding: 15px 20px;
+  }
 }
 </style>

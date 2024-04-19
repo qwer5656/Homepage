@@ -19,74 +19,13 @@
           value="Bluetooth"
           style="color: white; padding: 0 18px; margin-top: 174px"
         >
-          <div class="Bluetoothwrap">
-            <div style="">
-              <h2>Your E-FANer</h2>
-              <h3 style="color: rgba(107, 107, 107, 1)">xxxx-xxxxx</h3>
-            </div>
-            <div style="margin-left: 110px">
-              <div class="container">
-                <v-switch
-                  v-model="Bluetoothstatus"
-                  inset
-                  hide-details
-                ></v-switch>
-                <div style="margin-left:22px;padding-top:12px">
-                  <span class="txt">Bluetooth</span>
-                  <h5 style="color: rgba(107, 107, 107, 1);">
-                    Turn on this option allow you configure your device via
-                    bluetooth.
-                  </h5>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Bluetooth/>
         </v-window-item>
         <v-window-item value="Wifi" style="color: white; padding: 0 18px; margin-top: 174px">
-          <div class="Bluetoothwrap">
-            <div style="">
-              <h2>Your E-FANer</h2>
-              <h3 style="color: rgba(107, 107, 107, 1)">xxxx-xxxxx</h3>
-            </div>
-            <div style="margin-left: 110px">
-              <div class="container">
-                <v-switch
-                  v-model="Bluetoothstatus"
-                  inset
-                  hide-details
-                ></v-switch>
-                <div style="margin-left:22px;padding-top:12px">
-                  <span class="txt">Wifi</span>
-                  <h5 style="color: rgba(107, 107, 107, 1);">
-                    Turn on this option allow you configure your EV charger to AP point.
-                  </h5>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Wifi/>
         </v-window-item>
         <v-window-item value="LTE" style="color: white; padding: 0 18px; margin-top: 174px">
-          <div class="Bluetoothwrap">
-            <div style="">
-              <h2>Your E-FANer</h2>
-              <h3 style="color: rgba(107, 107, 107, 1)">xxxx-xxxxx</h3>
-            </div>
-            <div style="margin-left: 110px">
-              <div class="container">
-                <v-switch
-                  v-model="Bluetoothstatus"
-                  inset
-                  hide-details
-                ></v-switch>
-                <div style="margin-left:22px;padding-top:12px">
-                  <span class="txt">LTE</span>
-                  <h5 style="color: rgba(107, 107, 107, 1);">
-                    Turn on this option allow you configure your EV charger to SIM.
-                  </h5>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Lte/>
         </v-window-item>
         <v-window-item value="Ocpp" style="color: white; padding: 0 18px;">
          <OCPPmode/>
@@ -102,6 +41,9 @@
 <script>
 import OCPPmode from "../components/OCPPmode.vue"
 import Timemode from "../components/Timemode.vue"
+import Bluetooth from '../components/Bluetooth.vue'
+import Wifi from '../components/Wifi.vue'
+import Lte from '../components/Lte.vue'
 export default {
   data() {
     return {
@@ -111,7 +53,10 @@ export default {
   },
   components:{
     OCPPmode,
-    Timemode
+    Timemode,
+    Bluetooth,
+    Wifi,
+    Lte
   }
 };
 </script>

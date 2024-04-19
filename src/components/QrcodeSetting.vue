@@ -9,26 +9,32 @@
       <div class="container">
         <div class="content">
           <div class="qrcodeswitch">
-            <span>QR Code</span><Nswitch v-model="val"></Nswitch>
+            <span>QR Code</span><Nswitch v-model="qrcodeval"></Nswitch>
           </div>
           <div class="qrcodeexplain">
             Turn on this option need to scan QR code when you ready to charge.
           </div>
         </div>
         <div class="imgwrap">
-          <img src="../assets/img/QrcodeEnabled.png" alt="" />
+          <img :src="qrcodeimg" alt="" />
         </div>
+        
       </div>
     </div>
   </div>
 </template>
 <script>
 import Nswitch from "./public/Nswitch.vue";
+import { useMainStore } from "@/stores/main";
+import qrcodsscan from '@/assets/img/qrcodsscan.png'
+import QrcodeEnabled from '@/assets/img/QrcodeEnabled.png'
 export default {
   setup() {},
   data() {
     return {
-      val: false,
+      qrcodeval: false,
+      qrcodeimg:QrcodeEnabled,
+      error:""
     };
   },
   components: {
@@ -39,6 +45,27 @@ export default {
       this.$router.push("/Startmode");
     },
   },
+  watch: {
+    qrcodeval(val) {
+      if (this.error == "") {
+        const mainstore = useMainStore();
+        mainstore.loading = true;
+        let self = this;
+        setTimeout(function () {
+          mainstore.loading = false;
+          if (val == true) {
+            self.qrcodeimg = qrcodsscan;
+          }
+          else{
+            self.qrcodeimg = QrcodeEnabled;
+          }
+          setTimeout(function () {
+            self.error = "";
+          }, 10);
+        }, 1000);
+      }
+    }
+  }
 };
 </script>
 <style>
@@ -100,5 +127,34 @@ export default {
 }
 .qrcodesettingwrap .backicon {
   margin-bottom: 101px;
+}
+
+@media (max-width: 576px) {
+  .qrcodesettingwrap{
+    justify-content: start;
+    margin-top: 20px;
+    
+  }
+  .qrcodesettingwrap .container{
+    width: 100%;
+    flex-direction: column;
+  }
+  .qrcodesettingwrap .content{
+    padding: 0 20px;
+  }
+  .qrcodesettingwrap .qrcodeexplain{
+    width: 100%;
+  }
+  .qrcodesettingwrap  .imgwrap{
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    width: 80%;
+    margin: 30px auto;
+  }
+  .qrcodesettingwrap .imgwrap img{ 
+    width: 80%;
+  
+  }
 }
 </style>

@@ -1,5 +1,15 @@
-<script setup>
+<script>
 import EditPassword from "@/components/EditPassword.vue";
+import { useMainStore } from "@/stores/main";
+export default {
+  components: {
+    EditPassword,
+  },
+  mounted() {
+    const mainstore = useMainStore();
+    mainstore.curpage = "EditPassword";
+  },
+};
 </script>
 
 <template>
@@ -9,3 +19,6 @@ import EditPassword from "@/components/EditPassword.vue";
 <style scoped>
 
 </style>
+
+
+

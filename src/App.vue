@@ -1,79 +1,162 @@
 <template>
   <v-app @click="startDrag" class="mainwrap">
-    <v-main class="maincontent" >
+    <v-main class="maincontent">
       <div class="navbar navmenu" v-if="loginshow">
-        <a href="#"> <img src="./assets/img/logo.png" /></a>
+        <div class="settingnavbar">
+          <img
+            class="setting"
+            src="./assets/img/Settings.png"
+            alt=""
+            @click="changenavbarstatus()"
+          />
+
+          <ul
+            class="navbarul"
+            v-if="navbarstatus"
+            @click="navbarstatus = !navbarstatus"
+          >
+            <li @click="goto('Bluetooth')">
+              <img src="./assets/img/Buletoothicon.png" alt="" />
+              <span>Bluetooth</span>
+              <img src="./assets/img/Previous_2.png" alt="" />
+            </li>
+            <li @click="goto('Wifi')">
+              <img src="./assets/img/Wifiicon.png" alt="" />
+              <span>Wifi</span>
+              <img src="./assets/img/Previous_2.png" alt="" />
+            </li>
+            <li @click="goto('Lte')">
+              <img src="./assets/img/LTEicon.png" alt="" />
+              <span>LTE</span>
+              <img src="./assets/img/Previous_2.png" alt="" />
+            </li>
+            <li @click="goto('Ocpp')">
+              <img src="./assets/img/OCPPicon.png" alt="" />
+              <span>OCPP</span>
+              <img src="./assets/img/Previous_2.png" alt="" />
+            </li>
+            <li @click="goto('Time')">
+              <img src="./assets/img/Timesicon.png" alt="" />
+              <span>Time</span>
+              <img src="./assets/img/Previous_2.png" alt="" />
+            </li>
+            <li @click="goto('Language')">
+              <img src="./assets/img/Languageicon.png" alt="" />
+              <span>Language</span>
+              <img src="./assets/img/Previous_2.png" alt="" />
+            </li>
+          </ul>
+        </div>
+        <a href="#" class="logowrap">
+          <img src="./assets/img/logo.png" />
+        </a>
 
         <div class="midaccountwrap">
-
-          <img class="midtranslate" src="./assets/img/Language.png"   
-            @click="openmenu('languagewrap')">
-          <v-icon
-            class="midaccount"
-            :icon="mdiAccount"
-            @click="openmenu('accountwrap')"
-          />
+          <div class="midtranslate" @click="openmenu('languagewrap')">
+            <img src="./assets/img/Language.png" />
+            <div style="margin: 0 10px">
+              {{ this.$i18n.locale.toLocaleUpperCase() }}
+            </div>
+            <img src="./assets/img/Dropdown.png" />
+          </div>
+          <div class="midaccount" @click="openmenu('accountwrap')">
+            <img src="./assets/img/people.png" />
+          </div>
           <ul class="menuwrap" id="accountwrap">
             <li @click="editpassword">
-              <a class="active">修改密碼</a>
+              <a class="">修改密碼</a>
             </li>
             <li @click="logout">
-              <a class="active">登出</a>
+              <a class="">登出</a>
             </li>
           </ul>
 
           <ul class="menuwrap" id="languagewrap">
             <li @click="changelanguage('zh')">
-              <a class="active">中文</a>
+              <a :class="{ active: lang }">中文</a>
             </li>
             <li @click="changelanguage('en')">
-              <a class="active">English</a>
+              <a :class="{ active: !lang }">English</a>
             </li>
           </ul>
         </div>
       </div>
-      <div style="padding-top: 67px;" v-if="loginshow"></div>
-      <div style="display: flex;">
-        
+      <div class="pctopwrap" v-if="loginshow"></div>
+      <div style="display: flex">
         <div class="leftbar" v-if="loginshow">
           <div class="Charger">
-            <img src="./assets/img/Charger_On.png" v-if="curpage==''" alt="" @click="goto('')" />
-            <img src="./assets/img/Charger_Off.png" v-else alt="" @click="goto('')" />
+            <img
+              :src="curpage == '' ? Charger_On : Charger_Off"
+              alt=""
+              @click="goto('')"
+            />
           </div>
           <div>
-            <img src="./assets/img/History_On.png" v-if="curpage=='History'" alt="" @click="goto('History')" />
-            <img src="./assets/img/History_Off.png" v-else alt="" @click="goto('History')" />
+            <img
+              :src="curpage == 'History' ? History_On : History_Off"
+              alt=""
+              @click="goto('History')"
+            />
           </div>
           <div>
-            <img src="./assets/img/Schdule_On.png" v-if="curpage=='Reserve'" alt="" @click="goto('Reserve')" />
-            <img src="./assets/img/Schdule__Off.png" v-else alt="" @click="goto('Reserve')" />
+            <img
+              :src="curpage == 'Reserve' ? Schdule_On : Schdule__Off"
+              alt=""
+              @click="goto('Reserve')"
+            />
           </div>
           <div>
-            <img src="./assets/img/Touch Start_On.png" v-if="curpage=='Touchstart'" alt="" @click="goto('Touchstart')" />
-            <img src="./assets/img/Touch Start_Off.png" v-else alt="" @click="goto('Touchstart')" />
+            <img
+              :src="curpage == 'Touchstart' ? Touch_Start_On : Touch_Start_Off"
+              alt=""
+              @click="goto('Touchstart')"
+            />
           </div>
           <div>
-            <img src="./assets/img/Mode_On.png" v-if="curpage=='Startmode'" alt="" @click="goto('Startmode')" />
-            <img src="./assets/img/Mode_Off.png" v-else alt="" @click="goto('Startmode')" />
+            <img
+              :src="curpage == 'Startmode' ? Mode_On : Mode_Off"
+              alt=""
+              @click="goto('Startmode')"
+            />
           </div>
-          <div>
-            <img src="./assets/img/Settings_On.png" v-if="curpage=='Setting'" alt="" @click="goto('Setting')" />
-            <img src="./assets/img/Settings_Off.png" v-else alt="" @click="goto('Setting')" />
+          <div class="pcwrap">
+            <img
+              :src="curpage == 'Setting' ? Settings_On : Settings_Off"
+              alt=""
+              @click="goto('Setting')"
+            />
           </div>
         </div>
-        <div class="leftbarconent" >
+        <div class="leftbarconent">
           <router-view @loginstauts="loginchange" />
         </div>
       </div>
     </v-main>
+
     <Loading v-if="isshow"></Loading>
-    
   </v-app>
 </template>
 
 <script>
 import Loading from "./components/Loading.vue";
 import { useMainStore } from "@/stores/main";
+
+import Charger_On from "@/assets/img/Charger_On.png";
+import Charger_Off from "@/assets/img/Charger_Off.png";
+import History_On from "@/assets/img/History_On.png";
+import History_Off from "@/assets/img/History_Off.png";
+import Schdule_On from "@/assets/img/Schdule_On.png";
+import Schdule__Off from "@/assets/img/Schdule__Off.png";
+import Touch_Start_On from "@/assets/img/Touch Start_On.png";
+import Touch_Start_Off from "@/assets/img/Touch Start_Off.png";
+import Mode_On from "@/assets/img/Mode_On.png";
+import Mode_Off from "@/assets/img/Mode_Off.png";
+import Settings_On from "@/assets/img/Settings_On.png";
+import Settings_Off from "@/assets/img/Settings_Off.png";
+
+import qrcodsscan from "@/assets/img/qrcodsscan.png";
+import QrcodeEnabled from "@/assets/img/QrcodeEnabled.png";
+
 import {
   mdiAccount,
   mdiHome,
@@ -94,10 +177,13 @@ export default {
       const mainstore = useMainStore();
       return mainstore.loading;
     },
-    curpage(){
+    curpage() {
       const mainstore = useMainStore();
       return mainstore.curpage;
-    }
+    },
+    lang() {
+      return this.$i18n.locale == "zh" ? true : false;
+    },
   },
   data: () => ({
     loginshow: false,
@@ -111,8 +197,24 @@ export default {
     footvalue: -1,
     icontouch: false,
     loadingshow: true,
+    navbarstatus: false,
+    Charger_On,
+    Touch_Start_On,
+    Touch_Start_Off,
+    Charger_Off,
+    History_On,
+    History_Off,
+    Schdule_On,
+    Schdule__Off,
+    Mode_On,
+    Mode_Off,
+    Settings_On,
+    Settings_Off,
   }),
   methods: {
+    changenavbarstatus() {
+      this.navbarstatus = !this.navbarstatus;
+    },
     goto(val) {
       this.$router.push(`/${val}`);
     },
@@ -182,30 +284,71 @@ export default {
 
     this.loginshow = false;
     this.$router.push(`/Login`);
-    
   },
 };
 </script>
 <style>
-   .v-list {
-  background-color:black !important;
+* {
+  padding: 0;
+  margin: 0;
+}
+html,
+body {
+  -webkit-text-size-adjust: none;
+  -moz-text-size-adjust: none;
+  -ms-text-size-adjust: none;
+  text-size-adjust: none;
+}
+body {
+  background: #000;
+}
+@font-face {
+  font-family: "SF Pro";
+  src: url("./assets/fonts/SF-Pro.ttf") format("truetype");
+}
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: black;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgba(91, 228, 114, 1);
+}
+
+.v-list {
+  background-color: black !important;
   overflow: hidden;
-   text-align: center;
-  
+  text-align: center;
 }
- .v-list-item{
-  color:white !important;
+.v-list-item {
+  color: white !important;
 }
-.v-list-item--active{
-  color:rgba(91, 228, 114, 1) !important;
+.v-list-item--active {
+  color: rgba(91, 228, 114, 1) !important;
 }
-.v-overlay-container{
-  scrollbar-color: rgba(91, 228, 114, 1) black;
-  scrollbar-width: thin;
+* {
+  font-family: "SF Pro";
+}
+.pcwrap {
+  display: block;
 }
 </style>
 <style scoped>
-*{
+.pctopwrap {
+  padding-top: 67px;
+}
+.logowrap {
+  padding: 0 calc(26px - 1rem) 0 0 !important;
+}
+.active {
+  color: rgba(91, 228, 114, 1) !important;
+}
+* {
   user-select: none;
 }
 .mainwrap {
@@ -229,11 +372,9 @@ export default {
   justify-content: space-around;
   padding: 42px 0;
   align-items: center;
-  
 }
-.leftbar img{
+.leftbar img {
   cursor: pointer;
-
 }
 .v-bottom-navigation .v-bottom-navigation__content > .v-btn {
   font-size: inherit;
@@ -252,6 +393,7 @@ export default {
   display: flex;
   align-items: center;
   box-sizing: border-box;
+  padding: 20px;
 }
 .navmenu {
   position: relative;
@@ -270,20 +412,18 @@ export default {
   font-size: 17px;
 }
 .midaccount {
-  transform: scale(1.5);
-  margin-right: 20px;
   cursor: pointer;
-  color: white;
 }
 .midaccountwrap {
   margin-left: auto;
+  display: flex;
 }
 
 .menuwrap {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  background-color: #f1f1f1;
+  background: rgba(255, 255, 255, 0.05);
   position: absolute;
   z-index: 9999;
   right: 0;
@@ -293,11 +433,11 @@ export default {
 }
 
 .menuwrap li {
-  background-color: white;
+  background: rgba(255, 255, 255, 0.05);
   display: block;
   padding: 15px 16px;
   text-decoration: none;
-  box-shadow: 0px 0px 5px #f1f1f1;
+
   position: relative;
 
   cursor: pointer;
@@ -305,20 +445,96 @@ export default {
 .menuwrap li a {
   color: black;
   user-select: none;
+  color: rgba(107, 107, 107, 1);
 }
 
 .midtranslate {
   margin: 0 20px;
-  color: white;
-  vertical-align: middle;
+  color: rgba(107, 107, 107, 1);
+  display: flex;
+
   cursor: pointer;
 }
-.leftbarconent{
+.leftbarconent {
   width: calc(100% - 65px);
 }
-@media screen and (max-width: 675px) {
-  
+.settingnavbar {
+  display: none;
+}
+@media (max-width: 576px) {
+  .leftbarconent {
+    width: 100%;
+  }
+  .leftbar {
+    position: -webkit-fixed;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    padding: 0px;
+    align-content: center;
+    flex-direction: row;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+    backdrop-filter: none;
+    z-index: 999;
+  }
+  .leftbar > div {
+    line-height: 0;
+  }
+  .pcwrap {
+    display: none;
+  }
+  .midtranslate {
+    display: none;
+  }
+  .midaccountwrap {
+    padding-right: 1rem;
+    margin-left: 0;
+  }
+  .settingnavbar {
+    display: block;
+    padding-left: 10px;
+  }
+  .setting {
+    cursor: pointer;
+  }
+  .navbar {
+    justify-content: space-between;
+  }
+  .navbar {
+    position: sticky;
+    z-index: 99999;
+    top: 0px;
+    background-color: #000;
+    padding: 10px 0px;
+  }
+  .settingnavbar .navbarul li {
+    position: static;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    background-color: #000;
+    color: white;
+  }
+  .settingnavbar .navbarul {
+    position: absolute;
+    width: 100%;
+    left: 0px;
+    list-style: none;
+    padding: 10px;
+    height: calc(100vh - 46px);
+  }
+  .settingnavbar .navbarul li span {
+    margin-right: auto;
+    padding-left: 20px;
+  }
 }
 
-
+@media (max-height: 740px) {
+  .pctopwrap {
+    padding: 0;
+  }
+}
 </style>

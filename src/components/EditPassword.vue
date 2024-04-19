@@ -1,51 +1,93 @@
 <template lang="">
-  <div style="padding: 10px">
-    <div
-      class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between"
-    >
-      Old Password
-    </div>
-    <v-text-field
-      :append-inner-icon="visible ? mdiEyeOff:mdiEye"
-      :type="visible ? 'text' : 'password'"
-      density="compact"
-      placeholder="Enter your password"
-      variant="outlined"
-      @click:append-inner="visible = !visible"
-    ></v-text-field>
-
-    <div
-      class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between"
-    >
-      New Password
-    </div>
-    <v-text-field
-      :append-inner-icon="visible1 ? mdiEyeOff : mdiEye"
-      :type="visible1 ? 'text' : 'password'"
-      density="compact"
-      placeholder="Enter your password"
-      variant="outlined"
-      @click:append-inner="visible1 = !visible1"
-    ></v-text-field>
-    <div style="display:flex;justify-content: end;">
-        <v-btn>確認</v-btn>
+  <div class="passwordwrap">
+    <div class="container">
+      <div class="content">
+        <form class="formwrap">
+          <div>New Password</div>
+          <v-text-field
+            :prepend-inner-icon="mdiLockOutline"
+            :append-inner-icon="show1 ? mdiEye : mdiEyeOff"
+            :type="show1 ? 'text' : 'password'"
+            label="password"
+            @click:append-inner="show1 = !show1"
+            variant="solo"
+            hide-details
+          ></v-text-field>
+          <div>Confirm New Password</div>
+          <v-text-field
+            :prepend-inner-icon="mdiLockOutline"
+            :append-inner-icon="show ? mdiEye : mdiEyeOff"
+            :type="show ? 'text' : 'password'"
+            label="password"
+            @click:append-inner="show = !show"
+            variant="solo"
+            hide-details
+          ></v-text-field>
+        </form>
+        <div class="btwrap">
+          <Nbt title="Save" enabled="true" @click="savetime()" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script>
-
 import { mdiEyeOff, mdiEye } from "@mdi/js";
-
-
+import Nbt from "./public/Nbt.vue";
 export default {
-
-    data: () => ({
-      visible: false,
-      visible1:false,
-      mdiEyeOff,
-      mdiEye
-    }),
-
+  data: () => ({
+    visible: false,
+    visible1: false,
+    mdiEyeOff,
+    mdiEye,
+    show1: false,
+    show: false,
+  }),
+  components: {
+    Nbt,
+  },
 };
 </script>
-<style lang=""></style>
+<style>
+.passwordwrap .v-field {
+  border-radius: 33px;
+  background-color: black;
+  cursor: text;
+  color: white;
+  border: 1px solid rgba(107, 107, 107, 1);
+  margin-bottom: 25px;
+}
+.passwordwrap {
+  display: flex;
+  justify-content: center;
+}
+.passwordwrap .container {
+  width: 478px;
+  height: 520px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+}
+.passwordwrap .formwrap {
+  color: white;
+  width: 306px;
+  margin: 20px auto;
+}
+.passwordwrap .content {
+  padding: 86px 0;
+}
+.passwordwrap .btwrap {
+  margin-top: 57px;
+}
+
+@media (max-width: 576px) {
+  .passwordwrap .content {
+    padding: 86px 30px;
+  }
+  .passwordwrap .formwrap {
+    margin: 0;
+  }
+  .passwordwrap .btwrap {
+    margin-top: 20px;
+  }
+}
+</style>

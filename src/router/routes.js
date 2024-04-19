@@ -1,5 +1,11 @@
 const routes = [
   {
+    path: '/:id',
+    redirect: to => {
+      return { path: '/'} ;
+    },
+  },
+  {
     path: "/Login",
     name: "Login",
     title: "登入",
@@ -83,7 +89,66 @@ const routes = [
     name: "CarNumberSetting",
     title: "CarNumberSetting",
     component: () => import("@/views/CarNumberSettingView.vue"),
-  }
+  },
+  {
+    path: "/QrcodeStartmode",
+    name: "QrcodeStartmode",
+    title: "QrcodeStartmode",
+    component: () => import("@/views/QrcodeStartmodeView.vue"),
+  },
+  {
+    path: "/Rfidloading",
+    name: "Rfidloading",
+    title: "Rfidloading",
+    component: () => import("@/views/RfidloadingView.vue"),
+  },
+  {
+    path: "/CarNumberloading",
+    name: "CarNumberloading",
+    title: "CarNumberloading",
+    component: () => import("@/views/CarNumberloadingView.vue"),
+  },
+  {
+    path: "/Bluetooth",
+    name: "Bluetooth",
+    title: "Bluetooth",
+    component: () => import("@/views/BluetoothView.vue"),
+  },
+
+  {
+    path: "/Wifi",
+    name: "Wifi",
+    title: "Wifi",
+    component: () => import("@/views/WifiView.vue"),
+  },
+  {
+    path: "/Lte",
+    name: "Lte",
+    title: "Lte",
+    component: () => import("@/views/LteView.vue"),
+  },
+  {
+    path: "/Ocpp",
+    name: "Ocpp",
+    title: "Ocpp",
+    component: () => import("@/views/OcppView.vue"),
+  },
+  {
+    path: "/Time",
+    name: "Time",
+    title: "Time",
+    component: () => import("@/views/TimeView.vue"),
+  },
+  {
+    path: "/Language",
+    name: "Language",
+    title: "Language",
+    component: () => import("@/views/LanguageView.vue"),
+  },
+
+
+
+  
 ];
 
 export default routes;

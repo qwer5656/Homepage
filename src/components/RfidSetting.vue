@@ -1,12 +1,12 @@
 <template>
   <Card v-if="showcard" @changestatus="Changestatus"></Card>
-  <div class="rfidSettingwrap"  v-else>
+  <div class="rfidSettingwrap" v-else>
     <div>
       <!-- <div class="backicon" @click="previous()">
         <img src="../assets/img/Previous.png" alt="" />
         <span>Back</span>
       </div> -->
-      
+
       <div class="container">
         <div class="content">
           <div class="switch">
@@ -25,6 +25,13 @@
         </div>
         <div class="imgwrap">
           <img src="../assets/img/RfidEnabled.png" alt="" />
+          <div
+            class="phonebt bt"
+            :class="{ btenabled: rfidswitchval }"
+            @click="changeshowcard"
+          >
+            My Card
+          </div>
         </div>
       </div>
     </div>
@@ -55,10 +62,10 @@ export default {
         this.showcard = true;
       }
     },
-    Changestatus(val){
-      console.log("test",val);
+    Changestatus(val) {
+      console.log("test", val);
       this.showcard = val;
-    }
+    },
   },
 };
 </script>
@@ -66,7 +73,7 @@ export default {
 .rfidSettingwrap {
   display: flex;
   justify-content: center;
-  margin-top: 120px;
+  margin-top: 100px;
 }
 .rfidSettingwrap .backicon {
   color: white;
@@ -80,6 +87,9 @@ export default {
   ) !important;
   color: black;
   cursor: pointer !important;
+}
+.rfidSettingwrap .phonebt {
+  display: none !important;
 }
 .rfidSettingwrap .bt {
   /* Stop */
@@ -160,5 +170,37 @@ export default {
 .rfidSettingwrap .imgwrap {
   display: flex;
   justify-content: center;
+}
+
+@media (max-width: 576px) {
+  .rfidSettingwrap .container {
+    flex-direction: column;
+    padding: 0 20px;
+    width: 100%;
+  }
+  .rfidSettingwrap .bt {
+    display: none;
+  }
+  .rfidSettingwrap .explain {
+    width: 100%;
+  }
+  .rfidSettingwrap {
+    margin-top: 00px;
+  }
+  .rfidSettingwrap .imgwrap {
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+  }
+  .rfidSettingwrap .imgwrap img {
+    width: 40vw;
+  }
+  .rfidSettingwrap .phonebt {
+    display: block !important;
+    margin-top: 20px;
+    text-align: center;
+    height: auto;
+    padding: 2px 0;
+  }
 }
 </style>
