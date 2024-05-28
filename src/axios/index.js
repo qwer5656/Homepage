@@ -9,19 +9,74 @@ let config = {
 const instance = axios.create(config);
 
 let obj = {
-  get(url) {
+  get(url, enabled = false) {
     const mainstore = useMainStore();
-    mainstore.loading = true;
+    if (enabled == true) {
+      mainstore.loading = true;
+    }
     return axios
       .get(url)
       .then((res) => {
-        mainstore.loading = false;
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
         return res.data;
       })
       .catch((res) => {
         return res.data;
       });
   },
+  post(url,data, enabled = false) {
+    const mainstore = useMainStore();
+    if (enabled == true) {
+      mainstore.loading = true;
+    }
+    return axios
+      .post(url, data)
+      .then((res) => {
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
+        return res.data;
+      })
+      .catch((res) => {
+        return res.data;
+      });
+  },
+  put(url,data, enabled = false) {
+    const mainstore = useMainStore();
+    if (enabled == true) {
+      mainstore.loading = true;
+    }
+    return axios
+      .put(url, data)
+      .then((res) => {
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
+        return res.data;
+      })
+      .catch((res) => {
+        return res.data;
+      });
+  },
+  delete(url,data, enabled = false) {
+    const mainstore = useMainStore();
+    if (enabled == true) {
+      mainstore.loading = true;
+    }
+    return axios
+      .delete(url, data)
+      .then((res) => {
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
+        return res.data;
+      })
+      .catch((res) => {
+        return res.data;
+      });
+  }
 };
 
 export default obj;

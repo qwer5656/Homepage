@@ -5,11 +5,12 @@
         <img src="../assets/img/Previous.png" alt="" />
         <span>Back</span>
       </div> -->
-      
+
       <div class="container">
         <div class="content">
           <div class="qrcodeswitch">
-            <span>QR Code</span><Nswitch v-model="qrcodeval"></Nswitch>
+            <span>QR Code</span
+            ><Nswitch v-model="qrcodeswitchdata.enabled"></Nswitch>
           </div>
           <div class="qrcodeexplain">
             Turn on this option need to scan QR code when you ready to charge.
@@ -18,7 +19,6 @@
         <div class="imgwrap">
           <img :src="qrcodeimg" alt="" />
         </div>
-        
       </div>
     </div>
   </div>
@@ -26,15 +26,16 @@
 <script>
 import Nswitch from "./public/Nswitch.vue";
 import { useMainStore } from "@/stores/main";
-import qrcodsscan from '@/assets/img/qrcodsscan.png'
-import QrcodeEnabled from '@/assets/img/QrcodeEnabled.png'
+import qrcodsscan from "@/assets/img/qrcodsscan.png";
+import QrcodeEnabled from "@/assets/img/QrcodeEnabled.png";
 export default {
   setup() {},
   data() {
     return {
-      qrcodeval: false,
-      qrcodeimg:QrcodeEnabled,
-      error:""
+      qrcodeswitchdata: {},
+      qrcodeimg: QrcodeEnabled,
+      error: "",
+      init: false,
     };
   },
   components: {
@@ -44,28 +45,54 @@ export default {
     previous() {
       this.$router.push("/Startmode");
     },
+    changeimg(val) {
+      if (val == true) {
+        this.qrcodeimg = qrcodsscan;
+      }
+      if (val == false) {
+        this.qrcodeimg = QrcodeEnabled;
+      }
+    },
+  },
+  beforeMount() {
+    let self = this;
+    this.$axios
+      .get("https://localhost:7120/api/Setting/Test1234/QrcodeSetting", true)
+      .then((res) => {
+        self.qrcodeswitchdata = res.data;
+        self.changeimg(res.data.enabled);
+      });
   },
   watch: {
-    qrcodeval(val) {
-      if (this.error == "") {
-        const mainstore = useMainStore();
-        mainstore.loading = true;
-        let self = this;
-        setTimeout(function () {
-          mainstore.loading = false;
-          if (val == true) {
-            self.qrcodeimg = qrcodsscan;
-          }
-          else{
-            self.qrcodeimg = QrcodeEnabled;
-          }
-          setTimeout(function () {
-            self.error = "";
-          }, 10);
-        }, 1000);
+    "qrcodeswitchdata.enabled"(val) {
+      let self = this;
+      if (this.init == true) {
+        if (this.qrcodeswitchdata.chargePointId == "") {
+          this.qrcodeswitchdata.chargePointId = "Test1234";
+          this.$axios
+            .post(
+              "https://localhost:7120/api/Setting/",
+              this.qrcodeswitchdata,
+              true
+            )
+            .then((res) => {
+              self.changeimg(res.data.enabled);
+            });
+        } else {
+          this.$axios
+            .put(
+              "https://localhost:7120/api/Setting/",
+              this.qrcodeswitchdata,
+              true
+            )
+            .then((res) => {
+              self.changeimg(res.data.enabled);
+            });
+        }
       }
-    }
-  }
+      this.init = true;
+    },
+  },
 };
 </script>
 <style>
@@ -76,7 +103,7 @@ export default {
 }
 .qrcodesettingwrap .imgwrap {
   width: 415px;
-  height:315.57px;
+  height: 315.57px;
 }
 .qrcodesettingwrap .backicon {
   color: white;
@@ -130,31 +157,29 @@ export default {
 }
 
 @media (max-width: 576px) {
-  .qrcodesettingwrap{
-    justify-content: start;
+  .qrcodesettingwrap {
     margin-top: 20px;
-    
   }
-  .qrcodesettingwrap .container{
+
+  .qrcodesettingwrap .container {
     width: 100%;
     flex-direction: column;
   }
-  .qrcodesettingwrap .content{
+  .qrcodesettingwrap .content {
     padding: 0 20px;
   }
-  .qrcodesettingwrap .qrcodeexplain{
+  .qrcodesettingwrap .qrcodeexplain {
     width: 100%;
   }
-  .qrcodesettingwrap  .imgwrap{
+  .qrcodesettingwrap .imgwrap {
     display: flex;
     justify-content: center;
     margin-top: 40px;
     width: 80%;
     margin: 30px auto;
   }
-  .qrcodesettingwrap .imgwrap img{ 
-    width: 80%;
-  
+  .qrcodesettingwrap .imgwrap img {
+    width: 90%;
   }
 }
 </style>

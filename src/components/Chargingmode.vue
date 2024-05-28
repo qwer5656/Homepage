@@ -3,7 +3,7 @@
     <div class="batterywrap">
       <div class="batterycontainer">
         <div class="batteryoverflow">
-          <div class="batterycontent"></div>
+          <div class="batterycontent" :class="{ startmode: getmode }"></div>
         </div>
       </div>
     </div>
@@ -49,46 +49,83 @@
       <div class="txtbottom timetxt">
         {{ chargingdata.timesval.hour }}
         <span style="margin-right: 20px">hrs</span
-        >{{ chargingdata.timesval.min }} <span>mins</span>
+        >{{ Math.floor(time/60) }} <span>mins</span>
       </div>
     </div>
   </div>
-  <div class="chargebt" @click="changemode('finish')">Stop</div>
+  <div class="chargebt" @click="changemode('finish')" v-if="getmode">Stop</div>
 </template>
 <script>
 import { useMainStore } from "@/stores/main";
 export default {
   data() {
     return {
+      TimeData: null,
       chargingdata: {
-        aval: 3,
-        wval: 32.1,
-        kwval: 10.7,
-        vval: 218,
+        aval: 0,
+        wval: 0,
+        kwval: 0,
+        vval: 0,
         timesval: {
           hour: 0,
-          min: 1,
+          min: 0,
         },
       },
+      time:0
     };
   },
   methods: {
     changemode(val) {
       const mainstore = useMainStore();
-      mainstore.chargepilemode = val;
+      this.$axios
+        .get("http://localhost:8081/API/RemoteStopTransaction/Test1234")
+        .then((res) => {
+          if (res.status == "Accepted") {
+            mainstore.chargepilemode = val;
+          }
+        });
     },
     random() {
       let self = this;
-      setInterval(function () {
-        self.chargingdata.aval = Math.floor(Math.random(0, 10) * 10, 2);
-        self.chargingdata.wval = Math.floor(Math.random(0, 10) * 20, 2);
-        self.chargingdata.kwval = Math.floor(Math.random(0, 10) * 12, 2);
-        self.chargingdata.vval = Math.floor(Math.random(0, 10) * 15, 2);
-      }, 1000);
+      const res = this.$axios
+        .get("http://localhost:8081/API/Charingedata")
+        .then((res) => {
+          self.time++;
+          res[0].meterValue[0].sampledValue.forEach((e) => {
+            if (e.unit == "kW") {
+              self.chargingdata.kwval = e.value;
+            }
+            if (e.unit == "A") {
+              self.chargingdata.aval = e.value;
+            }
+            if (e.unit == "V") {
+              self.chargingdata.vval = e.value;
+            }
+            if (e.unit == "W") {
+              self.chargingdata.wval = e.value;
+            }
+          });
+        });
     },
   },
   mounted() {
-    this.random();
+    const mainstore = useMainStore();
+    let self = this;
+    this.TimeData = setInterval(function () {
+      if (mainstore.chargepilemode == "charging") {
+        self.random();
+      }
+    }, 1000);
+  },
+  beforeUnmount() {
+    clearInterval(this.TimeData);
+  },
+  computed: {
+    getmode() {
+      const mainstore = useMainStore();
+
+      return mainstore.chargepilemode == "charging" ? true : false;
+    },
   },
 };
 </script>
@@ -145,6 +182,8 @@ export default {
   border-radius: 8px 0px 0px 0px;
   position: absolute;
   left: 0px;
+}
+.startmode {
   animation: batteryrun 1.5s infinite ease-in;
 }
 
@@ -220,7 +259,7 @@ export default {
   color: white;
   margin-top: 17px;
   font-family: SF Pro;
-  font-size: 40px;
+  font-size: 38px;
   font-weight: 510;
   line-height: 47.73px;
   text-align: left;
@@ -269,13 +308,9 @@ export default {
   margin: 50px auto;
 }
 @media (max-width: 1200px) {
-.mainwrap{
-  margin-left: 10vw;
-}
-
-
-
-
+  .mainwrap {
+    margin-left: 10vw;
+  }
 }
 @media (max-width: 576px) {
   .mainwrap {
@@ -293,7 +328,7 @@ export default {
     flex-direction: column;
     margin: auto 0;
     padding: 0 15px;
-    margin:0 0 10px 0;
+    margin: 0 0 10px 0;
   }
   .batterycontainer {
     background: url(/src/assets/img/phonebatterybg.png) no-repeat;
@@ -359,7 +394,7 @@ export default {
     margin-left: 0;
   }
   .timetxt {
-    margin-top:10px !important;
+    margin-top: 10px !important;
   }
   @keyframes batteryrun {
     from {
@@ -370,8 +405,8 @@ export default {
       left: 100%;
     }
   }
-  .chargebt{
-    margin:20px auto;
+  .chargebt {
+    margin: 20px auto;
   }
 }
 </style>

@@ -20,6 +20,7 @@
             single-line
             width="360px"
             hide-details
+            v-model="ocpp.methodsContent"
           ></v-text-field>
           <div class="content" v-else>
             <img src="../assets/img/ocppdevice.png" alt="" />
@@ -60,6 +61,7 @@ import ocppwebsuccess from "@/assets/img/ocppwebsuccess.png";
 import ocppbackend from "@/assets/img/ocppbackend.png";
 import ocppbackendsuccess from "@/assets/img/ocppbackendsuccess.png";
 import Yes from "@/assets/img/Yes.png";
+import { settingStore } from "@/stores/setting";
 export default {
   data() {
     return {
@@ -70,6 +72,7 @@ export default {
         title: "",
         describe: "",
       },
+      ocpp: {},
       bttitle: "Next",
       btenabled: true,
       devicetowebprogressimg: No,
@@ -138,12 +141,33 @@ export default {
         this.webtobackendimg = ocppbackendsuccess;
         this.btenabled = true;
         const mainstore = useMainStore();
-        mainstore.loading = false;
+        let setting = settingStore();
+        let self = this;
+        if (this.ocpp.chargePointId == "") {
+          this.ocpp.chargePointId = "Test1234";
+          setting.postapi(this, this.ocpp).then((res) => {
+            self.ocpp = res.data;
+            mainstore.loading = false;
+          });
+        }
+        else{
+          setting.putapi(this, this.ocpp).then((res) => {
+            self.ocpp = res.data;
+            mainstore.loading = false;
+          });
+        }
       }
     },
   },
   mounted() {
     this.chagetxt();
+  },
+  beforeMount() {
+    let setting = settingStore();
+    let self = this;
+    setting.getapi(this, "OCPPSetting").then((res) => {
+      self.ocpp = res.data;
+    });
   },
 };
 </script>

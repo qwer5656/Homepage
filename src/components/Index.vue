@@ -1,6 +1,8 @@
 <template lang="">
   <div>
-    <Chargingmode v-if="getchargepilemode == 'charging'" />
+    <Chargingmode
+      v-if="getchargepilemode == 'charging' || getchargepilemode == 'preparing'"
+    />
     <Finishmode v-if="getchargepilemode == 'finish'" />
     <Startmodeselect v-if="getchargepilemode == 'selectmode'" />
     <div class="headcontent" v-if="getchargepilemode == 'standby'">
@@ -12,7 +14,11 @@
             <div><img src="../assets/img/Buletooth-On.png" /></div>
           </div>
           <div class="contentmid">
-            <img src="../assets/img/Device.png" class="deviceimg" />
+            <img
+              :class="{ offline: !chargestauts }"
+              src="../assets/img/Device.png"
+              class="deviceimg"
+            />
           </div>
           <div class="txt">
             <div class="timetxt">{{ Nowmonth }}</div>
@@ -26,7 +32,7 @@
         <div class="bottomwrap">
           <div
             class="chargetxt"
-            v-if="!touchstart"
+            v-if="!touchstart && chargestauts"
             @click="changemode('selectmode')"
           >
             Plug and charge
@@ -65,6 +71,7 @@ export default {
     mdiCar,
     Nowtime: "",
     touchstart: false,
+    chargestauts: false,
     monthNames: [
       "Jan",
       "Feb",
@@ -81,19 +88,29 @@ export default {
     ],
     Nowdate: "",
     Nowmonth: "",
+    TimeData: null,
   }),
   mounted() {
     let self = this;
-    self.gettime();
-    setInterval(function () {
-      self.gettime();
+    self.setinit();
+    this.TimeData = setInterval(function () {
+      self.setinit();
     }, 1000);
   },
+  beforeUnmount() {
+    clearInterval(this.TimeData);
+  },
   methods: {
+    setinit() {
+      this.gettime();
+      this.getchargepilestatus();
+      
+    },
     gettime() {
       let date = new Date();
       let hour = date.getHours();
-      let min = date.getMinutes()>=10?date.getMinutes():"0"+date.getMinutes();
+      let min =
+        date.getMinutes() >= 10 ? date.getMinutes() : "0" + date.getMinutes();
       this.Nowtime = hour + ":" + min;
       this.Nowdate = date.getDate();
       this.Nowmonth = this.monthNames[date.getMonth()];
@@ -101,6 +118,44 @@ export default {
     changemode(val) {
       const mainstore = useMainStore();
       mainstore.chargepilemode = val;
+    },
+    getchargepilestatus() {
+      let self = this;
+      const res = this.$axios
+        .get("http://localhost:8081/API/Status")
+        .then((res) => {
+          if (res == undefined || res.length == 0) {
+       
+            const mainstore = useMainStore();
+            self.chargestauts = false;
+            mainstore.chargepilemode = "standby";
+          } else {
+            self.$axios
+              .get("http://localhost:8081/API/StatusConnet/Test1234")
+              .then((res) => {
+                const mainstore = useMainStore();
+
+                if (res.LastStatus == "Available"&&
+                  (mainstore.chargepilemode == "finish" ||
+                  mainstore.chargepilemode == "selectmode")
+                ) {
+             
+                }
+                else{
+                  if (res.LastStatus == "Charging") {
+                    mainstore.chargepilemode = "charging";
+                  }
+                  if (res.LastStatus == "Preparing") {
+                    mainstore.chargepilemode = "preparing";
+                  }
+                  if (res.LastStatus == "Available") {
+                    self.chargestauts = true;
+                    mainstore.chargepilemode = "standby";
+                  }
+                }
+              });
+          }
+        });
     },
   },
   computed: {
@@ -112,6 +167,9 @@ export default {
 };
 </script>
 <style scoped>
+.offline {
+  opacity: 0.5;
+}
 .deviceimg {
   height: 300px;
 }
@@ -249,6 +307,5 @@ export default {
 }
 
 @media (max-height: 740px) {
- 
 }
 </style>

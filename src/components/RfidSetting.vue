@@ -10,14 +10,15 @@
       <div class="container">
         <div class="content">
           <div class="switch">
-            <span>RFID</span><Nswitch v-model="rfidswitchval"></Nswitch>
+            <span>RFID</span>
+            <Nswitch v-model="rfidswitchdata.enabled"></Nswitch>
           </div>
           <div class="explain">
             Turn on this option and default card will be denied by this charger.
           </div>
           <div
             class="bt"
-            :class="{ btenabled: rfidswitchval }"
+            :class="{ btenabled: rfidswitchdata.enabled }"
             @click="changeshowcard"
           >
             My Card
@@ -27,7 +28,7 @@
           <img src="../assets/img/RfidEnabled.png" alt="" />
           <div
             class="phonebt bt"
-            :class="{ btenabled: rfidswitchval }"
+            :class="{ btenabled: rfidswitchdata.enabled }"
             @click="changeshowcard"
           >
             My Card
@@ -44,28 +45,61 @@ export default {
   setup() {},
   data() {
     return {
-      rfidswitchval: false,
+      rfidswitchdata: {},
       showcard: false,
+      init:false
     };
   },
   components: {
     Nswitch,
     Card,
   },
+  watch: {
+    "rfidswitchdata.enabled"(val) {
+      if (this.init == true) {
+        if (this.rfidswitchdata.chargePointId == "") {
+          
+          this.rfidswitchdata.chargePointId="Test1234";
+          this.$axios
+            .post("https://localhost:7120/api/Setting/",this.rfidswitchdata,true)
+            .then((res) => {
+              console.log(res);
+            });
+        }
+        else{
+          this.$axios
+            .put("https://localhost:7120/api/Setting/",this.rfidswitchdata,true)
+            .then((res) => {
+              console.log(res);
+            });
+        }
+      }
+      this.init = true;
+    },
+  },
   methods: {
     previous() {
       this.$router.push("/Startmode");
     },
     changeshowcard() {
-      console.log(this.rfidswitchval);
-      if (this.rfidswitchval == true) {
+  
+      if (this.rfidswitchdata.enabled == true) {
         this.showcard = true;
       }
     },
     Changestatus(val) {
-      console.log("test", val);
+   
       this.showcard = val;
     },
+  },
+  beforeMount() {
+    let self = this;
+    this.$axios
+      .get("https://localhost:7120/api/Setting/Test1234/RfidSetting",true)
+      .then((res) => {
+        self.rfidswitchdata = res.data;
+        console.log(res);
+      });
   },
 };
 </script>

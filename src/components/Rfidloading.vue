@@ -167,6 +167,7 @@ export default {
 @media (max-width: 576px) {
   .content {
     width: 100%;
+    margin: 10px;
   }
 }
 </style>

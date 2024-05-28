@@ -35,8 +35,8 @@ export default {
   display: flex;
   justify-content: center;
 }
-.backicon{
-    cursor: pointer;
+.backicon {
+  cursor: pointer;
 }
 .qrcodegwrap .backicon img {
   vertical-align: middle;
@@ -73,5 +73,10 @@ export default {
   line-height: 17.5px;
   text-align: center;
   color: rgba(107, 107, 107, 1);
+}
+@media (max-width: 576px) {
+  .backicon {
+    padding-left: 10px;
+  }
 }
 </style>

@@ -2,13 +2,13 @@
   <div class="reservewrap">
     <div class="datepicker">
       <div>
-        <v-date-picker bg-color="#000" title="Schedule List" disabled>
+        <v-date-picker bg-color="#000" title="Schedule List" v-model="date">
           <template v-slot:header>
             <h1 class="datepickerheader">{{ getheaderdate }}</h1>
           </template></v-date-picker
         >
       </div>
-      <div class="schedulewrap">
+      <div class="schedulewrap" @click.capture="clearscheduledata()">
         <div class="addserverwrap">
           <h4>My schedule</h4>
           <div>
@@ -20,12 +20,10 @@
           </div>
         </div>
         <div class="reservecontent">
-          <div class="reservenone" v-if="cratescheduleitem.length == 0">
-            none
-          </div>
+          <div class="reservenone" v-if="timedata.length == 0">none</div>
           <div
             class="reserveschedulewrap"
-            v-for="item in cratescheduleitem"
+            v-for="item in timedata"
             :key="item"
           >
             <div class="reservescheduleoperation" v-show="item.active">
@@ -44,7 +42,7 @@
                 />
               </div>
             </div>
-            <h4>{{ item.title }}</h4>
+            <h3 class="title">{{ item.title }}</h3>
             <div
               class="reservetimewrap"
               :class="{ scheduleselect: item.active }"
@@ -86,11 +84,11 @@
             <div>Day</div>
             <div>
               <v-select
-                :items="['2024.01.02']"
-                style="width: 150px; height: 20px"
+                :items="getcalendarlist"
+                style="width: 160px; height: 20px"
                 variant="plain"
                 color="#000"
-                v-model="day"
+                v-model="getcalendar"
               ></v-select>
             </div>
           </div> -->
@@ -134,7 +132,7 @@
             <div class="datebottom">
               <div>00:00</div>
               <div>12:00</div>
-              <div>24:00</div>
+              <div>23:59</div>
             </div>
           </div>
         </div>
@@ -148,13 +146,13 @@
 <script>
 import { mdiMinusCircle, mdiPencil } from "@mdi/js";
 import { useMainStore } from "@/stores/main";
-
+import { reverseStore } from "@/stores/reverse";
 export default {
   data() {
     return {
-      date: new Date("2024-03-22"),
-      date1: new Date("2024-03-21"),
+      date: new Date(""),
       day: "2024.01.02",
+      dayitems: [],
       timeform: "00:00",
       timeto: "00:00",
       value: [0, 0],
@@ -205,14 +203,36 @@ export default {
       this.changedialog(true);
     },
     operationscheduledata() {
+      let self=this;
+      let reverse=reverseStore();
       if (this.mode == "add") {
-        this.cratescheduleitem.push(this.scheduledata);
+        let obj = {};
+        obj.chargePointId = "Test1234";
+        let day = this.convertDate.toString();
+        obj.startTime = day + "T" + this.scheduledata.timeform;
+        obj.endTime = day + "T" + this.scheduledata.timeto;
+        obj.title = this.scheduledata.title;
+        obj.valid = true;
+        obj.result = "";
+
+        reverse.postapi(self,obj).then(res=>{
+          self.cratescheduleitem = res.data;
+        });
       }
       if (this.mode == "edit") {
-        this.tempscheduledata.title = this.scheduledata.title;
-        this.tempscheduledata.timeform = this.scheduledata.timeform;
-        this.tempscheduledata.timeto = this.scheduledata.timeto;
-        this.tempscheduledata.active = this.scheduledata.active;
+        let self = this;
+        let obj = {};
+        obj.chargePointId = "Test1234";
+        let day = this.convertDate.toString();
+        obj.startTime = day + "T" + this.scheduledata.timeform;
+        obj.endTime = day + "T" + this.scheduledata.timeto;
+        obj.valid = true;
+        obj.result = "";
+        obj.title = this.scheduledata.title;
+        obj.scheduleTaskId = this.scheduledata.scheduleTaskId;
+        reverse.putapi(self,obj).then(res=>{
+          self.cratescheduleitem = res.data;
+        });
       }
       this.changedialog(false);
     },
@@ -226,10 +246,10 @@ export default {
       });
     },
     deletedata(e) {
-      this.cratescheduleitem.forEach((el, index) => {
-        if (el == e) {
-          this.cratescheduleitem.splice(index, 1);
-        }
+      let self = this;
+      let reverse=reverseStore();
+      reverse.deleteapi(self,e.scheduleTaskId).then(res=>{
+        self.cratescheduleitem=res.data;
       });
     },
     ediddata(e) {
@@ -237,6 +257,11 @@ export default {
       this.tempscheduledata = e;
       this.scheduledata = JSON.parse(JSON.stringify(e));
       this.changedialog(true);
+    },
+    clearscheduledata() {
+      this.cratescheduleitem.forEach((e) => {
+        e.active = false;
+      });
     },
   },
   watch: {
@@ -278,24 +303,50 @@ export default {
     },
   },
   mounted() {
+    this.date = new Date();
     let sub = (this.value[1] - this.value[0]) / 2;
     document.documentElement.style.setProperty("--hourvalue", `'${sub}hrs'`);
 
     let timeval = [];
     let hour = 0;
     let min = 0;
-    for (let i = 0; i <= 48; i++) {
-      timeval.push(
-        `${hour < 10 ? "0" + hour : hour}:${min < 30 ? min + "0" : min}`
-      );
-      if (i % 2 == 0) {
-        min = 30;
-      } else {
-        hour++;
-        min = 0;
-      }
-    }
 
+     for (let i = 0; i < 288; i++) {
+       if (min >= 60) {
+         min = 0;
+         hour++;
+       }
+       timeval.push(
+         `${hour < 10 ? "0" + hour : hour}:${min < 10 ? "0" + min : min}`
+       );
+       min += 5;
+     }
+
+    //for (let i = 0; i <= 48; i++) {
+   //   timeval.push(
+    //    `${hour < 10 ? "0" + hour : hour}:${min < 30 ? min + "0" : min}`
+    //  );
+    //  if(i==47){
+   //     hour=23;
+    //    min=59;
+    //    continue;
+    //  }
+
+   //   if (i % 2 == 0) {
+    //    min = 30;
+    //  } 
+  //    else {
+   //     hour++;
+  //      min = 0;
+  //    }
+   // }
+    
+    let reverse=reverseStore();
+
+    let self = this;
+    reverse.getapiAll(self).then(res=>{
+      self.cratescheduleitem = res.data;
+    });
     this.timeitem = timeval;
   },
   computed: {
@@ -303,6 +354,50 @@ export default {
       let date = new Date();
       let year = date.getFullYear();
       return year + "." + this.monthNames[date.getMonth()];
+    },
+    convertDate() {
+      let date = this.date;
+      let year = date.getFullYear();
+      let month = "0" + (date.getMonth() + 1);
+      let day = date.getDate();
+      return year + "-" + month + "-" + day;
+    },
+    getcalendar() {
+      let year = this.date.getFullYear();
+      let month = "0" + (this.date.getMonth() + 1);
+      let day = this.date.getDate();
+      let val = year + "." + month + "." + day;
+      return val;
+    },
+    getcalendarlist() {
+      let arr = [];
+      arr.push(this.getcalendar);
+
+      return arr;
+    },
+    filterdata() {
+      return this.cratescheduleitem.filter((e) => {
+        let year = this.date.getFullYear();
+        let month = "0" + (this.date.getMonth() + 1);
+        let day = this.date.getDate();
+        let val = year + "-" + month + "-" + day;
+        if (e.startTime.split("T")[0] == val) {
+          return true;
+        }
+      });
+    },
+    timedata() {
+      return this.filterdata.map((e) => {
+        e.timeform =
+          e.startTime.split("T")[1].split(":")[0] +
+          ":" +
+          e.startTime.split("T")[1].split(":")[1];
+        e.timeto =
+          e.endTime.split("T")[1].split(":")[0] +
+          ":" +
+          e.endTime.split("T")[1].split(":")[1];
+        return e;
+      });
     },
   },
 };
@@ -359,6 +454,9 @@ export default {
   padding: 0px 10px 12px 20px;
   margin-top: 10px;
 }
+
+
+
 .reservewrap .datepicker {
   height: 520px;
   padding: 20px 47px 42px 47px;
@@ -426,6 +524,7 @@ export default {
   line-height: 22.5px;
   text-align: left;
   margin-right: auto;
+  padding-bottom: 10px;
 }
 .reservewrap .v-date-picker-month__day .v-btn.v-date-picker-month__day-btn {
   --v-btn-height: 24px;
@@ -468,7 +567,6 @@ export default {
   text-align: left;
 }
 .reservewrap .reserveschedulewrap {
-  margin-top: 28px;
   font-family: SF Pro;
   font-size: 14px;
   font-weight: 400;
@@ -517,7 +615,7 @@ export default {
   text-align: center;
   padding: 16px 26px 16px 26px;
   border-radius: 33px;
-  margin-top: 18px;
+  margin-bottom: 18px;
   width: 195px;
   height: 50px;
   cursor: pointer;
@@ -581,7 +679,7 @@ export default {
   }
   .reservewrap .reservecontent {
     height: auto;
-    padding: 0 15px 75px 0;
+    padding: 3px 15px 75px 0;
   }
   .reservewrap .schedulewrap {
     padding-left: 24px;

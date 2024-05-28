@@ -11,15 +11,15 @@
         <img src="../assets/img/Add_On.png" alt="" />
       </div>
     </div>
-    <div class="cardnumbermangerwrap">
+    <div class="cardnumbermangerwrap" @click.capture="clearcardnumber">
       <div
         v-for="(item, index) in carNumberddata"
         :key="item"
         class="cardnumbercontainer"
       >
-        <h3 >{{ item.CardNumberName }}</h3>
+        <h3 >{{ item.licensePlateName }}</h3>
         <div class="cardoperatewrap" v-if="item.select == true">
-          <div class="cardoperate" @click="editcardnumber(item)">
+          <div class="cardoperate" @click.capture="editcardnumber(item)">
             <img
               class="cardoperateimg"
               src="../assets/img/Edit_black.png"
@@ -27,7 +27,7 @@
             />
             <div class="cardoperatetxt">Edit</div>
           </div>
-          <div class="cardoperate" @click="removecardnumber(index)">
+          <div class="cardoperate" @click="removecardnumber(item)">
             <img
               class="cardoperateimg"
               src="../assets/img/Remove_On_black.png"
@@ -41,7 +41,7 @@
           @click="cardnumberclick(item)"
           :class="{ opacity: item.select }"
         >
-          <span>{{ item.CardNumber }}</span>
+          <span>{{ item.licensePlateNumber }}</span>
         </div>
       </div>
       <div class="cardnumbernone" v-if="carNumberddata.length == 0"></div>
@@ -69,12 +69,12 @@
           <v-text-field
             label="Fill in Name"
             variant="solo"
-            v-model="newcarNumberddata.CardNumberName"
+            v-model="newcarNumberddata.licensePlateName"
           ></v-text-field>
           <v-text-field
             label="Fill in number"
             variant="solo"
-            v-model="newcarNumberddata.CardNumber"
+            v-model="newcarNumberddata.licensePlateNumber"
             maxlength="11"
           ></v-text-field>
           <div class="chargebt" @click="savecardnumber">
@@ -88,6 +88,7 @@
 <script>
 import { mdiMinusCircle, mdiPencil } from "@mdi/js";
 import { useMainStore } from "@/stores/main";
+import { addLicensePlateStore } from "@/stores/addLicensePlate";
 export default {
   data() {
     return {
@@ -109,12 +110,31 @@ export default {
       this.deletedialog = true;
     },
     savecardnumber() {
-      if (this.mode == "edit") {
-        this.tempdata.CardNumberName = this.newcarNumberddata.CardNumberName;
-        this.tempdata.CardNumber = this.newcarNumberddata.CardNumber;
-      }
+      let addLicense = addLicensePlateStore();
+      let self = this;
+
       if (this.mode == "add") {
-        this.carNumberddata.push(this.newcarNumberddata);
+
+        let obj = {
+          blocked: false,
+          licensePlateId: "00000000-0000-0000-0000-000000000000",
+          chargePointId:"Test1234",
+          createTime: new Date(),
+          updateTime: new Date(),
+          expiryDate: null,
+        };
+
+        obj.licensePlateName = this.newcarNumberddata.licensePlateName;
+        obj.licensePlateNumber = this.newcarNumberddata.licensePlateNumber;
+        addLicense.postapi(this, obj).then((res) => {
+          self.carNumberddata = res.data;
+        });
+        this.newcarNumberddata={};
+      }
+      if (this.mode == "edit") {
+        addLicense.putapi(this, this.newcarNumberddata).then((res) => {
+          self.carNumberddata = res.data;
+        });
         this.newcarNumberddata = {};
       }
 
@@ -138,9 +158,26 @@ export default {
       this.open();
       this.mode = "edit";
     },
-    removecardnumber(index) {
-      this.carNumberddata.splice(index, 1);
+    removecardnumber(item) {
+      let addLicense = addLicensePlateStore();
+      let self = this;
+      addLicense.deleteapi(this, item.licensePlateId).then((res) => {
+          self.carNumberddata = res.data;
+        });
     },
+    clearcardnumber(){
+      this.carNumberddata.forEach((e) => {
+          e.select = false;
+      });
+    }
+  },
+  beforeMount() {
+    let addLicense = addLicensePlateStore();
+    let self = this;
+    addLicense.getapiAll(this).then((res) => {
+      console.log(res);
+      self.carNumberddata = res.data;
+    });
   },
 };
 </script>
@@ -278,6 +315,7 @@ export default {
   color: black;
   vertical-align: middle;
   margin: 0 6px;
+  cursor: pointer;
 }
 .carnumberwrap .cardoperatetxt {
   font-family: SF Pro;
@@ -310,7 +348,7 @@ export default {
   .carnumberwrap .cardnumbermangerwrap {
     width: 100%;
     margin-top: 20px;
-    padding: 0px 20px;
+    padding: 0px 20px 40px 20px;
   }
   .carnumberwrap .cardnumbercontainer {
     width: 100%;

@@ -10,7 +10,7 @@
         <div class="content">
           <div class="switch">
             <span>Auto Scan Car License</span
-            ><Nswitch v-model="carnumberswitchval"></Nswitch>
+            ><Nswitch v-model="carnumberswitchdata.enabled"></Nswitch>
           </div>
           <div class="explain">
             Turn on this option will be allow auto scan car number to start the
@@ -18,7 +18,7 @@
           </div>
           <div
             class="bt"
-            :class="{ btenabled: carnumberswitchval }"
+            :class="{ btenabled: carnumberswitchdata.enabled }"
             @click="changecarnumbershow"
           >
           My Car License
@@ -28,7 +28,7 @@
           <img src="../assets/img/CarNumberEnabled.png" alt="" />
           <div
             class="phonebt bt"
-            :class="{ btenabled: carnumberswitchval }"
+            :class="{ btenabled: carnumberswitchdata.enabled }"
             @click="changecarnumbershow"
           >
             My Car License
@@ -41,11 +41,12 @@
 <script>
 import Nswitch from "./public/Nswitch.vue";
 import CarNumber from "@/components/CarNumber.vue";
+import { settingStore } from "@/stores/setting";
 export default {
   setup() {},
   data() {
     return {
-      carnumberswitchval: false,
+      carnumberswitchdata: {},
       carnumbershow: false,
     };
   },
@@ -55,7 +56,7 @@ export default {
   },
   methods: {
     changecarnumbershow() {
-      if (this.carnumberswitchval == true) {
+      if (this.carnumberswitchdata.enabled == true) {
           this.carnumbershow=true;
       }
     },
@@ -63,6 +64,28 @@ export default {
      
       this.carnumbershow = val;
     }
+  },
+  watch: {
+    "carnumberswitchdata.enabled"(val) {
+      if (this.init == true) {
+        let setting = settingStore();
+        if (this.carnumberswitchdata.chargePointId == "") {
+          this.carnumberswitchdata.chargePointId = "Test1234";
+          setting.postapi(this,this.carnumberswitchdata);
+        } else {
+          setting.putapi(this,this.carnumberswitchdata);
+
+        }
+      }
+      this.init = true;
+    },
+  },
+  beforeMount() {
+    let setting = settingStore();
+    let self = this;
+    setting.getapi(this, "CarNumberSetting").then((res) => {
+      self.carnumberswitchdata = res.data;
+    });
   },
 };
 </script>

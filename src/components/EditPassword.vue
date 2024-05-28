@@ -25,7 +25,7 @@
           ></v-text-field>
         </form>
         <div class="btwrap">
-          <Nbt title="Save" enabled="true" @click="savetime()" />
+          <Nbt title="Save" enabled="true" @click="savedata()" />
         </div>
       </div>
     </div>
@@ -34,6 +34,7 @@
 <script>
 import { mdiEyeOff, mdiEye } from "@mdi/js";
 import Nbt from "./public/Nbt.vue";
+import { useMainStore } from "@/stores/main";
 export default {
   data: () => ({
     visible: false,
@@ -46,6 +47,17 @@ export default {
   components: {
     Nbt,
   },
+  methods:{
+    savedata(){
+      let self=this;
+      let store=useMainStore();
+      let obj={};
+      
+      store.updatePassword(self,obj).then(res=>{
+        console.log(res);
+      });
+    }
+  }
 };
 </script>
 <style>
@@ -76,7 +88,7 @@ export default {
   padding: 86px 0;
 }
 .passwordwrap .btwrap {
-  margin-top: 57px;
+  margin-top: 17px;
 }
 
 @media (max-width: 576px) {
@@ -88,6 +100,9 @@ export default {
   }
   .passwordwrap .btwrap {
     margin-top: 20px;
+  }
+  .passwordwrap .formwrap {
+   width: 100%;
   }
 }
 </style>

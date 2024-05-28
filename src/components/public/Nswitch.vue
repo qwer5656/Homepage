@@ -3,23 +3,31 @@
     <v-switch inset hide-details v-model="modelval"></v-switch>
   </div>
 </template>
+
 <script>
+import { ref, watch, onMounted } from 'vue';
+
 export default {
-  setup() {
-    props:["modelValue"]
-  },
-  data(){
-    return{
-        modelval:false,
-    }
-  },
-  watch:{
-    modelval(){
-        this.$emit('update:modelValue', this.modelval);
-    }
+  props: ['modelValue'],
+  setup(props, { emit }) {
+    const modelval = ref(props.modelValue);
+
+    // Watch for changes in props.modelValue to update modelval
+    watch(() => props.modelValue, (newVal) => {
+      modelval.value = newVal;
+    });
+
+    // Watch for changes in modelval to emit updates
+    watch(modelval, (newVal) => {
+      emit('update:modelValue', newVal);
+    });
+
+
+    return {
+      modelval,
+    };
   }
 };
-
 </script>
 <style>
 .nswitch .v-switch--inset .v-selection-control--dirty .v-switch__track {

@@ -11,10 +11,10 @@
         <img src="../assets/img/Add_On.png" alt="" />
       </div>
     </div>
-    <div class="cardmangerwrap">
+    <div class="cardmangerwrap" @click.capture="clearcard">
       <div v-for="(item, index) in carddata" :key="item">
-        <h3>{{ item.CardNumberName }}</h3>
-        <div class="cardcontent" @click="cardclick(item)">
+        <h3>{{ item.cardName }}</h3>
+        <div class="cardcontent" @click.capture="cardclick(item)">
           <img src="../assets/img/cardLogo.png" alt="" />
           <div class="cardoperatewrap" v-if="item.select == true">
             <div class="cardoperate" @click="editcard(item)">
@@ -25,7 +25,7 @@
               />
               <div class="cardoperatetxt">Edit</div>
             </div>
-            <div class="cardoperate" @click="removecard(index)">
+            <div class="cardoperate" @click="removecard(item)">
               <img
                 class="cardoperateimg"
                 src="../assets/img/Remove_On_black.png"
@@ -35,7 +35,7 @@
             </div>
           </div>
 
-          <span>{{ item.CardNumber }}</span>
+          <span>{{ item.cardNumber }}</span>
         </div>
       </div>
       <div class="cardnone" v-if="carddata.length == 0"></div>
@@ -62,12 +62,12 @@
           <v-text-field
             label="Fill in Name"
             variant="solo"
-            v-model="newCarddata.CardNumberName"
+            v-model="newCarddata.cardName"
           ></v-text-field>
           <v-text-field
             label="Fill in number"
             variant="solo"
-            v-model="newCarddata.CardNumber"
+            v-model="newCarddata.cardNumber"
           ></v-text-field>
           <div class="chargebt" @click="savecard">
             {{ mode == "add" ? "Create" : "Save" }}
@@ -80,6 +80,7 @@
 <script>
 import { mdiMinusCircle, mdiPencil } from "@mdi/js";
 import { useMainStore } from "@/stores/main";
+import { addCardStore } from "@/stores/addCard";
 export default {
   data() {
     return {
@@ -101,12 +102,31 @@ export default {
       this.deletedialog = true;
     },
     savecard() {
+      let addCard = addCardStore();
+      let self = this;
+
       if (this.mode == "edit") {
-        this.tempdata.CardNumberName = this.newCarddata.CardNumberName;
-        this.tempdata.CardNumber = this.newCarddata.CardNumber;
+        addCard.putapi(this, this.newCarddata).then((res) => {
+          self.carddata = res.data;
+        });
+       
       }
       if (this.mode == "add") {
-        this.carddata.push(this.newCarddata);
+        let obj = {
+          blocked: false,
+          cardId: "00000000-0000-0000-0000-000000000000",
+          chargePointId:"Test1234",
+          createTime: new Date(),
+          updateTime: new Date(),
+          expiryDate: null,
+        };
+
+        obj.cardName = this.newCarddata.cardName;
+        obj.cardNumber = this.newCarddata.cardNumber;
+
+        addCard.postapi(this, obj).then((res) => {
+          self.carddata = res.data;
+        });
         this.newCarddata = {};
       }
 
@@ -130,9 +150,27 @@ export default {
       this.open();
       this.mode = "edit";
     },
-    removecard(index) {
-      this.carddata.splice(index, 1);
+    removecard(item) {
+      let addCard = addCardStore();
+      let self = this;
+      addCard.deleteapi(this, item.cardId).then((res) => {
+          self.carddata = res.data;
+        });
+      
     },
+    clearcard() {
+      this.carddata.forEach((e) => {
+        e.select = false;
+      });
+    },
+  },
+  beforeMount() {
+    let addCard = addCardStore();
+    let self = this;
+    addCard.getapiAll(this).then((res) => {
+      console.log(res);
+      self.carddata = res.data;
+    });
   },
 };
 </script>
@@ -284,7 +322,7 @@ export default {
   .Cardwrap .cardmangerwrap {
     width: 100%;
     margin-top: 20px;
-    padding: 0px 20px;
+    padding: 0px 20px 40px 20px;
   }
   .Cardwrap .cardnone {
     width: 100%;

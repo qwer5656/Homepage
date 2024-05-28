@@ -6,7 +6,7 @@
     </div>
     <div class="bottomwrap">
       <div class="container">
-        <v-switch v-model="LTEstatus" inset hide-details></v-switch>
+        <v-switch v-model="Ltedata.enabled" inset hide-details></v-switch>
         <div class="wrap">
           <span class="txt">LTE</span>
           <h5 style="color: rgba(107, 107, 107, 1)">
@@ -18,13 +18,37 @@
   </div>
 </template>
 <script>
+import { settingStore } from "@/stores/setting";
 export default {
   data() {
     return {
-      LTEstatus: false,
+      Ltedata: {},
+      init:false
     };
   },
   components: {},
+  watch: {
+    "Ltedata.enabled"(val) {
+      if (this.init == true) {
+        let setting = settingStore();
+        if (this.Ltedata.chargePointId == "") {
+          this.Ltedata.chargePointId = "Test1234";
+          setting.postapi(this,this.Ltedata);
+        } else {
+          setting.putapi(this,this.Ltedata);
+
+        }
+      }
+      this.init = true;
+    },
+  },
+  beforeMount() {
+    let setting = settingStore();
+    let self = this;
+    setting.getapi(this, "LteSetting").then((res) => {
+      self.Ltedata = res.data;
+    });
+  },
 };
 </script>
 <style >

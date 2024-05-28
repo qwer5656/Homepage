@@ -11,13 +11,14 @@ export default {
     Setting,
   },
   mounted() {
-    var windowWidth =  document.body.clientWidth;
-    if(windowWidth<=576){
+    var windowWidth = document.body.clientWidth;
+    if (windowWidth <= 576) {
       this.$router.push(`/`);
     }
-    console.log(windowWidth);
     const mainstore = useMainStore();
     mainstore.curpage = "Setting";
+
+
   },
 };
 </script>

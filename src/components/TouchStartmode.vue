@@ -3,54 +3,69 @@
     <div class="touchstartwrap">
       <div class="touchstartcontainer">
         <span class="touchstarttxt">Touch Start</span>
-        <v-switch v-model="status" inset hide-details></v-switch>
+        <v-switch v-model="data.enabled" inset hide-details></v-switch>
       </div>
       <div class="txt">
         Turn on this option need to click start button when you ready to charge.
       </div>
     </div>
     <div class="flex">
-      <img :src="Touchstartmodeimg" :class={sizeclass:phoneimg} alt="" />
+      <img
+        v-if="Touchstartmodeimg"
+        :src="TouchStarmtmodeimageUrl"
+        class="sizeclass"
+      />
+      <img v-else :src="CarimageUrl" />
     </div>
   </div>
 </template>
 <script>
-import TouchStarmtmodeimageUrl from '@/assets/img/TouchStarmtmode.png'
-import CarimageUrl from '@/assets/img/Car.png'
+import TouchStarmtmodeimageUrl from "@/assets/img/TouchStarmtmode.png";
+import CarimageUrl from "@/assets/img/Car.png";
 import { useMainStore } from "@/stores/main";
+import { settingStore } from "@/stores/setting";
 export default {
   data() {
     return {
-      status: false,
+      data: {},
       error: "",
-      phoneimg:true,
-      Touchstartmodeimg: TouchStarmtmodeimageUrl,
+      init: false,
+      phoneimg: true,
+      TouchStarmtmodeimageUrl,
+      CarimageUrl,
     };
   },
   watch: {
-    status(val) {
-      if (this.error == "") {
-        const mainstore = useMainStore();
-        mainstore.loading = true;
-        let self = this;
-        setTimeout(function () {
-          mainstore.loading = false;
-          if (val == true) {
-            self.Touchstartmodeimg = CarimageUrl;
-            self.phoneimg=false;
-          } else {
-            self.Touchstartmodeimg = TouchStarmtmodeimageUrl;
-            self.phoneimg=true;
-          }
-          setTimeout(function () {
-            self.error = "";
-          }, 10);
-        }, 1000);
+    "data.enabled"(val) {
+      if (this.init == true) {
+        let setting = settingStore();
+        if (this.data.chargePointId == "") {
+          this.data.chargePointId = "Test1234";
+         
+          setting.postapi(this,this.data);
+        } else {
+         
+          setting.putapi(this,this.data);
+
+        }
       }
+      this.init = true;
+    },
+  },
+  computed: {
+    Touchstartmodeimg() {
+      return this.data.enabled == true ? false : true;
     },
   },
   components: {},
   methods: {},
+  beforeMount() {
+    let setting = settingStore();
+    let self = this;
+    setting.getapi(this, "TouchStartmode").then((res) => {
+      self.data = res.data;
+    });
+  },
 };
 </script>
 <style>
@@ -126,16 +141,15 @@ export default {
 @media (max-width: 576px) {
   .touchstartmainwrap .touchstartwrap {
     padding: 0 20px;
-    margin-top:30px;
+    margin-top: 30px;
   }
   .touchstartmainwrap .flex img {
     width: 90%;
   }
   .touchstartmainwrap .flex {
     padding-top: 40px;
-
   }
-  .touchstartmainwrap .flex .sizeclass{
+  .touchstartmainwrap .flex .sizeclass {
     width: 70%;
   }
 }

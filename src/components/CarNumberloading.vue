@@ -24,11 +24,31 @@ export default {
   },
   mounted() {
     let self = this;
+
     setTimeout(function () {
       const mainstore = useMainStore();
-      mainstore.chargepilemode = "charging";
-      self.$router.push(`/`);
+      self.$axios
+        .get("http://localhost:8081/API/RemoteStartTransaction/Test1234")
+        .then((res) => {
+          if (res.status == "Accepted") {
+            console.log("success");
+            mainstore.chargepilemode = "charging";
+            setTimeout(function () {
+              self.$router.push(`/`);
+            }, 500);
+          } else {
+            self.error();
+          }
+        });
     }, 1000);
+  },
+  methods: {
+    error() {
+      const mainstore = useMainStore();
+      mainstore.chargepilemode = "standby";
+      this.$router.push(`/`);
+      console.log("error");
+    },
   },
 };
 </script>

@@ -6,7 +6,7 @@
     </div>
     <div class="bottomwrap">
       <div class="container">
-        <v-switch v-model="Bluetoothstatus" inset hide-details></v-switch>
+        <v-switch v-model="Bluetoothdata.enabled" inset hide-details></v-switch>
         <div class="wrap">
           <span class="txt">Bluetooth</span>
           <h5 style="color: rgba(107, 107, 107, 1)">
@@ -18,11 +18,35 @@
   </div>
 </template>
 <script>
+import { settingStore } from "@/stores/setting";
 export default {
   data() {
     return {
-      Bluetoothstatus: false,
+      Bluetoothdata: false,
+      init:true
     };
+  },
+  watch: {
+    "Bluetoothdata.enabled"(val) {
+      if (this.init == true) {
+        let setting = settingStore();
+        if (this.Bluetoothdata.chargePointId == "") {
+          this.Bluetoothdata.chargePointId = "Test1234";
+          setting.postapi(this,this.Bluetoothdata);
+        } else {
+          setting.putapi(this,this.Bluetoothdata);
+
+        }
+      }
+      this.init = true;
+    },
+  },
+  beforeMount() {
+    let setting = settingStore();
+    let self = this;
+    setting.getapi(this, "BluetoothSetting").then((res) => {
+      self.Bluetoothdata = res.data;
+    });
   },
   components: {},
 };

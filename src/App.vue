@@ -47,7 +47,7 @@
             </li>
           </ul>
         </div>
-        <a href="#" class="logowrap">
+        <a href="./" class="logowrap">
           <img src="./assets/img/logo.png" />
         </a>
 
@@ -63,20 +63,20 @@
             <img src="./assets/img/people.png" />
           </div>
           <ul class="menuwrap" id="accountwrap">
-            <li @click="editpassword">
-              <a class="">修改密碼</a>
+            <li @click="editpassword" >
+              <a class="" style="padding: 0;font-size: 13px;font-weight: bold;">Change Password</a>
             </li>
             <li @click="logout">
-              <a class="">登出</a>
+              <a class="" style="font-size: 13px;font-weight: bold;">Logout</a>
             </li>
           </ul>
 
           <ul class="menuwrap" id="languagewrap">
-            <li @click="changelanguage('zh')">
+            <!-- <li @click="changelanguage('zh')">
               <a :class="{ active: lang }">中文</a>
-            </li>
+            </li> -->
             <li @click="changelanguage('en')">
-              <a :class="{ active: !lang }">English</a>
+              <a :class="{ active: !lang }" style="font-size: 13px;font-weight: bold;">English</a>
             </li>
           </ul>
         </div>
@@ -131,6 +131,7 @@
           <router-view @loginstauts="loginchange" />
         </div>
       </div>
+      <div class="phonediv"></div>
     </v-main>
 
     <Loading v-if="isshow"></Loading>
@@ -273,17 +274,50 @@ export default {
       document.querySelector("#languagewrap").style.display = "none";
       this.$i18n.locale = type;
     },
-  },
-  beforeMount() {
-    let object = JSON.parse(localStorage.getItem("login"));
+    checklogin(){
+      let object = JSON.parse(localStorage.getItem("login"));
+      if (object != null) {
+        this.loginshow = true;
+        return true;
+      }
 
-    if (object != null) {
-      this.loginshow = true;
-      return true;
+      this.loginshow = false;
+      this.$router.push(`/Login`);
     }
-
-    this.loginshow = false;
-    this.$router.push(`/Login`);
+  },
+  beforeMount(){
+    this.checklogin();
+  },
+  watch: {
+    "$route.path"(topath, frompath) {
+      this.checklogin();
+    },
+  },
+  mounted() {
+    let self = this;
+    window.addEventListener("resize", function () {
+      var windowWidth = document.body.clientWidth;
+      const mainstore = useMainStore();
+    
+      if (windowWidth <= 576) {
+        if (mainstore.curpage == "Setting") {
+          self.$router.push(`/`);
+          mainstore.curpage = "";
+        }
+      } else {
+        if (
+          mainstore.curpage == "Bluetooth" ||
+          mainstore.curpage == "LTE" ||
+          mainstore.curpage == "Wifi" ||
+          mainstore.curpage == "OCPP" ||
+          mainstore.curpage == "Time" ||
+          mainstore.curpage == "Language"
+        ) {
+          self.$router.push(`/Setting`);
+          mainstore.curpage = "Setting";
+        }
+      }
+    });
   },
 };
 </script>
@@ -309,7 +343,10 @@ body {
 ::-webkit-scrollbar {
   width: 5px;
 }
-
+.phonediv {
+  height: 65px;
+  display: none;
+}
 /* Track */
 ::-webkit-scrollbar-track {
   background: black;
@@ -417,6 +454,7 @@ body {
 .midaccountwrap {
   margin-left: auto;
   display: flex;
+  text-align: center;
 }
 
 .menuwrap {
@@ -464,6 +502,9 @@ body {
 @media (max-width: 576px) {
   .leftbarconent {
     width: 100%;
+  }
+  .phonediv {
+    display: block;
   }
   .leftbar {
     position: -webkit-fixed;

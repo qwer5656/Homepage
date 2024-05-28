@@ -8,14 +8,22 @@
         <div class="title">Log In Account</div>
         <v-form class="formwrap" ref="entryForm">
           <v-text-field
-            :prepend-inner-icon="mdiLockOutline"
+            variant="solo"
+            :type="text"
+            label="Account"
+            :rules="accountrules"
+            v-model="accountdata"
+          ></v-text-field>
+          <v-text-field
+         
             :append-inner-icon="show1 ? mdiEye : mdiEyeOff"
             :type="show1 ? 'text' : 'password'"
             label="password"
             v-model="passworddata"
             @click:append-inner="show1 = !show1"
-            :rules="rules"
+            :rules="passwordrules"
             variant="solo"
+            @keyup.enter="passwordConfirmationRule"
           ></v-text-field>
           <div class="chargebt" @click="passwordConfirmationRule">Log in</div>
         </v-form>
@@ -29,61 +37,73 @@
 <script>
 import { mdiEye, mdiEyeOff, mdiLockOutline } from "@mdi/js";
 import { useMainStore } from "@/stores/main";
+import { loginStore } from "@/stores/login";
 export default {
   data() {
     return {
-      show1: true,
+      show1: false,
       mdiEye,
       mdiEyeOff,
       mdiLockOutline,
       passworddata: "",
-      errormessage: "password is error",
+      accountdata: "",
+      accounterror:"",
+      passworderror:"",
       sumbitenabled: false,
-      rules: [
+      passwordrules: [
         (value) => {
-          if (this.sumbitenabled == true) {
-            this.sumbitenabled = false;
-            if (this.passworddata != "test1234") {
-              return "password is not correct";
-            }
-            return true;
+          if (this.passworderror !== "") {
+            let temperror = this.passworderror;
+            this.passworderror = "";
+            return temperror;
           }
           if (value) return true;
-          return "password is error";
+          return "password is not null";
+        },
+      ],
+      accountrules: [
+        (value) => {
+          if (this.accounterror !== "") {
+            let temperror = this.accounterror;
+            this.accounterror = "";
+            return temperror;
+          }
+          if (value) return true;
+          return "account is not null";
         },
       ],
     };
   },
   methods: {
-    checklogin() {
-      if (this.passworddata == "test") {
-        this.$emit("loginstauts");
-        var object = { value: "true", timestamp: new Date().getTime() + 10000 };
-        localStorage.setItem("login", JSON.stringify(object));
-      } else {
-        console.log("test");
-      }
-    },
     passwordConfirmationRule() {
-      this.sumbitenabled = true;
       let self = this;
+      let login = loginStore();
       this.$refs.entryForm.validate().then(function (res) {
         if (res.valid == true) {
-          var object = {
-            value: "true",
-            timestamp: new Date().getTime() + 10000,
-          };
-          localStorage.setItem("login", JSON.stringify(object));
-
-          const mainstore = useMainStore();
-          mainstore.loading = true;
-
-          setTimeout(function () {
-            mainstore.loading = false;
-            setTimeout(function () {
-              self.$emit("loginstauts");
-            }, 10);
-          }, 1000);
+          let obj = {};
+          obj.account = self.accountdata;
+          obj.password = self.passworddata;
+          login.accountlogin(self, obj).then((res) => {
+            let data={};
+            data=res;
+            if (res.success == true) {
+              var object = {
+                data,
+                timestamp: new Date().getTime() + 10000,
+              };
+              localStorage.setItem("login", JSON.stringify(object));
+              self.$router.push("/");
+            } else {
+              if(res.data.error.indexOf("Account")!=-1){
+                self.accounterror = res.data.error;
+              }
+              else{
+                self.passworderror = res.data.error;
+              }
+              
+              self.$refs.entryForm.validate();
+            }
+          });
         }
       });
     },
@@ -106,7 +126,7 @@ export default {
   cursor: text;
   color: white;
   border: 1px solid rgba(107, 107, 107, 1);
-  margin-bottom: 25px;
+  margin-bottom: 5px;
 }
 .loginwrap .formwrap {
   margin-top: 33px;
@@ -168,6 +188,7 @@ export default {
   );
   border-radius: 32px;
   cursor: pointer;
+  margin-top: 15px;
 }
 .loginwrap .title {
   font-family: SF Pro;
