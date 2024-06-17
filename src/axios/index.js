@@ -6,7 +6,7 @@ let config = {
   withCredentials: true,
 };
 
-const instance = axios.create(config);
+const axiosobj = axios.create(config);
 
 let obj = {
   get(url, enabled = false) {
@@ -14,7 +14,7 @@ let obj = {
     if (enabled == true) {
       mainstore.loading = true;
     }
-    return axios
+    return axiosobj
       .get(url)
       .then((res) => {
         if (enabled == true) {
@@ -23,15 +23,18 @@ let obj = {
         return res.data;
       })
       .catch((res) => {
-        return res.data;
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
+        return res.code;
       });
   },
-  post(url,data, enabled = false) {
+  post(url, data, enabled = false) {
     const mainstore = useMainStore();
     if (enabled == true) {
       mainstore.loading = true;
     }
-    return axios
+    return axiosobj
       .post(url, data)
       .then((res) => {
         if (enabled == true) {
@@ -40,15 +43,19 @@ let obj = {
         return res.data;
       })
       .catch((res) => {
-        return res.data;
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
+    
+        return res.code;
       });
   },
-  put(url,data, enabled = false) {
+  put(url, data, enabled = false) {
     const mainstore = useMainStore();
     if (enabled == true) {
       mainstore.loading = true;
     }
-    return axios
+    return axiosobj
       .put(url, data)
       .then((res) => {
         if (enabled == true) {
@@ -57,15 +64,18 @@ let obj = {
         return res.data;
       })
       .catch((res) => {
-        return res.data;
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
+        return res.code;
       });
   },
-  delete(url,data, enabled = false) {
+  delete(url, data, enabled = false) {
     const mainstore = useMainStore();
     if (enabled == true) {
       mainstore.loading = true;
     }
-    return axios
+    return axiosobj
       .delete(url, data)
       .then((res) => {
         if (enabled == true) {
@@ -74,9 +84,12 @@ let obj = {
         return res.data;
       })
       .catch((res) => {
-        return res.data;
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
+        return res.code;
       });
-  }
+  },
 };
 
 export default obj;

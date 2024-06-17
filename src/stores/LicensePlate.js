@@ -1,23 +1,22 @@
 import { defineStore } from "pinia";
-
-export const addCardStore = defineStore("addCard", {
+export const LicensePlateStore = defineStore("LicensePlate", {
   state: () => {
     return {
-      apiurl: "https://localhost:7120/api/Card",
+      apiurl: "https://localhost:7120/api/LicensePlate",
     };
   },
   actions: {
     getapiAll(self) {
-      console.log(self);
       return new Promise((resolve, reject) => {
-        self.$axios.get(this.apiurl + "/GetAll/Test1234/", true).then((res) => {
+        let token = JSON.parse(localStorage.getItem("token"));
+        self.$axios.get(this.apiurl + "/GetAll/"+token+"/", true).then((res) => {
           resolve(res);
         });
       });
     },
     getapi(self, cardId) {
-      console.log(self);
       return new Promise((resolve, reject) => {
+        
         self.$axios.get(this.apiurl + "/" + cardId, true).then((res) => {
           resolve(res);
         });
@@ -25,6 +24,8 @@ export const addCardStore = defineStore("addCard", {
     },
     postapi(self, data) {
       return new Promise((resolve, reject) => {
+        let token = JSON.parse(localStorage.getItem("token"));
+        data.token=token;
         self.$axios.post(this.apiurl, data, true).then((res) => {
           resolve(res);
         });
@@ -32,6 +33,8 @@ export const addCardStore = defineStore("addCard", {
     },
     putapi(self, data) {
       return new Promise((resolve, reject) => {
+        let token = JSON.parse(localStorage.getItem("token"));
+        data.token=token;
         self.$axios.put(this.apiurl, data, true).then((res) => {
           resolve(res);
         });

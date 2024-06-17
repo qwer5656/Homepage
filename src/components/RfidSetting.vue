@@ -41,6 +41,7 @@
 <script>
 import Card from "./Card.vue";
 import Nswitch from "./public/Nswitch.vue";
+import { settingStore } from "@/stores/setting";
 export default {
   setup() {},
   data() {
@@ -57,21 +58,13 @@ export default {
   watch: {
     "rfidswitchdata.enabled"(val) {
       if (this.init == true) {
-        if (this.rfidswitchdata.chargePointId == "") {
-          
-          this.rfidswitchdata.chargePointId="Test1234";
-          this.$axios
-            .post("https://localhost:7120/api/Setting/",this.rfidswitchdata,true)
-            .then((res) => {
-              console.log(res);
-            });
-        }
-        else{
-          this.$axios
-            .put("https://localhost:7120/api/Setting/",this.rfidswitchdata,true)
-            .then((res) => {
-              console.log(res);
-            });
+        let setting = settingStore();
+        if (this.rfidswitchdata.chargePointId == "") {         
+          setting.postapi(this,this.rfidswitchdata);
+        } else {
+         
+          setting.putapi(this,this.rfidswitchdata);
+
         }
       }
       this.init = true;
@@ -93,13 +86,11 @@ export default {
     },
   },
   beforeMount() {
+    let setting = settingStore();
     let self = this;
-    this.$axios
-      .get("https://localhost:7120/api/Setting/Test1234/RfidSetting",true)
-      .then((res) => {
-        self.rfidswitchdata = res.data;
-        console.log(res);
-      });
+    setting.getapi(this, "RfidSetting").then((res) => {
+      self.rfidswitchdata = res.data;
+    });
   },
 };
 </script>

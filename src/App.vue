@@ -63,11 +63,13 @@
             <img src="./assets/img/people.png" />
           </div>
           <ul class="menuwrap" id="accountwrap">
-            <li @click="editpassword" >
-              <a class="" style="padding: 0;font-size: 13px;font-weight: bold;">Change Password</a>
+            <li @click="editpassword">
+              <a class="" style="padding: 0; font-size: 13px; font-weight: bold"
+                >Change Password</a
+              >
             </li>
             <li @click="logout">
-              <a class="" style="font-size: 13px;font-weight: bold;">Logout</a>
+              <a class="" style="font-size: 13px; font-weight: bold">Logout</a>
             </li>
           </ul>
 
@@ -76,7 +78,11 @@
               <a :class="{ active: lang }">中文</a>
             </li> -->
             <li @click="changelanguage('en')">
-              <a :class="{ active: !lang }" style="font-size: 13px;font-weight: bold;">English</a>
+              <a
+                :class="{ active: !lang }"
+                style="font-size: 13px; font-weight: bold"
+                >English</a
+              >
             </li>
           </ul>
         </div>
@@ -135,13 +141,14 @@
     </v-main>
 
     <Loading v-if="isshow"></Loading>
+    <Result/>
   </v-app>
 </template>
 
 <script>
 import Loading from "./components/Loading.vue";
 import { useMainStore } from "@/stores/main";
-
+import { loginStore } from "@/stores/login";
 import Charger_On from "@/assets/img/Charger_On.png";
 import Charger_Off from "@/assets/img/Charger_Off.png";
 import History_On from "@/assets/img/History_On.png";
@@ -154,24 +161,19 @@ import Mode_On from "@/assets/img/Mode_On.png";
 import Mode_Off from "@/assets/img/Mode_Off.png";
 import Settings_On from "@/assets/img/Settings_On.png";
 import Settings_Off from "@/assets/img/Settings_Off.png";
-
+import Result  from "@/components/Result.vue";
 import qrcodsscan from "@/assets/img/qrcodsscan.png";
 import QrcodeEnabled from "@/assets/img/QrcodeEnabled.png";
 
 import {
   mdiAccount,
-  mdiHome,
-  mdiHistory,
-  mdiGestureTapBox,
-  mdiCalendarClock,
-  mdiCog,
-  mdiTranslate,
 } from "@mdi/js";
 
 export default {
   name: "App",
   components: {
     Loading,
+    Result
   },
   computed: {
     isshow() {
@@ -187,14 +189,8 @@ export default {
     },
   },
   data: () => ({
-    loginshow: false,
+    loginshow: true,
     mdiAccount,
-    mdiHome,
-    mdiHistory,
-    mdiGestureTapBox,
-    mdiCalendarClock,
-    mdiCog,
-    mdiTranslate,
     footvalue: -1,
     icontouch: false,
     loadingshow: true,
@@ -260,13 +256,13 @@ export default {
         languageobj != null &&
         languageobj.style.display != "none"
       ) {
-        console.log(languageobj);
         languageobj.style.display = "none";
       }
       this.icontouch = "none";
     },
     logout() {
-      localStorage.removeItem("login");
+      localStorage.removeItem("token");
+      localStorage.removeItem("userdata");
       this.loginshow = false;
       this.$router.push(`/Login`);
     },
@@ -274,23 +270,32 @@ export default {
       document.querySelector("#languagewrap").style.display = "none";
       this.$i18n.locale = type;
     },
-    checklogin(){
-      let object = JSON.parse(localStorage.getItem("login"));
-      if (object != null) {
-        this.loginshow = true;
+    checklogin() {
+      let token = JSON.parse(localStorage.getItem("token"));
+      let loginstore = loginStore();
+      let self = this;
+      if (token != null) {
+        loginstore.tokenauth(self, token).then((res) => {
+          if (res.success === true) {
+            this.loginshow = true;
+          } else {
+           this.logout();
+          }
+        });
         return true;
       }
-
       this.loginshow = false;
       this.$router.push(`/Login`);
-    }
+    },
   },
-  beforeMount(){
-    this.checklogin();
+  beforeMount() {
+    if (this.$route.path == "/") {
+      this.checklogin();
+    }
   },
   watch: {
     "$route.path"(topath, frompath) {
-      this.checklogin();
+        this.checklogin();
     },
   },
   mounted() {
@@ -298,7 +303,7 @@ export default {
     window.addEventListener("resize", function () {
       var windowWidth = document.body.clientWidth;
       const mainstore = useMainStore();
-    
+
       if (windowWidth <= 576) {
         if (mainstore.curpage == "Setting") {
           self.$router.push(`/`);
@@ -485,7 +490,9 @@ body {
   user-select: none;
   color: rgba(107, 107, 107, 1);
 }
-
+.menuwrap li a:hover {
+  color: rgba(91, 228, 114, 1);
+}
 .midtranslate {
   margin: 0 20px;
   color: rgba(107, 107, 107, 1);
@@ -558,6 +565,12 @@ body {
     padding: 10px;
     background-color: #000;
     color: white;
+    cursor: pointer;
+  }
+  .settingnavbar .navbarul li:hover{
+    
+    color: rgba(91, 228, 114, 1);
+
   }
   .settingnavbar .navbarul {
     position: absolute;

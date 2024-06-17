@@ -8,15 +8,26 @@ export const loginStore = defineStore("login", {
   },
   actions: {
     accountlogin(self,data) {
-      console.log(self);
+  
       return new Promise((resolve, reject) => {
         self.$axios
           .post(
             this.apiurl,data,true)
           .then((res) => {
+            console.log(res);
             resolve(res);
           });
       });
-    }
+    },
+    tokenauth(self,data) {
+      return new Promise((resolve, reject) => {
+        self.$axios
+          .get(
+            this.apiurl+"?token="+data,false)
+          .then((res) => {
+            resolve(res);
+          });
+      });
+    },
   },
 });

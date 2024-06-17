@@ -32,7 +32,6 @@ export default {
       if (this.init == true) {
         let setting = settingStore();
         if (this.Wifidata.chargePointId == "") {
-          this.Wifidata.chargePointId = "Test1234";
           setting.postapi(this,this.Wifidata);
         } else {
           setting.putapi(this,this.Wifidata);

@@ -47,6 +47,7 @@
 <script>
 import Nbt from "./public/Nbt.vue";
 import { settingStore } from "@/stores/setting";
+import { ResultStore } from "@/stores/result";
 export default {
   data() {
     return {
@@ -73,20 +74,32 @@ export default {
   methods: {
     savetime() {
       let setting = settingStore();
-      this.timedata.methodsContent=this.hour+":"+this.min+":"+this.sec;
+      let Result = ResultStore();
+      this.timedata.methodsContent =
+        this.hour + ":" + this.min + ":" + this.sec;
       if (this.timedata.chargePointId == "") {
-          this.timedata.chargePointId = "Test1234";
-          this.timedata.enabled=true;
-          setting.postapi(this, this.timedata).then((res) => {
+        this.timedata.enabled = true;
+        setting.postapi(this, this.timedata).then((res) => {
+          if (res.success === undefined) {
+            Result.errorres(res);
+          }
+          if (res.success === true) {
             self.timedata = res.data;
-          });
-        }
-        else{
-          
-          setting.putapi(this, this.timedata).then((res) => {
+            Result.successres();
+          }
+     
+        });
+      } else {
+        setting.putapi(this, this.timedata).then((res) => {
+          if (res.success === undefined) {
+            Result.errorres(res);
+          }
+          if (res.success === true) {
             self.timedata = res.data;
-          });
-        }
+            Result.successres();
+          }
+        });
+      }
     },
   },
   components: {

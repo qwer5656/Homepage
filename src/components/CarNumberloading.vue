@@ -16,6 +16,7 @@
 </template>
 <script>
 import { useMainStore } from "@/stores/main";
+import { chargePileStore } from "@/stores/chargePile";
 export default {
   data() {
     return {
@@ -27,14 +28,12 @@ export default {
 
     setTimeout(function () {
       const mainstore = useMainStore();
-      self.$axios
-        .get("http://localhost:8081/API/RemoteStartTransaction/Test1234")
-        .then((res) => {
-          if (res.status == "Accepted") {
-            console.log("success");
+      let chargePile=chargePileStore();
+      chargePile.RemoteStartTransaction(self).then((res) => {
+          if (res.success == true) {
             mainstore.chargepilemode = "charging";
             setTimeout(function () {
-              self.$router.push(`/`);
+             self.$router.push(`/`);
             }, 500);
           } else {
             self.error();

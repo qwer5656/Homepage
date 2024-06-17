@@ -48,8 +48,8 @@
       </div>
       <div class="txtbottom timetxt">
         {{ chargingdata.timesval.hour }}
-        <span style="margin-right: 20px">hrs</span
-        >{{ Math.floor(time/60) }} <span>mins</span>
+        <span style="margin-right: 20px">hrs</span>{{ Math.floor(time / 60) }}
+        <span>mins</span>
       </div>
     </div>
   </div>
@@ -57,6 +57,7 @@
 </template>
 <script>
 import { useMainStore } from "@/stores/main";
+import { chargePileStore } from "@/stores/chargePile";
 export default {
   data() {
     return {
@@ -71,27 +72,29 @@ export default {
           min: 0,
         },
       },
-      time:0
+      time: 0,
     };
   },
   methods: {
     changemode(val) {
       const mainstore = useMainStore();
-      this.$axios
-        .get("http://localhost:8081/API/RemoteStopTransaction/Test1234")
-        .then((res) => {
-          if (res.status == "Accepted") {
-            mainstore.chargepilemode = val;
-          }
-        });
+      let chargePile = chargePileStore();
+      chargePile.RemoteStopTransaction(this).then((res) => {
+        console.log(res);
+        if (res.status == "Accepted") {
+          mainstore.chargepilemode = val;
+        }
+      });
     },
     random() {
       let self = this;
-      const res = this.$axios
-        .get("http://localhost:8081/API/Charingedata")
-        .then((res) => {
-          self.time++;
-          res[0].meterValue[0].sampledValue.forEach((e) => {
+      let chargePile = chargePileStore();
+
+      chargePile.GetChargePiledata(this).then((res) => {
+        console.log(res);
+        self.time++;
+        if (res.data !== null) {
+          res.data[0].meterValue[0].sampledValue.forEach((e) => {
             if (e.unit == "kW") {
               self.chargingdata.kwval = e.value;
             }
@@ -105,7 +108,8 @@ export default {
               self.chargingdata.wval = e.value;
             }
           });
-        });
+        }
+      });
     },
   },
   mounted() {
@@ -115,7 +119,7 @@ export default {
       if (mainstore.chargepilemode == "charging") {
         self.random();
       }
-    }, 1000);
+    }, 3000);
   },
   beforeUnmount() {
     clearInterval(this.TimeData);

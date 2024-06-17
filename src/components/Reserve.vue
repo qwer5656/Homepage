@@ -21,11 +21,7 @@
         </div>
         <div class="reservecontent">
           <div class="reservenone" v-if="timedata.length == 0">none</div>
-          <div
-            class="reserveschedulewrap"
-            v-for="item in timedata"
-            :key="item"
-          >
+          <div class="reserveschedulewrap" v-for="item in timedata" :key="item">
             <div class="reservescheduleoperation" v-show="item.active">
               <div>
                 <img
@@ -147,6 +143,7 @@
 import { mdiMinusCircle, mdiPencil } from "@mdi/js";
 import { useMainStore } from "@/stores/main";
 import { reverseStore } from "@/stores/reverse";
+import { ResultStore } from "@/stores/result";
 export default {
   data() {
     return {
@@ -203,26 +200,30 @@ export default {
       this.changedialog(true);
     },
     operationscheduledata() {
-      let self=this;
-      let reverse=reverseStore();
+      let self = this;
+      let reverse = reverseStore();
+      let Result = ResultStore();
       if (this.mode == "add") {
         let obj = {};
-        obj.chargePointId = "Test1234";
         let day = this.convertDate.toString();
         obj.startTime = day + "T" + this.scheduledata.timeform;
         obj.endTime = day + "T" + this.scheduledata.timeto;
         obj.title = this.scheduledata.title;
         obj.valid = true;
         obj.result = "";
-
-        reverse.postapi(self,obj).then(res=>{
-          self.cratescheduleitem = res.data;
+        reverse.postapi(self, obj).then((res) => {
+          if (res.success === undefined) {
+            Result.errorres(res);
+          }
+          if (res.success === true) {
+            self.cratescheduleitem = res.data;
+            Result.successres();
+          }
         });
       }
       if (this.mode == "edit") {
         let self = this;
         let obj = {};
-        obj.chargePointId = "Test1234";
         let day = this.convertDate.toString();
         obj.startTime = day + "T" + this.scheduledata.timeform;
         obj.endTime = day + "T" + this.scheduledata.timeto;
@@ -230,8 +231,14 @@ export default {
         obj.result = "";
         obj.title = this.scheduledata.title;
         obj.scheduleTaskId = this.scheduledata.scheduleTaskId;
-        reverse.putapi(self,obj).then(res=>{
-          self.cratescheduleitem = res.data;
+        reverse.putapi(self, obj).then((res) => {
+          if (res.success === undefined) {
+            Result.errorres(res);
+          }
+          if (res.success === true) {
+            self.cratescheduleitem = res.data;
+            Result.successres();
+          }
         });
       }
       this.changedialog(false);
@@ -247,9 +254,16 @@ export default {
     },
     deletedata(e) {
       let self = this;
-      let reverse=reverseStore();
-      reverse.deleteapi(self,e.scheduleTaskId).then(res=>{
-        self.cratescheduleitem=res.data;
+      let reverse = reverseStore();
+      let Result = ResultStore();
+      reverse.deleteapi(self, e.scheduleTaskId).then((res) => {
+        if (res.success === undefined) {
+          Result.errorres(res);
+        }
+        if (res.success === true) {
+          self.cratescheduleitem = res.data;
+          Result.successres();
+        }
       });
     },
     ediddata(e) {
@@ -311,40 +325,28 @@ export default {
     let hour = 0;
     let min = 0;
 
-     for (let i = 0; i < 288; i++) {
-       if (min >= 60) {
-         min = 0;
-         hour++;
-       }
-       timeval.push(
-         `${hour < 10 ? "0" + hour : hour}:${min < 10 ? "0" + min : min}`
-       );
-       min += 5;
-     }
+    for (let i = 0; i <= 48; i++) {
+      timeval.push(
+        `${hour < 10 ? "0" + hour : hour}:${min < 30 ? min + "0" : min}`
+      );
+      if (i == 47) {
+        hour = 23;
+        min = 59;
+        continue;
+      }
 
-    //for (let i = 0; i <= 48; i++) {
-   //   timeval.push(
-    //    `${hour < 10 ? "0" + hour : hour}:${min < 30 ? min + "0" : min}`
-    //  );
-    //  if(i==47){
-   //     hour=23;
-    //    min=59;
-    //    continue;
-    //  }
+      if (i % 2 == 0) {
+        min = 30;
+      } else {
+        hour++;
+        min = 0;
+      }
+    }
 
-   //   if (i % 2 == 0) {
-    //    min = 30;
-    //  } 
-  //    else {
-   //     hour++;
-  //      min = 0;
-  //    }
-   // }
-    
-    let reverse=reverseStore();
+    let reverse = reverseStore();
 
     let self = this;
-    reverse.getapiAll(self).then(res=>{
+    reverse.getapiAll(self).then((res) => {
       self.cratescheduleitem = res.data;
     });
     this.timeitem = timeval;
@@ -358,14 +360,19 @@ export default {
     convertDate() {
       let date = this.date;
       let year = date.getFullYear();
-      let month = "0" + (date.getMonth() + 1);
+      let month = date.getMonth() + 1;
+      month = month < 10 ? "0" + month : month;
       let day = date.getDate();
+      day = day < 10 ? "0" + day : day;
       return year + "-" + month + "-" + day;
     },
     getcalendar() {
-      let year = this.date.getFullYear();
-      let month = "0" + (this.date.getMonth() + 1);
-      let day = this.date.getDate();
+      let date = this.date;
+      let year = date.getFullYear();
+      let month = date.getMonth() + 1;
+      month = month < 10 ? "0" + month : month;
+      let day = date.getDate();
+      day = day < 10 ? "0" + day : day;
       let val = year + "." + month + "." + day;
       return val;
     },
@@ -376,10 +383,14 @@ export default {
       return arr;
     },
     filterdata() {
+      if( this.cratescheduleitem===null)return[];    
       return this.cratescheduleitem.filter((e) => {
-        let year = this.date.getFullYear();
-        let month = "0" + (this.date.getMonth() + 1);
-        let day = this.date.getDate();
+        let date = this.date;
+        let year = date.getFullYear();
+        let month = date.getMonth() + 1;
+        month = month < 10 ? "0" + month : month;
+        let day = date.getDate();
+        day = day < 10 ? "0" + day : day;
         let val = year + "-" + month + "-" + day;
         if (e.startTime.split("T")[0] == val) {
           return true;
@@ -454,8 +465,6 @@ export default {
   padding: 0px 10px 12px 20px;
   margin-top: 10px;
 }
-
-
 
 .reservewrap .datepicker {
   height: 520px;

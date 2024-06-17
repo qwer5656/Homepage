@@ -40,7 +40,6 @@ export default {
       if (this.init == true) {
         let setting = settingStore();
         if (this.data.chargePointId == "") {
-          this.data.chargePointId = "Test1234";
          
           setting.postapi(this,this.data);
         } else {

@@ -144,7 +144,6 @@ export default {
         let setting = settingStore();
         let self = this;
         if (this.ocpp.chargePointId == "") {
-          this.ocpp.chargePointId = "Test1234";
           setting.postapi(this, this.ocpp).then((res) => {
             self.ocpp = res.data;
             mainstore.loading = false;

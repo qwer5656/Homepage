@@ -28,6 +28,7 @@ import Nswitch from "./public/Nswitch.vue";
 import { useMainStore } from "@/stores/main";
 import qrcodsscan from "@/assets/img/qrcodsscan.png";
 import QrcodeEnabled from "@/assets/img/QrcodeEnabled.png";
+import { settingStore } from "@/stores/setting";
 export default {
   setup() {},
   data() {
@@ -55,39 +56,28 @@ export default {
     },
   },
   beforeMount() {
+    let setting = settingStore();
     let self = this;
-    this.$axios
-      .get("https://localhost:7120/api/Setting/Test1234/QrcodeSetting", true)
-      .then((res) => {
-        self.qrcodeswitchdata = res.data;
+    setting.getapi(this, "QrcodeSetting").then((res) => {
+      self.qrcodeswitchdata = res.data;
         self.changeimg(res.data.enabled);
-      });
+    });
   },
   watch: {
     "qrcodeswitchdata.enabled"(val) {
       let self = this;
       if (this.init == true) {
-        if (this.qrcodeswitchdata.chargePointId == "") {
-          this.qrcodeswitchdata.chargePointId = "Test1234";
-          this.$axios
-            .post(
-              "https://localhost:7120/api/Setting/",
-              this.qrcodeswitchdata,
-              true
-            )
-            .then((res) => {
+        let setting = settingStore();
+        if (this.qrcodeswitchdata.chargePointId == "") {         
+          setting.postapi(this,this.qrcodeswitchdata).then((res) => {
               self.changeimg(res.data.enabled);
             });
         } else {
-          this.$axios
-            .put(
-              "https://localhost:7120/api/Setting/",
-              this.qrcodeswitchdata,
-              true
-            )
-            .then((res) => {
-              self.changeimg(res.data.enabled);
-            });
+         
+          setting.putapi(this,this.qrcodeswitchdata).then(res=>{
+            self.changeimg(res.data.enabled);
+          })
+
         }
       }
       this.init = true;

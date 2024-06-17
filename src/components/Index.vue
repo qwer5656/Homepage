@@ -9,9 +9,14 @@
       <div style="display: flex; flex-direction: column">
         <div class="contentwrap">
           <div class="contentleft">
-            <div><img src="../assets/img/Buletooth-Off.png" /></div>
-            <div><img src="../assets/img/LTE-Off.png" /></div>
-            <div><img src="../assets/img/Buletooth-On.png" /></div>
+            <div>
+              <img v-if="wifi" src="../assets/img/Wifi-On.png" />
+              <img v-else src="../assets/img/Wifi-Off.png" />
+            </div>
+            <div><img v-if="lte" src="../assets/img/LTE-On.png" />
+              <img v-else src="../assets/img/LTE-Off.png" /></div>
+            <div><img v-if="bluetooth" src="../assets/img/Buletooth-On.png" />
+              <img v-else src="../assets/img/Buletooth-Off.png" /></div>
           </div>
           <div class="contentmid">
             <img
@@ -56,6 +61,7 @@ import Chargingmode from "@/components/Chargingmode.vue";
 import Finishmode from "@/components/Finishmode.vue";
 import Startmodeselect from "@/components/Startmodeselect.vue";
 import { useMainStore } from "@/stores/main";
+import { chargePileStore } from "@/stores/chargePile";
 export default {
   name: "App",
   components: {
@@ -89,10 +95,14 @@ export default {
     Nowdate: "",
     Nowmonth: "",
     TimeData: null,
+    wifi:false,
+    lte:false,
+    bluetooth:false
   }),
   mounted() {
     let self = this;
     self.setinit();
+
     this.TimeData = setInterval(function () {
       self.setinit();
     }, 1000);
@@ -104,7 +114,6 @@ export default {
     setinit() {
       this.gettime();
       this.getchargepilestatus();
-      
     },
     gettime() {
       let date = new Date();
@@ -121,41 +130,38 @@ export default {
     },
     getchargepilestatus() {
       let self = this;
-      const res = this.$axios
-        .get("http://localhost:8081/API/Status")
-        .then((res) => {
-          if (res == undefined || res.length == 0) {
-       
-            const mainstore = useMainStore();
-            self.chargestauts = false;
-            mainstore.chargepilemode = "standby";
-          } else {
-            self.$axios
-              .get("http://localhost:8081/API/StatusConnet/Test1234")
-              .then((res) => {
-                const mainstore = useMainStore();
+      let chargePile = chargePileStore();
 
-                if (res.LastStatus == "Available"&&
-                  (mainstore.chargepilemode == "finish" ||
-                  mainstore.chargepilemode == "selectmode")
-                ) {
-             
-                }
-                else{
-                  if (res.LastStatus == "Charging") {
-                    mainstore.chargepilemode = "charging";
-                  }
-                  if (res.LastStatus == "Preparing") {
-                    mainstore.chargepilemode = "preparing";
-                  }
-                  if (res.LastStatus == "Available") {
-                    self.chargestauts = true;
-                    mainstore.chargepilemode = "standby";
-                  }
-                }
-              });
+      chargePile.GetChargePileStatus(this).then((res) => {
+        if (res.data === null || res.data === undefined) {
+          const mainstore = useMainStore();
+          self.chargestauts = false;
+          mainstore.chargepilemode = "standby";
+        } else {
+          let data = res.data;
+          self.wifi=data.wifi;
+          self.lte=data.lte;
+          self.bluetooth=data.bluetooth;
+          const mainstore = useMainStore();
+          if (
+            data.lastStatus == "Available" &&
+            (mainstore.chargepilemode == "finish" ||
+              mainstore.chargepilemode == "selectmode")
+          ) {
+          } else {
+            if (data.lastStatus == "Charging") {
+              mainstore.chargepilemode = "charging";
+            }
+            if (data.lastStatus == "Preparing") {
+              mainstore.chargepilemode = "preparing";
+            }
+            if (data.lastStatus == "Available") {
+              self.chargestauts = true;
+              mainstore.chargepilemode = "standby";
+            }
           }
-        });
+        }
+      });
     },
   },
   computed: {

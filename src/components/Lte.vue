@@ -32,7 +32,6 @@ export default {
       if (this.init == true) {
         let setting = settingStore();
         if (this.Ltedata.chargePointId == "") {
-          this.Ltedata.chargePointId = "Test1234";
           setting.postapi(this,this.Ltedata);
         } else {
           setting.putapi(this,this.Ltedata);

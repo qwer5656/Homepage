@@ -4,6 +4,18 @@
       <img src="../assets/img/Previous.png" alt="" />
       <span>Back</span>
     </div>
+    <div class="searchwrap">
+      <div class="searchcontent">
+        <v-text-field
+          variant="underlined"
+          :type="text"
+          label="Search"
+          single-line
+          :prepend-inner-icon="mdiMagnify"
+          v-model="searchText"
+        ></v-text-field>
+      </div>
+    </div>
     <div class="addcontent">
       <div>My Car License</div>
       <div class="addiconwrap" @click="addcardnumber">
@@ -13,11 +25,11 @@
     </div>
     <div class="cardnumbermangerwrap" @click.capture="clearcardnumber">
       <div
-        v-for="(item, index) in carNumberddata"
+        v-for="(item, index) in filtercarNumberddata"
         :key="item"
         class="cardnumbercontainer"
       >
-        <h3 >{{ item.licensePlateName }}</h3>
+        <h3>{{ item.licensePlateName }}</h3>
         <div class="cardoperatewrap" v-if="item.select == true">
           <div class="cardoperate" @click.capture="editcardnumber(item)">
             <img
@@ -65,22 +77,24 @@
         >
           <img src="../assets/img/Close.png" alt="" />
         </div>
-        <form class="formwrap">
+        <v-form class="formwrap" ref="entryForm">
           <v-text-field
             label="Fill in Name"
             variant="solo"
             v-model="newcarNumberddata.licensePlateName"
+            :rules="carNamerules"
           ></v-text-field>
           <v-text-field
             label="Fill in number"
             variant="solo"
             v-model="newcarNumberddata.licensePlateNumber"
             maxlength="11"
+            :rules="carNumberrules"
           ></v-text-field>
           <div class="chargebt" @click="savecardnumber">
             {{ mode == "add" ? "Create" : "Save" }}
           </div>
-        </form>
+        </v-form>
       </div>
     </v-dialog>
   </div>
@@ -88,7 +102,9 @@
 <script>
 import { mdiMinusCircle, mdiPencil } from "@mdi/js";
 import { useMainStore } from "@/stores/main";
-import { addLicensePlateStore } from "@/stores/addLicensePlate";
+import { LicensePlateStore } from "@/stores/LicensePlate";
+import { ResultStore } from "@/stores/result";
+import { mdiMagnify } from "@mdi/js";
 export default {
   data() {
     return {
@@ -97,6 +113,20 @@ export default {
       carNumberddata: [],
       tempdata: {},
       mode: "",
+      searchText:"",
+      mdiMagnify,
+      carNamerules: [
+        (value) => {
+          if (value) return true;
+          return "Name is not null";
+        },
+      ],
+      carNumberrules: [
+        (value) => {
+          if (value) return true;
+          return "CarNumber is not null";
+        },
+      ],
     };
   },
   methods: {
@@ -110,35 +140,50 @@ export default {
       this.deletedialog = true;
     },
     savecardnumber() {
-      let addLicense = addLicensePlateStore();
       let self = this;
+      this.$refs.entryForm.validate().then(function (res) {
+        if (res.valid == true) {
+          let License = LicensePlateStore();
+          let Result = ResultStore();
+          if (self.mode == "add") {
+            let obj = {
+              blocked: false,
+              licensePlateId: "00000000-0000-0000-0000-000000000000",
+              chargePointId: "Test1234",
+              createTime: new Date(),
+              updateTime: new Date(),
+              expiryDate: null,
+            };
 
-      if (this.mode == "add") {
-
-        let obj = {
-          blocked: false,
-          licensePlateId: "00000000-0000-0000-0000-000000000000",
-          chargePointId:"Test1234",
-          createTime: new Date(),
-          updateTime: new Date(),
-          expiryDate: null,
-        };
-
-        obj.licensePlateName = this.newcarNumberddata.licensePlateName;
-        obj.licensePlateNumber = this.newcarNumberddata.licensePlateNumber;
-        addLicense.postapi(this, obj).then((res) => {
-          self.carNumberddata = res.data;
-        });
-        this.newcarNumberddata={};
-      }
-      if (this.mode == "edit") {
-        addLicense.putapi(this, this.newcarNumberddata).then((res) => {
-          self.carNumberddata = res.data;
-        });
-        this.newcarNumberddata = {};
-      }
-
-      this.deletedialog = false;
+            obj.licensePlateName = self.newcarNumberddata.licensePlateName;
+            obj.licensePlateNumber = self.newcarNumberddata.licensePlateNumber;
+            License.postapi(self, obj).then((res) => {
+              if (res.success === false) {
+                Result.errorres(res.message);
+              }
+              if (res.success === true) {
+                self.carNumberddata = res.data;
+                self.newcarNumberddata = {};
+                Result.successres();
+                self.deletedialog = false;
+              }
+            });
+          }
+          if (self.mode == "edit") {
+            License.putapi(self, self.newcarNumberddata).then((res) => {
+              if (res.success === false) {
+                Result.errorres(res.message);
+              }
+              if (res.success === true) {
+                self.carNumberddata = res.data;
+                self.newcarNumberddata = {};
+                Result.successres();
+                self.deletedialog = false;
+              }
+            });
+          }
+        }
+      });
     },
     cardnumberclick(item) {
       item.select = true;
@@ -150,6 +195,7 @@ export default {
     },
     addcardnumber() {
       this.open();
+      this.newcarNumberddata = {};
       this.mode = "add";
     },
     editcardnumber(item) {
@@ -159,25 +205,37 @@ export default {
       this.mode = "edit";
     },
     removecardnumber(item) {
-      let addLicense = addLicensePlateStore();
+      let License = LicensePlateStore();
       let self = this;
-      addLicense.deleteapi(this, item.licensePlateId).then((res) => {
-          self.carNumberddata = res.data;
-        });
-    },
-    clearcardnumber(){
-      this.carNumberddata.forEach((e) => {
-          e.select = false;
+      License.deleteapi(this, item.licensePlateId).then((res) => {
+        self.carNumberddata = res.data;
       });
-    }
+    },
+    clearcardnumber() {
+      this.carNumberddata.forEach((e) => {
+        e.select = false;
+      });
+    },
   },
   beforeMount() {
-    let addLicense = addLicensePlateStore();
+    let License = LicensePlateStore();
     let self = this;
-    addLicense.getapiAll(this).then((res) => {
-      console.log(res);
+    License.getapiAll(this).then((res) => {
       self.carNumberddata = res.data;
     });
+  },
+  computed: {
+    filtercarNumberddata() {
+      if (this.carNumberddata == null) return [];
+      return this.carNumberddata.filter((e) => {
+        if (
+          e.licensePlateName.indexOf(this.searchText) != -1 ||
+          e.licensePlateNumber.indexOf(this.searchText) != -1
+        ) {
+          return true;
+        }
+      });
+    },
   },
 };
 </script>
@@ -233,6 +291,14 @@ export default {
   color: white;
   border: 1px solid rgba(107, 107, 107, 1);
 }
+.carnumberwrap .searchwrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 23px;
+}
+.carnumberwrap .searchwrap .searchcontent {
+  width: 120px;
+}
 .Cardnumberdialogwrap .addcardnumberwrap {
   background: rgba(255, 255, 255, 0.05);
 }
@@ -248,6 +314,7 @@ export default {
   margin-left: auto;
   vertical-align: middle;
   cursor: pointer;
+  width: 120px;
 }
 .carnumberwrap .addiconwrap img {
   vertical-align: middle;
@@ -257,7 +324,7 @@ export default {
   display: flex;
   justify-self: center;
   align-items: center;
-  margin: 43px 0px 30px 0px;
+  margin: 0px 0px 30px 0px;
 }
 .carnumberwrap {
   color: white;
@@ -301,6 +368,7 @@ export default {
     #66ff80 100%
   );
   border-radius: 32px;
+  margin-top: 10px;
   cursor: pointer;
 }
 

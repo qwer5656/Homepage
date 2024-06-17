@@ -15,36 +15,27 @@
       </div>
     </div>
     <div style="margin-top: 5px" v-if="selectval == 'month'">
-      <!-- <v-data-table class="vtablewrap"
-    v-model:items-per-page="itemsPerPage">
-      <thead>
-        <tr>
-            <th>充電(卡號/車牌)</th>
-          <th class="text-left">{{ $t("Historypage.Date") }}</th>
-          <th class="text-left">{{ $t("Historypage.Time") }}</th>
-          <th class="text-left">{{ $t("Historypage.Degree") }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="item in desserts"
-          :key="item.name"
-          @click="changeValue(true, item)"
-        >
-        <td>{{ item.startTagId }}</td>
-          <td>{{ item.startTime.split("T")[0] }}</td>
-          <td>{{ item.chargetime }}</td>
-          <td>{{ item.meterStop-item.meterStart }}</td>
-        </tr>
-      </tbody>
-    </v-data-table> -->
+      
       <v-data-table
         v-model:page="page"
         :headers="headers"
-        :items="desserts"
+        :items="filterdesserts"
         :items-per-page="itemsPerPage"
         class="vtablewrap"
       >
+        <template v-slot:body.prepend>
+          <tr>
+            <td v-for="header in headers" class="headerwrap">
+              <v-text-field
+                v-model="obj[`${header.key}`]"
+                type="text"
+                :label="header.title"
+                hide-details
+                :prepend-inner-icon="mdiMagnify"
+              ></v-text-field>
+            </td>
+          </tr>
+        </template>
         <template v-slot:bottom>
           <div class="text-center pt-2">
             <v-pagination v-model="page" :length="pageCount"></v-pagination>
@@ -70,6 +61,7 @@
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import * as echarts from "echarts";
+import { mdiMagnify } from "@mdi/js";
 import {
   TitleComponent,
   TooltipComponent,
@@ -156,7 +148,9 @@ const options = ref({
 
 const chartsshow = ref(false);
 
-const desserts = ref();
+const obj = ref({});
+
+const desserts = ref([]);
 const itemsPerPage = ref(5);
 const page = ref(1);
 const headers = ref([
@@ -166,13 +160,11 @@ const headers = ref([
   { title: "Charging Dgree", key: "drgee" },
 ]);
 onMounted(() => {
-  var test = historyStore();
+  var history = historyStore();
   const { proxy, ctx } = getCurrentInstance();
-  console.log(ctx);
-  test.getapiAll(proxy).then((res) => {
+  history.getapiAll(proxy).then((res) => {
     desserts.value = res.data;
   });
-  desserts.value = [];
 
   let item = [];
 
@@ -196,17 +188,44 @@ onMounted(() => {
       "-" +
       (day < 10 ? "0" : "") +
       day;
-      item.push(dateString);
+    item.push(dateString);
   }
 
   option.value.xAxis.data = item;
 
-  option.value.series[0].data = [10, 5, 6, 0,20,50,100];
-  console.log(option.value);
+  option.value.series[0].data = [10, 5, 6, 0, 20, 50, 100];
 });
 
 let pageCount = computed(() => {
   return Math.ceil(desserts.value.length / itemsPerPage.value);
+});
+
+let filterdesserts = computed(() => {
+  return desserts.value.filter((e) => {
+    let val = true;
+    for (var item in e) {
+      if (obj.value[item] != undefined) {
+        if (typeof e[item] === "number") {
+          if (
+            String(e[item])
+              .toLocaleUpperCase()
+              .indexOf(obj.value[item].toLocaleUpperCase()) === -1
+          ) {
+            return false;
+          }
+        } else {
+          if (
+            e[item]
+              .toLocaleUpperCase()
+              .indexOf(obj.value[item].toLocaleUpperCase()) === -1
+          ) {
+            return false;
+          }
+        }
+      }
+    }
+    return val;
+  });
 });
 
 function changeValue(value, obj) {
@@ -291,9 +310,19 @@ function changeValue(value, obj) {
   background-color: #588157;
   border-radius: 10px;
 }
+.historywrap .headerwrap {
+  padding: 20px 10px !important;
+}
 @media (max-width: 576px) {
   .historywrap .chart {
     padding-bottom: 30px;
   }
+  .historywrap .vtablewrap {
+    padding: 0 10px;
+  }
+  .historywrap .v-table {
+    font-size: 14px;
+  }
+
 }
 </style>

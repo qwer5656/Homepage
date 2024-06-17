@@ -31,7 +31,6 @@ export default {
       if (this.init == true) {
         let setting = settingStore();
         if (this.Bluetoothdata.chargePointId == "") {
-          this.Bluetoothdata.chargePointId = "Test1234";
           setting.postapi(this,this.Bluetoothdata);
         } else {
           setting.putapi(this,this.Bluetoothdata);

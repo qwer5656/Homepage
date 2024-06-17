@@ -36,8 +36,8 @@
 </template>
 <script>
 import { mdiEye, mdiEyeOff, mdiLockOutline } from "@mdi/js";
-import { useMainStore } from "@/stores/main";
 import { loginStore } from "@/stores/login";
+import { ResultStore } from "@/stores/result";
 export default {
   data() {
     return {
@@ -81,20 +81,22 @@ export default {
       this.$refs.entryForm.validate().then(function (res) {
         if (res.valid == true) {
           let obj = {};
-          obj.account = self.accountdata;
+          obj.accout = self.accountdata;
           obj.password = self.passworddata;
           login.accountlogin(self, obj).then((res) => {
-            let data={};
-            data=res;
             if (res.success == true) {
-              var object = {
-                data,
-                timestamp: new Date().getTime() + 10000,
-              };
-              localStorage.setItem("login", JSON.stringify(object));
+              let obj={};
+              obj.accout=res.data.accout;
+              obj.userName=res.data.userName;
+              localStorage.setItem('userdata', JSON.stringify(obj));
+              localStorage.setItem("token", JSON.stringify(res.data.token));
               self.$router.push("/");
             } else {
-              if(res.data.error.indexOf("Account")!=-1){
+              if(res.data==undefined){
+                  let Result=ResultStore();
+                  Result.errorres(res);
+              }
+              else if(res.data.error.indexOf("Account")!=-1){
                 self.accounterror = res.data.error;
               }
               else{
@@ -109,7 +111,7 @@ export default {
     },
   },
   beforeMount() {
-    let val = localStorage.getItem("login");
+    let val = localStorage.getItem("token");
     if (val != null) {
       this.$router.push("/");
     }

@@ -70,7 +70,6 @@ export default {
       if (this.init == true) {
         let setting = settingStore();
         if (this.carnumberswitchdata.chargePointId == "") {
-          this.carnumberswitchdata.chargePointId = "Test1234";
           setting.postapi(this,this.carnumberswitchdata);
         } else {
           setting.putapi(this,this.carnumberswitchdata);

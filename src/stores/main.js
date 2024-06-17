@@ -7,6 +7,7 @@ export const useMainStore = defineStore('main', {
     curpage:"",
     chargepilemode:"standby",
     userapi:"https://localhost:7120/api/UpdatePassword",
+    userdata:{},
   }
   },
   actions: {
@@ -14,6 +15,8 @@ export const useMainStore = defineStore('main', {
         return new Promise((resolve, reject) => {
           self.$axios.put(this.userapi, data, true).then((res) => {
             resolve(res);
+          }).catch((res)=>{
+            reject(res);
           });
         });
      }
