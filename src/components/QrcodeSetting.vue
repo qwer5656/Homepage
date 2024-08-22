@@ -28,24 +28,16 @@ import Nswitch from "./public/Nswitch.vue";
 import { useMainStore } from "@/stores/main";
 import qrcodsscan from "@/assets/img/qrcodsscan.png";
 import QrcodeEnabled from "@/assets/img/QrcodeEnabled.png";
-<<<<<<< HEAD
-=======
 import { settingStore } from "@/stores/setting";
->>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
 export default {
   setup() {},
   data() {
     return {
-<<<<<<< HEAD
-      qrcodeval: false,
-      qrcodeimg: QrcodeEnabled,
-      error: "",
-=======
+
       qrcodeswitchdata: {},
       qrcodeimg: QrcodeEnabled,
       error: "",
       init: false,
->>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
     };
   },
   components: {
@@ -73,25 +65,7 @@ export default {
     });
   },
   watch: {
-<<<<<<< HEAD
-    qrcodeval(val) {
-      if (this.error == "") {
-        const mainstore = useMainStore();
-        mainstore.loading = true;
-        let self = this;
-        setTimeout(function () {
-          mainstore.loading = false;
-          if (val == true) {
-            self.qrcodeimg = qrcodsscan;
-          } else {
-            self.qrcodeimg = QrcodeEnabled;
-          }
-          setTimeout(function () {
-            self.error = "";
-          }, 10);
-        }, 1000);
-      }
-=======
+
     "qrcodeswitchdata.enabled"(val) {
       let self = this;
       if (this.init == true) {
@@ -109,7 +83,6 @@ export default {
         }
       }
       this.init = true;
->>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
     },
   },
 };
@@ -177,10 +150,6 @@ export default {
 
 @media (max-width: 576px) {
   .qrcodesettingwrap {
-<<<<<<< HEAD
-
-=======
->>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
     margin-top: 20px;
   }
 

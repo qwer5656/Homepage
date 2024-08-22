@@ -10,17 +10,14 @@
       </div>
     </div>
     <div class="flex">
-<<<<<<< HEAD
-      <img v-if="Touchstartmodeimg" :src="TouchStarmtmodeimageUrl" class="sizeclass" />
-      <img v-else :src="CarimageUrl"  />
-=======
+
       <img
         v-if="Touchstartmodeimg"
         :src="TouchStarmtmodeimageUrl"
         class="sizeclass"
       />
       <img v-else :src="CarimageUrl" />
->>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
+
     </div>
   </div>
 </template>
@@ -34,31 +31,6 @@ export default {
     return {
       data: {},
       error: "",
-<<<<<<< HEAD
-      phoneimg: true,
-      Touchstartmodeimg: true,
-      TouchStarmtmodeimageUrl,
-      CarimageUrl
-    };
-  },
-  watch: {
-    status(val) {
-      if (this.error == "") {
-        const mainstore = useMainStore();
-        mainstore.loading = true;
-        let self = this;
-        setTimeout(function () {
-          mainstore.loading = false;
-          if (val == true) {
-            self.Touchstartmodeimg = false;
-          } else {
-            self.Touchstartmodeimg = true;
-          }
-          setTimeout(function () {
-            self.error = "";
-          }, 10);
-        }, 1000);
-=======
       init: false,
       phoneimg: true,
       TouchStarmtmodeimageUrl,
@@ -77,7 +49,6 @@ export default {
           setting.putapi(this,this.data);
 
         }
->>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
       }
       this.init = true;
     },

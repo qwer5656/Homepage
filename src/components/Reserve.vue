@@ -19,21 +19,10 @@
             />
           </div>
         </div>
-<<<<<<< HEAD
-        <div class="reservecontent" >
-          <div class="reservenone" v-if="cratescheduleitem.length == 0">
-            none
-          </div>
-          <div
-            class="reserveschedulewrap"
-            v-for="item in cratescheduleitem"
-            :key="item" 
-          >
-=======
+
         <div class="reservecontent">
           <div class="reservenone" v-if="timedata.length == 0">none</div>
           <div class="reserveschedulewrap" v-for="item in timedata" :key="item">
->>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
             <div class="reservescheduleoperation" v-show="item.active">
               <div>
                 <img
@@ -284,19 +273,12 @@ export default {
       this.scheduledata = JSON.parse(JSON.stringify(e));
       this.changedialog(true);
     },
-<<<<<<< HEAD
-    clearscheduledata(){
-      this.cratescheduleitem.forEach((e) => {
-          e.active = false;
-      });
-    }
-=======
+
     clearscheduledata() {
       this.cratescheduleitem.forEach((e) => {
         e.active = false;
       });
     },
->>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
   },
   watch: {
     value: {

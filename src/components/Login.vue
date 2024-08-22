@@ -52,19 +52,10 @@ export default {
       sumbitenabled: false,
       passwordrules: [
         (value) => {
-<<<<<<< HEAD
-          if (this.sumbitenabled == true) {
-            this.sumbitenabled = false;
-            if (this.passworddata != "1234") {
-              return "password is not correct";
-            }
-            return true;
-=======
           if (this.passworderror !== "") {
             let temperror = this.passworderror;
             this.passworderror = "";
             return temperror;
->>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
           }
           if (value) return true;
           return "password is not null";

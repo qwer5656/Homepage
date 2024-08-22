@@ -271,14 +271,6 @@ export default {
       this.$i18n.locale = type;
     },
     checklogin() {
-<<<<<<< HEAD
-      let object = JSON.parse(localStorage.getItem("login"));
-      if (object != null) {
-        this.loginshow = true;
-        return true;
-      }
-
-=======
       let token = JSON.parse(localStorage.getItem("token"));
       let loginstore = loginStore();
       let self = this;
@@ -292,19 +284,12 @@ export default {
         });
         return true;
       }
->>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
       this.loginshow = false;
       this.$router.push(`/Login`);
     },
   },
   beforeMount() {
-<<<<<<< HEAD
-    this.checklogin();
-  },
-  watch: {
-    "$route.path"(topath, frompath) {
-      this.checklogin();
-=======
+
     if (this.$route.path == "/") {
       this.checklogin();
     }
@@ -312,22 +297,16 @@ export default {
   watch: {
     "$route.path"(topath, frompath) {
         this.checklogin();
->>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
     },
   },
   mounted() {
     let self = this;
     window.addEventListener("resize", function () {
-<<<<<<< HEAD
-      console.log("1");
-      var windowWidth = document.body.clientWidth;
-      const mainstore = useMainStore();
-      console.log(windowWidth, mainstore.curpage);
-=======
+
       var windowWidth = document.body.clientWidth;
       const mainstore = useMainStore();
 
->>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
+
       if (windowWidth <= 576) {
         if (mainstore.curpage == "Setting") {
           self.$router.push(`/`);
