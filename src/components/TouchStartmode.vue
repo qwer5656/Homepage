@@ -10,21 +10,24 @@
       </div>
     </div>
     <div class="flex">
-      <img :src="Touchstartmodeimg" :class={sizeclass:phoneimg} alt="" />
+      <img v-if="Touchstartmodeimg" :src="TouchStarmtmodeimageUrl" class="sizeclass" />
+      <img v-else :src="CarimageUrl"  />
     </div>
   </div>
 </template>
 <script>
-import TouchStarmtmodeimageUrl from '@/assets/img/TouchStarmtmode.png'
-import CarimageUrl from '@/assets/img/Car.png'
+import TouchStarmtmodeimageUrl from "@/assets/img/TouchStarmtmode.png";
+import CarimageUrl from "@/assets/img/Car.png";
 import { useMainStore } from "@/stores/main";
 export default {
   data() {
     return {
       status: false,
       error: "",
-      phoneimg:true,
-      Touchstartmodeimg: TouchStarmtmodeimageUrl,
+      phoneimg: true,
+      Touchstartmodeimg: true,
+      TouchStarmtmodeimageUrl,
+      CarimageUrl
     };
   },
   watch: {
@@ -36,11 +39,9 @@ export default {
         setTimeout(function () {
           mainstore.loading = false;
           if (val == true) {
-            self.Touchstartmodeimg = CarimageUrl;
-            self.phoneimg=false;
+            self.Touchstartmodeimg = false;
           } else {
-            self.Touchstartmodeimg = TouchStarmtmodeimageUrl;
-            self.phoneimg=true;
+            self.Touchstartmodeimg = true;
           }
           setTimeout(function () {
             self.error = "";
@@ -126,16 +127,15 @@ export default {
 @media (max-width: 576px) {
   .touchstartmainwrap .touchstartwrap {
     padding: 0 20px;
-    margin-top:30px;
+    margin-top: 30px;
   }
   .touchstartmainwrap .flex img {
     width: 90%;
   }
   .touchstartmainwrap .flex {
     padding-top: 40px;
-
   }
-  .touchstartmainwrap .flex .sizeclass{
+  .touchstartmainwrap .flex .sizeclass {
     width: 70%;
   }
 }

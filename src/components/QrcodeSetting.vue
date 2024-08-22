@@ -5,7 +5,7 @@
         <img src="../assets/img/Previous.png" alt="" />
         <span>Back</span>
       </div> -->
-      
+
       <div class="container">
         <div class="content">
           <div class="qrcodeswitch">
@@ -18,7 +18,6 @@
         <div class="imgwrap">
           <img :src="qrcodeimg" alt="" />
         </div>
-        
       </div>
     </div>
   </div>
@@ -26,15 +25,15 @@
 <script>
 import Nswitch from "./public/Nswitch.vue";
 import { useMainStore } from "@/stores/main";
-import qrcodsscan from '@/assets/img/qrcodsscan.png'
-import QrcodeEnabled from '@/assets/img/QrcodeEnabled.png'
+import qrcodsscan from "@/assets/img/qrcodsscan.png";
+import QrcodeEnabled from "@/assets/img/QrcodeEnabled.png";
 export default {
   setup() {},
   data() {
     return {
       qrcodeval: false,
-      qrcodeimg:QrcodeEnabled,
-      error:""
+      qrcodeimg: QrcodeEnabled,
+      error: "",
     };
   },
   components: {
@@ -55,8 +54,7 @@ export default {
           mainstore.loading = false;
           if (val == true) {
             self.qrcodeimg = qrcodsscan;
-          }
-          else{
+          } else {
             self.qrcodeimg = QrcodeEnabled;
           }
           setTimeout(function () {
@@ -64,8 +62,8 @@ export default {
           }, 10);
         }, 1000);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style>
@@ -76,7 +74,7 @@ export default {
 }
 .qrcodesettingwrap .imgwrap {
   width: 415px;
-  height:315.57px;
+  height: 315.57px;
 }
 .qrcodesettingwrap .backicon {
   color: white;
@@ -130,31 +128,30 @@ export default {
 }
 
 @media (max-width: 576px) {
-  .qrcodesettingwrap{
-    justify-content: start;
+  .qrcodesettingwrap {
+
     margin-top: 20px;
-    
   }
-  .qrcodesettingwrap .container{
+
+  .qrcodesettingwrap .container {
     width: 100%;
     flex-direction: column;
   }
-  .qrcodesettingwrap .content{
+  .qrcodesettingwrap .content {
     padding: 0 20px;
   }
-  .qrcodesettingwrap .qrcodeexplain{
+  .qrcodesettingwrap .qrcodeexplain {
     width: 100%;
   }
-  .qrcodesettingwrap  .imgwrap{
+  .qrcodesettingwrap .imgwrap {
     display: flex;
     justify-content: center;
     margin-top: 40px;
     width: 80%;
     margin: 30px auto;
   }
-  .qrcodesettingwrap .imgwrap img{ 
-    width: 80%;
-  
+  .qrcodesettingwrap .imgwrap img {
+    width: 90%;
   }
 }
 </style>

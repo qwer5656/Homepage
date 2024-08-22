@@ -89,5 +89,8 @@ export default {
   .passwordwrap .btwrap {
     margin-top: 20px;
   }
+  .passwordwrap .formwrap {
+   width: 100%;
+  }
 }
 </style>

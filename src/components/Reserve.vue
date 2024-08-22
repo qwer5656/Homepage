@@ -8,7 +8,7 @@
           </template></v-date-picker
         >
       </div>
-      <div class="schedulewrap">
+      <div class="schedulewrap" @click.capture="clearscheduledata()">
         <div class="addserverwrap">
           <h4>My schedule</h4>
           <div>
@@ -19,14 +19,14 @@
             />
           </div>
         </div>
-        <div class="reservecontent">
+        <div class="reservecontent" >
           <div class="reservenone" v-if="cratescheduleitem.length == 0">
             none
           </div>
           <div
             class="reserveschedulewrap"
             v-for="item in cratescheduleitem"
-            :key="item"
+            :key="item" 
           >
             <div class="reservescheduleoperation" v-show="item.active">
               <div>
@@ -238,6 +238,11 @@ export default {
       this.scheduledata = JSON.parse(JSON.stringify(e));
       this.changedialog(true);
     },
+    clearscheduledata(){
+      this.cratescheduleitem.forEach((e) => {
+          e.active = false;
+      });
+    }
   },
   watch: {
     value: {
@@ -581,7 +586,7 @@ export default {
   }
   .reservewrap .reservecontent {
     height: auto;
-    padding: 0 15px 75px 0;
+    padding: 3px 15px 75px 0;
   }
   .reservewrap .schedulewrap {
     padding-left: 24px;

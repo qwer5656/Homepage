@@ -47,7 +47,7 @@
             </li>
           </ul>
         </div>
-        <a href="#" class="logowrap">
+        <a href="./" class="logowrap">
           <img src="./assets/img/logo.png" />
         </a>
 
@@ -131,6 +131,7 @@
           <router-view @loginstauts="loginchange" />
         </div>
       </div>
+      <div class="phonediv"></div>
     </v-main>
 
     <Loading v-if="isshow"></Loading>
@@ -273,17 +274,51 @@ export default {
       document.querySelector("#languagewrap").style.display = "none";
       this.$i18n.locale = type;
     },
+    checklogin() {
+      let object = JSON.parse(localStorage.getItem("login"));
+      if (object != null) {
+        this.loginshow = true;
+        return true;
+      }
+
+      this.loginshow = false;
+      this.$router.push(`/Login`);
+    },
   },
   beforeMount() {
-    let object = JSON.parse(localStorage.getItem("login"));
-
-    if (object != null) {
-      this.loginshow = true;
-      return true;
-    }
-
-    this.loginshow = false;
-    this.$router.push(`/Login`);
+    this.checklogin();
+  },
+  watch: {
+    "$route.path"(topath, frompath) {
+      this.checklogin();
+    },
+  },
+  mounted() {
+    let self = this;
+    window.addEventListener("resize", function () {
+      console.log("1");
+      var windowWidth = document.body.clientWidth;
+      const mainstore = useMainStore();
+      console.log(windowWidth, mainstore.curpage);
+      if (windowWidth <= 576) {
+        if (mainstore.curpage == "Setting") {
+          self.$router.push(`/`);
+          mainstore.curpage = "";
+        }
+      } else {
+        if (
+          mainstore.curpage == "Bluetooth" ||
+          mainstore.curpage == "LTE" ||
+          mainstore.curpage == "Wifi" ||
+          mainstore.curpage == "OCPP" ||
+          mainstore.curpage == "Time" ||
+          mainstore.curpage == "Language"
+        ) {
+          self.$router.push(`/Setting`);
+          mainstore.curpage = "Setting";
+        }
+      }
+    });
   },
 };
 </script>
@@ -309,7 +344,10 @@ body {
 ::-webkit-scrollbar {
   width: 5px;
 }
-
+.phonediv {
+  height: 65px;
+  display: none;
+}
 /* Track */
 ::-webkit-scrollbar-track {
   background: black;
@@ -465,6 +503,9 @@ body {
   .leftbarconent {
     width: 100%;
   }
+  .phonediv {
+    display: block;
+  }
   .leftbar {
     position: -webkit-fixed;
     position: fixed;
@@ -535,6 +576,7 @@ body {
 @media (max-height: 740px) {
   .pctopwrap {
     padding: 0;
+    
   }
 }
 </style>

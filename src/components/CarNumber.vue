@@ -11,7 +11,7 @@
         <img src="../assets/img/Add_On.png" alt="" />
       </div>
     </div>
-    <div class="cardnumbermangerwrap">
+    <div class="cardnumbermangerwrap" @click.capture="clearcardnumber">
       <div
         v-for="(item, index) in carNumberddata"
         :key="item"
@@ -19,7 +19,7 @@
       >
         <h3 >{{ item.CardNumberName }}</h3>
         <div class="cardoperatewrap" v-if="item.select == true">
-          <div class="cardoperate" @click="editcardnumber(item)">
+          <div class="cardoperate" @click.capture="editcardnumber(item)">
             <img
               class="cardoperateimg"
               src="../assets/img/Edit_black.png"
@@ -141,6 +141,11 @@ export default {
     removecardnumber(index) {
       this.carNumberddata.splice(index, 1);
     },
+    clearcardnumber(){
+      this.carNumberddata.forEach((e) => {
+          e.select = false;
+      });
+    }
   },
 };
 </script>
@@ -310,7 +315,7 @@ export default {
   .carnumberwrap .cardnumbermangerwrap {
     width: 100%;
     margin-top: 20px;
-    padding: 0px 20px;
+    padding: 0px 20px 40px 20px;
   }
   .carnumberwrap .cardnumbercontainer {
     width: 100%;

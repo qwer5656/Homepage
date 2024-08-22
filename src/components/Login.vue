@@ -16,8 +16,9 @@
             @click:append-inner="show1 = !show1"
             :rules="rules"
             variant="solo"
+            @keyup.enter="passwordConfirmationRule"
           ></v-text-field>
-          <div class="chargebt" @click="passwordConfirmationRule">Log in</div>
+          <div class="chargebt" @click="passwordConfirmationRule" >Log in</div>
         </v-form>
       </div>
       <div class="loginchargepilewrap">
@@ -32,7 +33,7 @@ import { useMainStore } from "@/stores/main";
 export default {
   data() {
     return {
-      show1: true,
+      show1: false,
       mdiEye,
       mdiEyeOff,
       mdiLockOutline,
@@ -43,7 +44,7 @@ export default {
         (value) => {
           if (this.sumbitenabled == true) {
             this.sumbitenabled = false;
-            if (this.passworddata != "test1234") {
+            if (this.passworddata != "1234") {
               return "password is not correct";
             }
             return true;
@@ -55,15 +56,6 @@ export default {
     };
   },
   methods: {
-    checklogin() {
-      if (this.passworddata == "test") {
-        this.$emit("loginstauts");
-        var object = { value: "true", timestamp: new Date().getTime() + 10000 };
-        localStorage.setItem("login", JSON.stringify(object));
-      } else {
-        console.log("test");
-      }
-    },
     passwordConfirmationRule() {
       this.sumbitenabled = true;
       let self = this;
@@ -197,3 +189,4 @@ export default {
   }
 }
 </style>
+

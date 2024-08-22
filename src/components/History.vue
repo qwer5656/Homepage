@@ -225,4 +225,10 @@ function changeValue(value, obj) {
 .historywrap .v-select__selection-text {
   color: rgba(107, 107, 107, 1);
 }
+
+@media (max-width: 576px) {
+  .historywrap .chart {
+   padding-bottom: 30px;
+  }
+}
 </style>

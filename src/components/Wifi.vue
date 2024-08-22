@@ -6,7 +6,7 @@
     </div>
     <div class="bottomwrap">
       <div class="container">
-        <v-switch v-model="Bluetoothstatus" inset hide-details></v-switch>
+        <v-switch v-model="Wifistatus" inset hide-details></v-switch>
         <div class="wrap">
           <span class="txt">Wifi</span>
           <h5 style="color: rgba(107, 107, 107, 1)">

@@ -15,5 +15,14 @@ export default defineConfig({
 		vue(),
 		vuetify({ autoImport: true }),
 	],
-  base:"./"
+  base:"./",
+  test:{
+    globals: true,
+    environment: 'jsdom',
+    server: {
+      deps: {
+        inline: ['vuetify'],
+      },
+    },
+  }
 })

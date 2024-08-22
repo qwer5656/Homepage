@@ -11,10 +11,10 @@
         <img src="../assets/img/Add_On.png" alt="" />
       </div>
     </div>
-    <div class="cardmangerwrap">
+    <div class="cardmangerwrap" @click.capture="clearcard">
       <div v-for="(item, index) in carddata" :key="item">
         <h3>{{ item.CardNumberName }}</h3>
-        <div class="cardcontent" @click="cardclick(item)">
+        <div class="cardcontent" @click.capture="cardclick(item)">
           <img src="../assets/img/cardLogo.png" alt="" />
           <div class="cardoperatewrap" v-if="item.select == true">
             <div class="cardoperate" @click="editcard(item)">
@@ -133,6 +133,11 @@ export default {
     removecard(index) {
       this.carddata.splice(index, 1);
     },
+    clearcard(){
+      this.carddata.forEach((e) => {
+          e.select = false;
+      });
+    }
   },
 };
 </script>
@@ -284,7 +289,7 @@ export default {
   .Cardwrap .cardmangerwrap {
     width: 100%;
     margin-top: 20px;
-    padding: 0px 20px;
+    padding: 0px 20px 40px 20px;
   }
   .Cardwrap .cardnone {
     width: 100%;
