@@ -10,14 +10,15 @@
       <div class="container">
         <div class="content">
           <div class="switch">
-            <span>RFID</span><Nswitch v-model="rfidswitchval"></Nswitch>
+            <span>RFID</span>
+            <Nswitch v-model="rfidswitchdata.enabled"></Nswitch>
           </div>
           <div class="explain">
             Turn on this option and default card will be denied by this charger.
           </div>
           <div
             class="bt"
-            :class="{ btenabled: rfidswitchval }"
+            :class="{ btenabled: rfidswitchdata.enabled }"
             @click="changeshowcard"
           >
             My Card
@@ -27,7 +28,7 @@
           <img src="../assets/img/RfidEnabled.png" alt="" />
           <div
             class="phonebt bt"
-            :class="{ btenabled: rfidswitchval }"
+            :class="{ btenabled: rfidswitchdata.enabled }"
             @click="changeshowcard"
           >
             My Card
@@ -40,32 +41,56 @@
 <script>
 import Card from "./Card.vue";
 import Nswitch from "./public/Nswitch.vue";
+import { settingStore } from "@/stores/setting";
 export default {
   setup() {},
   data() {
     return {
-      rfidswitchval: false,
+      rfidswitchdata: {},
       showcard: false,
+      init:false
     };
   },
   components: {
     Nswitch,
     Card,
   },
+  watch: {
+    "rfidswitchdata.enabled"(val) {
+      if (this.init == true) {
+        let setting = settingStore();
+        if (this.rfidswitchdata.chargePointId == "") {         
+          setting.postapi(this,this.rfidswitchdata);
+        } else {
+         
+          setting.putapi(this,this.rfidswitchdata);
+
+        }
+      }
+      this.init = true;
+    },
+  },
   methods: {
     previous() {
       this.$router.push("/Startmode");
     },
     changeshowcard() {
-      console.log(this.rfidswitchval);
-      if (this.rfidswitchval == true) {
+  
+      if (this.rfidswitchdata.enabled == true) {
         this.showcard = true;
       }
     },
     Changestatus(val) {
-      console.log("test", val);
+   
       this.showcard = val;
     },
+  },
+  beforeMount() {
+    let setting = settingStore();
+    let self = this;
+    setting.getapi(this, "RfidSetting").then((res) => {
+      self.rfidswitchdata = res.data;
+    });
   },
 };
 </script>

@@ -19,20 +19,20 @@
           value="Bluetooth"
           style="color: white; padding: 0 18px; margin-top: 174px"
         >
-          <Bluetooth/>
+          <Bluetooth v-if="tab=='Bluetooth'"/>
         </v-window-item>
         <v-window-item value="Wifi" style="color: white; padding: 0 18px; margin-top: 174px">
-          <Wifi/>
+          <Wifi v-if="tab=='Wifi'"/>
         </v-window-item>
         <v-window-item value="LTE" style="color: white; padding: 0 18px; margin-top: 174px">
-          <Lte/>
+          <Lte v-if="tab=='LTE'"/>
         </v-window-item>
         <v-window-item value="Ocpp" style="color: white; padding: 0 18px;">
-         <OCPPmode/>
+         <OCPPmode v-if="tab=='Ocpp'"/>
         </v-window-item>
 
         <v-window-item value="Time">
-          <Timemode />
+          <Timemode v-if="tab=='Time'" />
         </v-window-item>
       </v-window>
     </v-card-text>

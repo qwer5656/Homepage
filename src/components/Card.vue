@@ -4,16 +4,36 @@
       <img src="../assets/img/Previous.png" alt="" />
       <span>Back</span>
     </div>
-    <div class="addcontent">
-      <div>My Card</div>
-      <div class="addiconwrap" @click="addcard">
-        Add
-        <img src="../assets/img/Add_On.png" alt="" />
+    <div class="searchwrap">
+      <div class="searchcontent">
+        <v-text-field
+          variant="underlined"
+          :type="text"
+          label="Search"
+          single-line
+          :prepend-inner-icon="mdiMagnify"
+          v-model="searchText"
+        ></v-text-field>
       </div>
     </div>
+<<<<<<< HEAD
     <div class="cardmangerwrap" @click.capture="clearcard">
       <div v-for="(item, index) in carddata" :key="item">
         <h3>{{ item.CardNumberName }}</h3>
+=======
+    <div class="addcontent">
+      <div>My Card</div>
+      <div class="addiconwrap">
+        <div @click="addcard">
+          Add
+          <img src="../assets/img/Add_On.png" alt="" />
+        </div>
+      </div>
+    </div>
+    <div class="cardmangerwrap" @click.capture="clearcard">
+      <div v-for="(item, index) in filtercarddata" :key="item">
+        <h3>{{ item.cardName }}</h3>
+>>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
         <div class="cardcontent" @click.capture="cardclick(item)">
           <img src="../assets/img/cardLogo.png" alt="" />
           <div class="cardoperatewrap" v-if="item.select == true">
@@ -25,7 +45,7 @@
               />
               <div class="cardoperatetxt">Edit</div>
             </div>
-            <div class="cardoperate" @click="removecard(index)">
+            <div class="cardoperate" @click="removecard(item)">
               <img
                 class="cardoperateimg"
                 src="../assets/img/Remove_On_black.png"
@@ -35,7 +55,7 @@
             </div>
           </div>
 
-          <span>{{ item.CardNumber }}</span>
+          <span>{{ item.cardNumber }}</span>
         </div>
       </div>
       <div class="cardnone" v-if="carddata.length == 0"></div>
@@ -58,21 +78,23 @@
         >
           <img src="../assets/img/Close.png" @click="close" alt="" />
         </div>
-        <form class="formwrap">
+        <v-form class="formwrap" ref="entryForm">
           <v-text-field
             label="Fill in Name"
             variant="solo"
-            v-model="newCarddata.CardNumberName"
+            v-model="newCarddata.cardName"
+            :rules="cardNamerules"
           ></v-text-field>
           <v-text-field
             label="Fill in number"
             variant="solo"
-            v-model="newCarddata.CardNumber"
+            v-model="newCarddata.cardNumber"
+            :rules="cardNumberrules"
           ></v-text-field>
           <div class="chargebt" @click="savecard">
             {{ mode == "add" ? "Create" : "Save" }}
           </div>
-        </form>
+        </v-form>
       </div>
     </v-dialog>
   </div>
@@ -80,6 +102,9 @@
 <script>
 import { mdiMinusCircle, mdiPencil } from "@mdi/js";
 import { useMainStore } from "@/stores/main";
+import { cardStore } from "@/stores/card";
+import { ResultStore } from "@/stores/result";
+import { mdiMagnify } from "@mdi/js";
 export default {
   data() {
     return {
@@ -88,6 +113,21 @@ export default {
       carddata: [],
       tempdata: {},
       mode: "",
+      error: "",
+      searchText: "",
+      mdiMagnify,
+      cardNamerules: [
+        (value) => {
+          if (value) return true;
+          return "Name is not null";
+        },
+      ],
+      cardNumberrules: [
+        (value) => {
+          if (value) return true;
+          return "CarNumber is not null";
+        },
+      ],
     };
   },
   methods: {
@@ -101,16 +141,49 @@ export default {
       this.deletedialog = true;
     },
     savecard() {
-      if (this.mode == "edit") {
-        this.tempdata.CardNumberName = this.newCarddata.CardNumberName;
-        this.tempdata.CardNumber = this.newCarddata.CardNumber;
-      }
-      if (this.mode == "add") {
-        this.carddata.push(this.newCarddata);
-        this.newCarddata = {};
-      }
+      let self = this;
+      this.$refs.entryForm.validate().then(function (res) {
+        if (res.valid == true) {
+          let cardoperate = cardStore();
+          let Result = ResultStore();
 
-      this.deletedialog = false;
+          if (self.mode == "edit") {
+            cardoperate.putapi(self, self.newCarddata).then((res) => {
+              if (res.success === false) {
+                Result.errorres(res.message);
+              }
+              if (res.success === true) {
+                self.carddata = res.data;
+                Result.successres();
+              }
+            });
+          }
+          if (self.mode == "add") {
+            let obj = {
+              blocked: false,
+              cardId: "00000000-0000-0000-0000-000000000000",
+              createTime: new Date(),
+              updateTime: new Date(),
+              expiryDate: null,
+            };
+
+            obj.cardName = self.newCarddata.cardName;
+            obj.cardNumber = self.newCarddata.cardNumber;
+
+            cardoperate.postapi(self, obj).then((res) => {
+              if (res.success === false) {
+                Result.errorres(res.message);
+              }
+              if (res.success === true) {
+                self.carddata = res.data;
+                Result.successres();
+                self.newCarddata = {};
+                self.deletedialog = false;
+              }
+            });
+          }
+        }
+      });
     },
     cardclick(item) {
       item.select = true;
@@ -123,6 +196,7 @@ export default {
     addcard() {
       this.open();
       this.mode = "add";
+      this.newCarddata = {};
     },
     editcard(item) {
       this.tempdata = item;
@@ -130,8 +204,37 @@ export default {
       this.open();
       this.mode = "edit";
     },
-    removecard(index) {
-      this.carddata.splice(index, 1);
+    removecard(item) {
+      let card = cardStore();
+      let self = this;
+      card.deleteapi(this, item.cardId).then((res) => {
+        self.carddata = res.data;
+      });
+    },
+    clearcard() {
+      this.carddata.forEach((e) => {
+        e.select = false;
+      });
+    },
+  },
+  beforeMount() {
+    let card = cardStore();
+    let self = this;
+    card.getapiAll(this).then((res) => {
+      self.carddata = res.data;
+    });
+  },
+  computed: {
+    filtercarddata() {
+      if (this.carddata == null) return [];
+      return this.carddata.filter((e) => {
+        if (
+          e.cardNumber.indexOf(this.searchText) != -1 ||
+          e.cardName.indexOf(this.searchText) != -1
+        ) {
+          return true;
+        }
+      });
     },
     clearcard(){
       this.carddata.forEach((e) => {
@@ -199,6 +302,15 @@ export default {
   margin-left: auto;
   vertical-align: middle;
   cursor: pointer;
+  width: 120px;
+}
+.Cardwrap .searchwrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 23px;
+}
+.Cardwrap .searchwrap .searchcontent {
+  width: 120px;
 }
 .Cardwrap .addiconwrap img {
   vertical-align: middle;
@@ -208,7 +320,6 @@ export default {
   display: flex;
   justify-self: center;
   align-items: center;
-  margin-top: 43px;
 }
 .Cardwrap {
   color: white;
@@ -242,6 +353,7 @@ export default {
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  margin-top: 10px;
   padding: 10px 93px;
   gap: 10px;
   width: 306px;

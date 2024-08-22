@@ -22,7 +22,7 @@ const pinia = createPinia()
 
 
 const i18n = createI18n({
-  locale: "zh",
+  locale: "en",
   legacy: false,
   messages: {
     en,

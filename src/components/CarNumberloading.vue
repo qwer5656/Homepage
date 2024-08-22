@@ -16,6 +16,7 @@
 </template>
 <script>
 import { useMainStore } from "@/stores/main";
+import { chargePileStore } from "@/stores/chargePile";
 export default {
   data() {
     return {
@@ -24,11 +25,29 @@ export default {
   },
   mounted() {
     let self = this;
+
     setTimeout(function () {
       const mainstore = useMainStore();
-      mainstore.chargepilemode = "charging";
-      self.$router.push(`/`);
+      let chargePile=chargePileStore();
+      chargePile.RemoteStartTransaction(self).then((res) => {
+          if (res.success == true) {
+            mainstore.chargepilemode = "charging";
+            setTimeout(function () {
+             self.$router.push(`/`);
+            }, 500);
+          } else {
+            self.error();
+          }
+        });
     }, 1000);
+  },
+  methods: {
+    error() {
+      const mainstore = useMainStore();
+      mainstore.chargepilemode = "standby";
+      this.$router.push(`/`);
+      console.log("error");
+    },
   },
 };
 </script>

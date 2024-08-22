@@ -6,7 +6,11 @@
     </div>
     <div class="bottomwrap">
       <div class="container">
+<<<<<<< HEAD
         <v-switch v-model="Wifistatus" inset hide-details></v-switch>
+=======
+        <v-switch v-model="Wifidata.enabled" inset hide-details></v-switch>
+>>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
         <div class="wrap">
           <span class="txt">Wifi</span>
           <h5 style="color: rgba(107, 107, 107, 1)">
@@ -18,13 +22,36 @@
   </div>
 </template>
 <script>
+import { settingStore } from "@/stores/setting";
 export default {
   data() {
     return {
-      Wifistatus: false,
+      Wifidata: {},
+      init:false
     };
   },
   components: {},
+  watch: {
+    "Wifidata.enabled"(val) {
+      if (this.init == true) {
+        let setting = settingStore();
+        if (this.Wifidata.chargePointId == "") {
+          setting.postapi(this,this.Wifidata);
+        } else {
+          setting.putapi(this,this.Wifidata);
+
+        }
+      }
+      this.init = true;
+    },
+  },
+  beforeMount() {
+    let setting = settingStore();
+    let self = this;
+    setting.getapi(this, "WifiSetting").then((res) => {
+      self.Wifidata = res.data;
+    });
+  },
 };
 </script>
 <style>

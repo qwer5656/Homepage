@@ -6,20 +6,88 @@ let config = {
   withCredentials: true,
 };
 
-const instance = axios.create(config);
+const axiosobj = axios.create(config);
 
 let obj = {
-  get(url) {
+  get(url, enabled = false) {
     const mainstore = useMainStore();
-    mainstore.loading = true;
-    return axios
+    if (enabled == true) {
+      mainstore.loading = true;
+    }
+    return axiosobj
       .get(url)
       .then((res) => {
-        mainstore.loading = false;
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
         return res.data;
       })
       .catch((res) => {
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
+        return res.code;
+      });
+  },
+  post(url, data, enabled = false) {
+    const mainstore = useMainStore();
+    if (enabled == true) {
+      mainstore.loading = true;
+    }
+    return axiosobj
+      .post(url, data)
+      .then((res) => {
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
         return res.data;
+      })
+      .catch((res) => {
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
+    
+        return res.code;
+      });
+  },
+  put(url, data, enabled = false) {
+    const mainstore = useMainStore();
+    if (enabled == true) {
+      mainstore.loading = true;
+    }
+    return axiosobj
+      .put(url, data)
+      .then((res) => {
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
+        return res.data;
+      })
+      .catch((res) => {
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
+        return res.code;
+      });
+  },
+  delete(url, data, enabled = false) {
+    const mainstore = useMainStore();
+    if (enabled == true) {
+      mainstore.loading = true;
+    }
+    return axiosobj
+      .delete(url, data)
+      .then((res) => {
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
+        return res.data;
+      })
+      .catch((res) => {
+        if (enabled == true) {
+          mainstore.loading = false;
+        }
+        return res.code;
       });
   },
 };

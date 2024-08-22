@@ -9,7 +9,8 @@
       <div class="container">
         <div class="content">
           <div class="qrcodeswitch">
-            <span>QR Code</span><Nswitch v-model="qrcodeval"></Nswitch>
+            <span>QR Code</span
+            ><Nswitch v-model="qrcodeswitchdata.enabled"></Nswitch>
           </div>
           <div class="qrcodeexplain">
             Turn on this option need to scan QR code when you ready to charge.
@@ -27,13 +28,24 @@ import Nswitch from "./public/Nswitch.vue";
 import { useMainStore } from "@/stores/main";
 import qrcodsscan from "@/assets/img/qrcodsscan.png";
 import QrcodeEnabled from "@/assets/img/QrcodeEnabled.png";
+<<<<<<< HEAD
+=======
+import { settingStore } from "@/stores/setting";
+>>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
 export default {
   setup() {},
   data() {
     return {
+<<<<<<< HEAD
       qrcodeval: false,
       qrcodeimg: QrcodeEnabled,
       error: "",
+=======
+      qrcodeswitchdata: {},
+      qrcodeimg: QrcodeEnabled,
+      error: "",
+      init: false,
+>>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
     };
   },
   components: {
@@ -43,8 +55,25 @@ export default {
     previous() {
       this.$router.push("/Startmode");
     },
+    changeimg(val) {
+      if (val == true) {
+        this.qrcodeimg = qrcodsscan;
+      }
+      if (val == false) {
+        this.qrcodeimg = QrcodeEnabled;
+      }
+    },
+  },
+  beforeMount() {
+    let setting = settingStore();
+    let self = this;
+    setting.getapi(this, "QrcodeSetting").then((res) => {
+      self.qrcodeswitchdata = res.data;
+        self.changeimg(res.data.enabled);
+    });
   },
   watch: {
+<<<<<<< HEAD
     qrcodeval(val) {
       if (this.error == "") {
         const mainstore = useMainStore();
@@ -62,6 +91,25 @@ export default {
           }, 10);
         }, 1000);
       }
+=======
+    "qrcodeswitchdata.enabled"(val) {
+      let self = this;
+      if (this.init == true) {
+        let setting = settingStore();
+        if (this.qrcodeswitchdata.chargePointId == "") {         
+          setting.postapi(this,this.qrcodeswitchdata).then((res) => {
+              self.changeimg(res.data.enabled);
+            });
+        } else {
+         
+          setting.putapi(this,this.qrcodeswitchdata).then(res=>{
+            self.changeimg(res.data.enabled);
+          })
+
+        }
+      }
+      this.init = true;
+>>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
     },
   },
 };
@@ -129,7 +177,10 @@ export default {
 
 @media (max-width: 576px) {
   .qrcodesettingwrap {
+<<<<<<< HEAD
 
+=======
+>>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
     margin-top: 20px;
   }
 

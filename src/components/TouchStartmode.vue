@@ -3,15 +3,24 @@
     <div class="touchstartwrap">
       <div class="touchstartcontainer">
         <span class="touchstarttxt">Touch Start</span>
-        <v-switch v-model="status" inset hide-details></v-switch>
+        <v-switch v-model="data.enabled" inset hide-details></v-switch>
       </div>
       <div class="txt">
         Turn on this option need to click start button when you ready to charge.
       </div>
     </div>
     <div class="flex">
+<<<<<<< HEAD
       <img v-if="Touchstartmodeimg" :src="TouchStarmtmodeimageUrl" class="sizeclass" />
       <img v-else :src="CarimageUrl"  />
+=======
+      <img
+        v-if="Touchstartmodeimg"
+        :src="TouchStarmtmodeimageUrl"
+        class="sizeclass"
+      />
+      <img v-else :src="CarimageUrl" />
+>>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
     </div>
   </div>
 </template>
@@ -19,11 +28,13 @@
 import TouchStarmtmodeimageUrl from "@/assets/img/TouchStarmtmode.png";
 import CarimageUrl from "@/assets/img/Car.png";
 import { useMainStore } from "@/stores/main";
+import { settingStore } from "@/stores/setting";
 export default {
   data() {
     return {
-      status: false,
+      data: {},
       error: "",
+<<<<<<< HEAD
       phoneimg: true,
       Touchstartmodeimg: true,
       TouchStarmtmodeimageUrl,
@@ -47,11 +58,44 @@ export default {
             self.error = "";
           }, 10);
         }, 1000);
+=======
+      init: false,
+      phoneimg: true,
+      TouchStarmtmodeimageUrl,
+      CarimageUrl,
+    };
+  },
+  watch: {
+    "data.enabled"(val) {
+      if (this.init == true) {
+        let setting = settingStore();
+        if (this.data.chargePointId == "") {
+         
+          setting.postapi(this,this.data);
+        } else {
+         
+          setting.putapi(this,this.data);
+
+        }
+>>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
       }
+      this.init = true;
+    },
+  },
+  computed: {
+    Touchstartmodeimg() {
+      return this.data.enabled == true ? false : true;
     },
   },
   components: {},
   methods: {},
+  beforeMount() {
+    let setting = settingStore();
+    let self = this;
+    setting.getapi(this, "TouchStartmode").then((res) => {
+      self.data = res.data;
+    });
+  },
 };
 </script>
 <style>

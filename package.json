@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@mdi/font": "5.9.55",
-    "axios": "^1.6.7",
+    "axios-mock-adapter": "^1.22.0",
     "echarts": "^5.4.3",
     "happy-dom": "^6.0.4",
     "pinia": "^2.1.7",
@@ -29,9 +29,16 @@
     "@mdi/js": "^7.4.47",
     "@vitejs/plugin-vue": "^4.5.2",
     "@vue/test-utils": "^2.4.5",
+<<<<<<< HEAD
     "vite": "^5.0.8",
     "vite-plugin-vuetify": "^1.0.0-alpha.12",
     "vitest": "^1.5.0",
+=======
+    "axios": "^1.7.2",
+    "vite": "^5.0.8",
+    "vite-plugin-vuetify": "^1.0.0-alpha.12",
+    "vitest": "^1.6.0",
+>>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
     "vue-cli-plugin-vuetify": "~2.5.8"
   },
   "type": "module"

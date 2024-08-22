@@ -23,8 +23,8 @@ import { useMainStore } from "@/stores/main";
 export default {
   data() {
     return {
-      languagedata:"中文",
-      languageitem:["English","中文"]
+      languagedata:"English",
+      languageitem:["English"]
     };
   },
   mounted() {

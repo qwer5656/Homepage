@@ -46,10 +46,12 @@
 </template>
 <script>
 import Nbt from "./public/Nbt.vue";
-import { useMainStore } from "@/stores/main";
+import { settingStore } from "@/stores/setting";
+import { ResultStore } from "@/stores/result";
 export default {
   data() {
     return {
+      timedata: {},
       hour: "23",
       min: "59",
       sec: "59",
@@ -71,24 +73,50 @@ export default {
   },
   methods: {
     savetime() {
-      const mainstore = useMainStore();
-      mainstore.loading = true;
-      let self = this;
-      setTimeout(function () {
-        mainstore.loading = false;
-        if (val == true) {
-          self.Touchstartmodeimg = "src/assets/img/Car.png";
-        } else {
-          self.Touchstartmodeimg = "src/assets/img/TouchStarmtmode.png";
-        }
-        setTimeout(function () {
-          self.error = "";
-        }, 10);
-      }, 1000);
+      let setting = settingStore();
+      let Result = ResultStore();
+      this.timedata.methodsContent =
+        this.hour + ":" + this.min + ":" + this.sec;
+      if (this.timedata.chargePointId == "") {
+        this.timedata.enabled = true;
+        setting.postapi(this, this.timedata).then((res) => {
+          if (res.success === undefined) {
+            Result.errorres(res);
+          }
+          if (res.success === true) {
+            self.timedata = res.data;
+            Result.successres();
+          }
+     
+        });
+      } else {
+        setting.putapi(this, this.timedata).then((res) => {
+          if (res.success === undefined) {
+            Result.errorres(res);
+          }
+          if (res.success === true) {
+            self.timedata = res.data;
+            Result.successres();
+          }
+        });
+      }
     },
   },
   components: {
     Nbt,
+  },
+  beforeMount() {
+    let setting = settingStore();
+    let self = this;
+    setting.getapi(this, "TimeSetting").then((res) => {
+      self.timedata = res.data;
+      if (self.timedata.methodsContent != "") {
+        var itme = self.timedata.methodsContent.split(":");
+        self.hour = itme[0];
+        self.min = itme[1];
+        self.sec = itme[2];
+      }
+    });
   },
 };
 </script>
@@ -140,8 +168,8 @@ export default {
 .timemodewrap .timetitle {
   margin-bottom: 19px;
 }
-.timemodewrap .v-field__append-inner{
-  margin-right:10px;
+.timemodewrap .v-field__append-inner {
+  margin-right: 10px;
 }
 
 @media (max-width: 576px) {
@@ -150,9 +178,8 @@ export default {
   }
   .timemodewrap {
     padding: 30px;
-    margin-top:0px;
+    margin-top: 0px;
     width: 100%;
-    
   }
   .timemodewrap .nbtwrap {
     margin-top: 60px;
@@ -162,14 +189,14 @@ export default {
     width: 100%;
   }
   .timemodewrap .timeselect {
-    width:calc( 100vw - 60px);
+    width: calc(100vw - 60px);
     height: 20px;
     text-align: center;
   }
-  .timemodewrap .selectwrap{
+  .timemodewrap .selectwrap {
     margin: 20px 0;
   }
-  .timemodewrap .timetitle{
+  .timemodewrap .timetitle {
     margin-bottom: 10px;
   }
 }

@@ -8,13 +8,20 @@
         <div class="title">Log In Account</div>
         <v-form class="formwrap" ref="entryForm">
           <v-text-field
-            :prepend-inner-icon="mdiLockOutline"
+            variant="solo"
+            :type="text"
+            label="Account"
+            :rules="accountrules"
+            v-model="accountdata"
+          ></v-text-field>
+          <v-text-field
+         
             :append-inner-icon="show1 ? mdiEye : mdiEyeOff"
             :type="show1 ? 'text' : 'password'"
             label="password"
             v-model="passworddata"
             @click:append-inner="show1 = !show1"
-            :rules="rules"
+            :rules="passwordrules"
             variant="solo"
             @keyup.enter="passwordConfirmationRule"
           ></v-text-field>
@@ -29,7 +36,8 @@
 </template>
 <script>
 import { mdiEye, mdiEyeOff, mdiLockOutline } from "@mdi/js";
-import { useMainStore } from "@/stores/main";
+import { loginStore } from "@/stores/login";
+import { ResultStore } from "@/stores/result";
 export default {
   data() {
     return {
@@ -38,50 +46,81 @@ export default {
       mdiEyeOff,
       mdiLockOutline,
       passworddata: "",
-      errormessage: "password is error",
+      accountdata: "",
+      accounterror:"",
+      passworderror:"",
       sumbitenabled: false,
-      rules: [
+      passwordrules: [
         (value) => {
+<<<<<<< HEAD
           if (this.sumbitenabled == true) {
             this.sumbitenabled = false;
             if (this.passworddata != "1234") {
               return "password is not correct";
             }
             return true;
+=======
+          if (this.passworderror !== "") {
+            let temperror = this.passworderror;
+            this.passworderror = "";
+            return temperror;
+>>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
           }
           if (value) return true;
-          return "password is error";
+          return "password is not null";
+        },
+      ],
+      accountrules: [
+        (value) => {
+          if (this.accounterror !== "") {
+            let temperror = this.accounterror;
+            this.accounterror = "";
+            return temperror;
+          }
+          if (value) return true;
+          return "account is not null";
         },
       ],
     };
   },
   methods: {
     passwordConfirmationRule() {
-      this.sumbitenabled = true;
       let self = this;
+      let login = loginStore();
       this.$refs.entryForm.validate().then(function (res) {
         if (res.valid == true) {
-          var object = {
-            value: "true",
-            timestamp: new Date().getTime() + 10000,
-          };
-          localStorage.setItem("login", JSON.stringify(object));
-
-          const mainstore = useMainStore();
-          mainstore.loading = true;
-
-          setTimeout(function () {
-            mainstore.loading = false;
-            setTimeout(function () {
-              self.$emit("loginstauts");
-            }, 10);
-          }, 1000);
+          let obj = {};
+          obj.accout = self.accountdata;
+          obj.password = self.passworddata;
+          login.accountlogin(self, obj).then((res) => {
+            if (res.success == true) {
+              let obj={};
+              obj.accout=res.data.accout;
+              obj.userName=res.data.userName;
+              localStorage.setItem('userdata', JSON.stringify(obj));
+              localStorage.setItem("token", JSON.stringify(res.data.token));
+              self.$router.push("/");
+            } else {
+              if(res.data==undefined){
+                  let Result=ResultStore();
+                  Result.errorres(res);
+              }
+              else if(res.data.error.indexOf("Account")!=-1){
+                self.accounterror = res.data.error;
+              }
+              else{
+                self.passworderror = res.data.error;
+              }
+              
+              self.$refs.entryForm.validate();
+            }
+          });
         }
       });
     },
   },
   beforeMount() {
-    let val = localStorage.getItem("login");
+    let val = localStorage.getItem("token");
     if (val != null) {
       this.$router.push("/");
     }
@@ -98,7 +137,7 @@ export default {
   cursor: text;
   color: white;
   border: 1px solid rgba(107, 107, 107, 1);
-  margin-bottom: 25px;
+  margin-bottom: 5px;
 }
 .loginwrap .formwrap {
   margin-top: 33px;
@@ -160,6 +199,7 @@ export default {
   );
   border-radius: 32px;
   cursor: pointer;
+  margin-top: 15px;
 }
 .loginwrap .title {
   font-family: SF Pro;
