@@ -4,7 +4,7 @@
       <div class="title">
         {{ $t("Historypage.Title") }}
       </div>
-      <div style="display: flex;align-items: center;">
+      <div style="display: flex; align-items: center">
         <v-select
           :items="dateitems"
           item-title="text"
@@ -16,7 +16,11 @@
           v-model="selectval"
           :prepend-inner-icon="'mdi-chevron-down'"
         ></v-select>
-        <v-btn text="Export" @click="changetimeshowValue(true)"  style="color: white; background-color: green; padding: 10px"></v-btn>
+        <v-btn
+          text="Export"
+          @click="changetimeshowValue(true)"
+          style="color: white; background-color: green; padding: 10px"
+        ></v-btn>
       </div>
     </div>
     <div style="margin-top: 5px" v-if="selectval == 'month'">
@@ -50,15 +54,12 @@
     <div v-if="selectval == 'week'">
       <v-chart class="chart" :option="option" autoresize />
     </div>
-    <!-- <v-dialog v-model="chartsshow" persistent width="800">
-      <div style="background-color: white">
-        <div class="btwrap">
-          <v-btn text="X" @click="changeValue(false)"></v-btn>
-        </div>
-        <v-chart class="chart" :option="options" autoresize />
-      </div>
-    </v-dialog> -->
-    <v-dialog v-model="timeshow" persistent width="800" class="historydialogwrap">
+    <v-dialog
+      v-model="timeshow"
+      persistent
+      width="800"
+      class="historydialogwrap"
+    >
       <div class="exportwrap">
         <div
           style="
@@ -69,33 +70,42 @@
             cursor: pointer;
           "
         >
-          <img src="../assets/img/Close.png"  @click="changetimeshowValue(false)" alt="" />
+          <img
+            src="../assets/img/Close.png"
+            @click="changetimeshowValue(false)"
+            alt=""
+          />
         </div>
         <v-form class="formwrap" ref="entryForm">
-        <v-row dense style="padding: 30px">
-          <v-col cols="12" md="6">
-            <v-date-input
-              label="StartDate"
-              prepend-icon=""
-              variant="solo"
-              persistent-placeholder
-              v-model="startDate"
-            ></v-date-input>
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-date-input
-              label="EndDate"
-              prepend-icon=""
-              variant="solo"
-              persistent-placeholder
-              v-model="endDate"
-            ></v-date-input>
-          </v-col>
-        </v-row>
-        <div class="btwrap">
-          <v-btn text="Export Report" @click="ExportExcel"  style="color: white; background-color: green; padding: 10px"></v-btn>
-        </div>
-      </v-form>
+          <v-row dense style="padding: 30px">
+            <v-col cols="12" md="6">
+              <v-date-input
+                label="StartDate"
+                prepend-icon=""
+                variant="solo"
+                persistent-placeholder
+                v-model="startDate"
+              >
+              </v-date-input>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-date-input
+                label="EndDate"
+                prepend-icon=""
+                variant="solo"
+                persistent-placeholder
+                v-model="endDate"
+              ></v-date-input>
+            </v-col>
+          </v-row>
+          <div class="btwrap">
+            <v-btn
+              text="Export Report"
+              @click="ExportExcel"
+              style="color: white; background-color: green; padding: 10px"
+            ></v-btn>
+          </div>
+        </v-form>
       </div>
     </v-dialog>
     <ul style="color: white">
@@ -119,7 +129,6 @@ import {
   TooltipComponent,
   LegendComponent,
 } from "echarts/components";
-import VChart, { THEME_KEY } from "vue-echarts";
 import {
   computed,
   ref,
@@ -129,7 +138,6 @@ import {
   getCurrentInstance,
 } from "vue";
 import { historyStore } from "@/stores/history";
-import { mdiChevronDown } from "@mdi/js";
 import { useI18n } from "vue-i18n";
 import { exportStore } from "@/stores/export";
 import "@mdi/font/css/materialdesignicons.css";
@@ -215,7 +223,6 @@ const options = ref({
   ],
 });
 
-const chartsshow = ref(false);
 
 const obj = ref({});
 
@@ -238,7 +245,7 @@ onMounted(() => {
 
     // 取得加一天後的年、月、日
     var year = currentDate.getFullYear();
-    var month = currentDate.getMonth() + 1; // 注意 JavaScript 中月份是從 0 開始的，所以要加 1
+    var month = currentDate.getMonth() + 1;
     var day = currentDate.getDate();
 
     // 格式化年月日字串
@@ -296,15 +303,23 @@ console.log(instance); // 這裡可以查看 attrs、props 等組件信息
 
 // 定義導出 Excel 的方法
 const ExportExcel = async () => {
-  const exportexcel = exportStore(); // 假設你使用 Pinia
+  const exportexcel = exportStore(); 
 
   let data = {
     startDate: formatDateToYMD(startDate.value, true),
     endDate: formatDateToYMD(endDate.value, false),
   };
   try {
-    const res = await exportexcel.getapi(instance?.proxy, data); // 傳遞組件實例
-    const fileName = "exported-file.csv"; // 或從後端響應中提取檔案名稱
+    const res = await exportexcel.getapi(instance?.proxy, data);
+
+    const dateTime = new Date();
+
+    let year = dateTime.getFullYear();
+    let month = String(dateTime.getMonth() + 1).padStart(2, "0");
+    let day = String(dateTime.getDate()).padStart(2, "0");
+    let date = `${year}/${month}/${day}`;
+
+    const fileName = `${date}.csv`; 
 
     // 調用下載函數
     downloadFile(res, fileName);
@@ -315,63 +330,26 @@ const ExportExcel = async () => {
 
 function formatDateToYMD(date, time) {
   let year = date.getFullYear();
-  let month = String(date.getMonth() + 1).padStart(2, "0"); // 月份从0开始，需要+1
+  let month = String(date.getMonth() + 1).padStart(2, "0");
   let day = String(date.getDate()).padStart(2, "0");
   let val = time === true ? "00:00:00" : "23:59:59";
   return `${year}/${month}/${day} ` + val;
 }
 
 const downloadFile = (response, fileName) => {
-  // 創建 Blob 對象
   const blob = new Blob([response.data], {
-    type: response.headers["content-type"], // 從後端返回的 Content-Type 中讀取
+    type: response.headers["content-type"],
   });
-
-  // 創建 URL
   const downloadUrl = URL.createObjectURL(blob);
-
-  // 創建隱藏的 <a> 標籤
   const a = document.createElement("a");
   a.href = downloadUrl;
-  a.download = fileName; // 設置檔案名稱
+  a.download = fileName;
   document.body.appendChild(a);
-
-  // 自動點擊下載
   a.click();
-
-  // 移除 <a> 標籤並釋放 URL
   document.body.removeChild(a);
   URL.revokeObjectURL(downloadUrl);
 };
 
-function changeValue(value, obj) {
-  if (obj != undefined) {
-    options.value.series[0] = {
-      data: [
-        obj.degree * 100,
-        obj.degree * 150,
-        obj.degree * 180,
-        obj.degree * 200,
-        obj.degree * 180,
-        obj.degree * 150,
-        obj.degree * 120,
-      ],
-      type: "line",
-      areaStyle: {},
-      color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-        {
-          offset: 0,
-          color: "rgb(91, 228, 114, 0.5)",
-        },
-        {
-          offset: 1,
-          color: "rgb(0, 0, 0, 0)",
-        },
-      ]),
-    };
-  }
-  chartsshow.value = value;
-}
 
 function changetimeshowValue(value) {
   timeshow.value = value;
@@ -398,7 +376,6 @@ function changetimeshowValue(value) {
 .btwrap {
   margin: 30px 10px;
   text-align: right;
-
 }
 .historywrap .chart {
   height: 70vh;
@@ -416,11 +393,6 @@ function changetimeshowValue(value) {
 .historywrap .v-select__selection-text {
   color: rgba(107, 107, 107, 1);
 }
-
-
-
-
-
 
 .historywrap .vtablewrap {
   background-color: black;
@@ -447,8 +419,6 @@ function changetimeshowValue(value) {
   padding: 20px 10px !important;
 }
 
-
-
 .historydialogwrap .formwrap .v-field {
   border-radius: 33px;
   background-color: black;
@@ -460,12 +430,62 @@ function changetimeshowValue(value) {
   background: rgba(255, 255, 255, 0.05);
 }
 .historydialogwrap .formwrap {
-
- 
   gap: 50px;
 
   border-radius: 20px;
 }
+
+
+/* custom <v-date-picker> Style Start */
+  .v-date-picker-month__day .v-btn.v-date-picker-month__day-btn {
+  --v-btn-height: 24px;
+  --v-btn-size: 0.85rem;
+  color: white;
+  background: black;
+}
+
+  .v-date-picker-month__day--selected
+  .v-btn.v-date-picker-month__day-btn {
+  --v-btn-height: 24px;
+  --v-btn-size: 0.85rem;
+  color: black;
+  background: rgba(91, 228, 114, 1);
+}
+
+.v-date-picker-month__day {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  height: auto;
+  width: auto;
+}
+.v-date-picker-header {
+  height: auto;
+  padding-bottom: 0px;
+}
+
+.v-picker-title {
+  text-transform: none;
+}
+
+.v-date-picker__title {
+  display: inline-block;
+  font-family: SF Pro;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 22.5px;
+  text-align: left;
+}
+
+
+.v-date-picker {
+  color: white;
+  background: rgba(0, 0, 0, 0.9) !important;
+}
+/* <v-date-picker> Style End */
+
+
 
 
 @media (max-width: 576px) {

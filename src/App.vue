@@ -525,6 +525,10 @@ body {
 .settingnavbar {
   display: none;
 }
+
+
+
+
 @media (max-width: 576px) {
   .leftbarconent {
     width: 100%;
