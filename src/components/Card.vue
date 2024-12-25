@@ -11,16 +11,16 @@
           :type="text"
           label="Search"
           single-line
-          :prepend-inner-icon="mdiMagnify"
+             :prepend-inner-icon="'mdi-magnify'"
           v-model="searchText"
         ></v-text-field>
       </div>
     </div>
-<<<<<<< HEAD
     <div class="cardmangerwrap" @click.capture="clearcard">
       <div v-for="(item, index) in carddata" :key="item">
         <h3>{{ item.CardNumberName }}</h3>
-=======
+      </div>
+
     <div class="addcontent">
       <div>My Card</div>
       <div class="addiconwrap">
@@ -33,7 +33,7 @@
     <div class="cardmangerwrap" @click.capture="clearcard">
       <div v-for="(item, index) in filtercarddata" :key="item">
         <h3>{{ item.cardName }}</h3>
->>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
+
         <div class="cardcontent" @click.capture="cardclick(item)">
           <img src="../assets/img/cardLogo.png" alt="" />
           <div class="cardoperatewrap" v-if="item.select == true">
@@ -59,7 +59,9 @@
         </div>
       </div>
       <div class="cardnone" v-if="carddata.length == 0"></div>
+
     </div>
+  </div>
     <v-dialog
       v-model="deletedialog"
       persistent
@@ -104,7 +106,7 @@ import { mdiMinusCircle, mdiPencil } from "@mdi/js";
 import { useMainStore } from "@/stores/main";
 import { cardStore } from "@/stores/card";
 import { ResultStore } from "@/stores/result";
-import { mdiMagnify } from "@mdi/js";
+import { mdiMagnify  } from "@mdi/js";
 export default {
   data() {
     return {

@@ -7,12 +7,13 @@ export const exportStore = defineStore("export", {
     };
   },
   actions: {
-    getapi(self, chargePileId) {
+    getapi(self, data) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        let startTime="2024/12/03";
-        let endTime="2024/12/25";
-        self.$axios.getExcel(this.apiurl + "/" + chargePileId+"?StartTimeDate="+startTime+"&EndTimeDate="+endTime,token, true).then((res) => {
+        console.log(data);
+        let startTime=data.startDate;
+        let endTime=data.endDate;
+        self.$axios.getExcel(this.apiurl +"?StartTimeDate="+startTime+"&EndTimeDate="+endTime,token, true).then((res) => {
           console.log(res);
           resolve(res);
         });

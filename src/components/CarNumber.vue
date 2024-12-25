@@ -11,7 +11,7 @@
           :type="text"
           label="Search"
           single-line
-          :prepend-inner-icon="mdiMagnify"
+          :prepend-inner-icon="'mdi-magnify'"
           v-model="searchText"
         ></v-text-field>
       </div>
@@ -113,7 +113,7 @@ export default {
       carNumberddata: [],
       tempdata: {},
       mode: "",
-      searchText:"",
+      searchText: "",
       mdiMagnify,
       carNamerules: [
         (value) => {
@@ -236,11 +236,11 @@ export default {
         }
       });
     },
-    clearcardnumber(){
+    clearcardnumber() {
       this.carNumberddata.forEach((e) => {
-          e.select = false;
+        e.select = false;
       });
-    }
+    },
   },
 };
 </script>

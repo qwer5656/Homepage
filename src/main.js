@@ -5,7 +5,7 @@ import router from "./router";
 import { loadFonts } from "./plugins/webfontloader";
 
 import * as echarts from "echarts";
-import vuetify from "./plugins/vuetify";
+import {createVuetify} from "vuetify";
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 
@@ -32,7 +32,9 @@ const i18n = createI18n({
 });
 
 
+const vuetify=createVuetify({
 
+})
 
 loadFonts();
 const app =createApp(App);

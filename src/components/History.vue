@@ -14,11 +14,11 @@
           clear-icon="clear"
           :menu-icon="false"
           v-model="selectval"
-          :prepend-inner-icon="mdiChevronDown"
+          :prepend-inner-icon="'mdi-chevron-down'"
         ></v-select>
         <button
           style="color: white; background-color: green; padding: 10px"
-          @click="ExportExcel"
+          @click="changetimeshowValue(true)"
         >
           export
         </button>
@@ -65,7 +65,32 @@
     </v-dialog> -->
     <v-dialog v-model="timeshow" persistent width="800">
       <div style="background-color: white">
-        <v-date-input label="Date input"></v-date-input>
+        <div class="btwrap">
+          <v-btn text="X" @click="changetimeshowValue(false)"></v-btn>
+        </div>
+        <v-row dense style="padding: 30px">
+          <v-col cols="12" md="6">
+            <v-date-input
+              label="StartDate"
+              prepend-icon=""
+              variant="solo"
+              persistent-placeholder
+              v-model="startDate"
+            ></v-date-input>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-date-input
+              label="EndDate"
+              prepend-icon=""
+              variant="solo"
+              persistent-placeholder
+              v-model="endDate"
+            ></v-date-input>
+          </v-col>
+        </v-row>
+        <div class="btwrap">
+          <v-btn text="Export" @click="ExportExcel"></v-btn>
+        </div>
       </div>
     </v-dialog>
     <ul style="color: white">
@@ -81,6 +106,8 @@ import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import * as echarts from "echarts";
 import { mdiMagnify } from "@mdi/js";
+
+import { VDateInput } from "vuetify/labs/VDateInput";
 
 import {
   TitleComponent,
@@ -100,7 +127,7 @@ import { historyStore } from "@/stores/history";
 import { mdiChevronDown } from "@mdi/js";
 import { useI18n } from "vue-i18n";
 import { exportStore } from "@/stores/export";
-import '@mdi/font/css/materialdesignicons.css';
+import "@mdi/font/css/materialdesignicons.css";
 use([CanvasRenderer, TitleComponent, TooltipComponent, LegendComponent]);
 
 const { locale, messages } = useI18n();
@@ -117,8 +144,9 @@ const dateitems = computed(() =>
 );
 
 const selectval = ref("week");
-const timeshow = true;
-let  startdate= new Date();
+const timeshow = ref(false);
+let startDate = ref(new Date());
+let endDate = ref(new Date());
 const option = ref({
   xAxis: {
     type: "category",
@@ -264,9 +292,13 @@ console.log(instance); // 這裡可以查看 attrs、props 等組件信息
 // 定義導出 Excel 的方法
 const ExportExcel = async () => {
   const exportexcel = exportStore(); // 假設你使用 Pinia
-  console.log(instance?.proxy); // 相當於 Vue 2/3 的 this
+
+  let data = {
+    startDate: formatDateToYMD(startDate.value, true),
+    endDate: formatDateToYMD(endDate.value, false),
+  };
   try {
-    const res = await exportexcel.getapi(instance?.proxy, ""); // 傳遞組件實例
+    const res = await exportexcel.getapi(instance?.proxy, data); // 傳遞組件實例
     const fileName = "exported-file.csv"; // 或從後端響應中提取檔案名稱
 
     // 調用下載函數
@@ -275,6 +307,14 @@ const ExportExcel = async () => {
     console.error("導出失敗:", error);
   }
 };
+
+function formatDateToYMD(date, time) {
+  let year = date.getFullYear();
+  let month = String(date.getMonth() + 1).padStart(2, "0"); // 月份从0开始，需要+1
+  let day = String(date.getDate()).padStart(2, "0");
+  let val = time === true ? "00:00:00" : "23:59:59";
+  return `${year}/${month}/${day} ` + val;
+}
 
 const downloadFile = (response, fileName) => {
   // 創建 Blob 對象
@@ -327,9 +367,16 @@ function changeValue(value, obj) {
   }
   chartsshow.value = value;
 }
+
+function changetimeshowValue(value) {
+  timeshow.value = value;
+}
 </script>
 
 <style>
+.historywrap .mdi-chevron-down::before {
+  color: white;
+}
 .historywrap .title {
   color: white;
   margin-right: auto;
@@ -342,6 +389,10 @@ function changeValue(value, obj) {
 .historywrap .btwrap {
   display: flex;
   flex-direction: row-reverse;
+}
+.btwrap {
+  margin: 10px 10px;
+  text-align: right;
 }
 .historywrap .chart {
   height: 70vh;
@@ -359,12 +410,6 @@ function changeValue(value, obj) {
 .historywrap .v-select__selection-text {
   color: rgba(107, 107, 107, 1);
 }
-
-
-@media (max-width: 576px) {
-  .historywrap .chart {
-   padding-bottom: 30px;
-  }
 
 .historywrap .vtablewrap {
   background-color: black;
@@ -390,6 +435,9 @@ function changeValue(value, obj) {
 .historywrap .headerwrap {
   padding: 20px 10px !important;
 }
-
+@media (max-width: 576px) {
+  .historywrap .chart {
+    padding-bottom: 30px;
+  }
 }
 </style>
