@@ -33,7 +33,9 @@ const i18n = createI18n({
 
 
 const vuetify=createVuetify({
-
+  locale: {
+    locale: 'en-CA',
+  },
 })
 
 loadFonts();

@@ -1,27 +1,22 @@
 <template>
   <div class="historywrap">
-    <div style="display: flex; padding-left: 80px; align-items: center">
+    <div style="display: flex; padding: 0 120px 0 80px; align-items: center">
       <div class="title">
         {{ $t("Historypage.Title") }}
       </div>
-      <div>
+      <div style="display: flex;align-items: center;">
         <v-select
           :items="dateitems"
           item-title="text"
           item-value="value"
-          style="width: 200px"
+          style="width: 100px"
           variant="plain"
           clear-icon="clear"
           :menu-icon="false"
           v-model="selectval"
           :prepend-inner-icon="'mdi-chevron-down'"
         ></v-select>
-        <button
-          style="color: white; background-color: green; padding: 10px"
-          @click="changetimeshowValue(true)"
-        >
-          export
-        </button>
+        <v-btn text="Export" @click="changetimeshowValue(true)"  style="color: white; background-color: green; padding: 10px"></v-btn>
       </div>
     </div>
     <div style="margin-top: 5px" v-if="selectval == 'month'">
@@ -63,11 +58,20 @@
         <v-chart class="chart" :option="options" autoresize />
       </div>
     </v-dialog> -->
-    <v-dialog v-model="timeshow" persistent width="800">
-      <div style="background-color: white">
-        <div class="btwrap">
-          <v-btn text="X" @click="changetimeshowValue(false)"></v-btn>
+    <v-dialog v-model="timeshow" persistent width="800" class="historydialogwrap">
+      <div class="exportwrap">
+        <div
+          style="
+            color: white;
+            text-align: right;
+            font-size: 40px;
+            padding-right: 10px;
+            cursor: pointer;
+          "
+        >
+          <img src="../assets/img/Close.png"  @click="changetimeshowValue(false)" alt="" />
         </div>
+        <v-form class="formwrap" ref="entryForm">
         <v-row dense style="padding: 30px">
           <v-col cols="12" md="6">
             <v-date-input
@@ -89,8 +93,9 @@
           </v-col>
         </v-row>
         <div class="btwrap">
-          <v-btn text="Export" @click="ExportExcel"></v-btn>
+          <v-btn text="Export Report" @click="ExportExcel"  style="color: white; background-color: green; padding: 10px"></v-btn>
         </div>
+      </v-form>
       </div>
     </v-dialog>
     <ul style="color: white">
@@ -391,8 +396,9 @@ function changetimeshowValue(value) {
   flex-direction: row-reverse;
 }
 .btwrap {
-  margin: 10px 10px;
+  margin: 30px 10px;
   text-align: right;
+
 }
 .historywrap .chart {
   height: 70vh;
@@ -410,6 +416,11 @@ function changetimeshowValue(value) {
 .historywrap .v-select__selection-text {
   color: rgba(107, 107, 107, 1);
 }
+
+
+
+
+
 
 .historywrap .vtablewrap {
   background-color: black;
@@ -435,6 +446,28 @@ function changetimeshowValue(value) {
 .historywrap .headerwrap {
   padding: 20px 10px !important;
 }
+
+
+
+.historydialogwrap .formwrap .v-field {
+  border-radius: 33px;
+  background-color: black;
+  cursor: text;
+  color: white;
+  border: 1px solid rgba(107, 107, 107, 1);
+}
+.historydialogwrap .exportwrap {
+  background: rgba(255, 255, 255, 0.05);
+}
+.historydialogwrap .formwrap {
+
+ 
+  gap: 50px;
+
+  border-radius: 20px;
+}
+
+
 @media (max-width: 576px) {
   .historywrap .chart {
     padding-bottom: 30px;

@@ -11,26 +11,22 @@
           :type="text"
           label="Search"
           single-line
-             :prepend-inner-icon="'mdi-magnify'"
+          :prepend-inner-icon="'mdi-magnify'"
           v-model="searchText"
         ></v-text-field>
       </div>
     </div>
-    <div class="cardmangerwrap" @click.capture="clearcard">
-      <div v-for="(item, index) in carddata" :key="item">
-        <h3>{{ item.CardNumberName }}</h3>
-      </div>
 
-    <div class="addcontent">
-      <div>My Card</div>
-      <div class="addiconwrap">
-        <div @click="addcard">
-          Add
-          <img src="../assets/img/Add_On.png" alt="" />
+    <div class="cardmangerwrap" @click.capture="clearcard">
+      <div class="addcontent">
+        <div>My Card</div>
+        <div class="addiconwrap">
+          <div @click="addcard">
+            Add
+            <img src="../assets/img/Add_On.png" alt="" />
+          </div>
         </div>
       </div>
-    </div>
-    <div class="cardmangerwrap" @click.capture="clearcard">
       <div v-for="(item, index) in filtercarddata" :key="item">
         <h3>{{ item.cardName }}</h3>
 
@@ -58,10 +54,9 @@
           <span>{{ item.cardNumber }}</span>
         </div>
       </div>
-      <div class="cardnone" v-if="carddata.length == 0"></div>
-
+      <div class="cardnone" v-if="filtercarddata.length == 0"></div>
     </div>
-  </div>
+
     <v-dialog
       v-model="deletedialog"
       persistent
@@ -106,7 +101,7 @@ import { mdiMinusCircle, mdiPencil } from "@mdi/js";
 import { useMainStore } from "@/stores/main";
 import { cardStore } from "@/stores/card";
 import { ResultStore } from "@/stores/result";
-import { mdiMagnify  } from "@mdi/js";
+import { mdiMagnify } from "@mdi/js";
 export default {
   data() {
     return {
@@ -210,7 +205,14 @@ export default {
       let card = cardStore();
       let self = this;
       card.deleteapi(this, item.cardId).then((res) => {
-        self.carddata = res.data;
+        let Result = ResultStore();
+        if (res.success === false) {
+          Result.errorres(res.message);   
+        }
+        if (res.success === true) {
+          self.carddata = res.data;
+          Result.successres();
+        }
       });
     },
     clearcard() {
@@ -238,11 +240,11 @@ export default {
         }
       });
     },
-    clearcard(){
+    clearcard() {
       this.carddata.forEach((e) => {
-          e.select = false;
+        e.select = false;
       });
-    }
+    },
   },
 };
 </script>
@@ -258,6 +260,7 @@ export default {
   flex-wrap: wrap;
   gap: 50px;
 }
+
 .Cardwrap .cardcontent {
   width: 375px;
   height: 205px;

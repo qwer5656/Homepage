@@ -56,7 +56,7 @@
           <span>{{ item.licensePlateNumber }}</span>
         </div>
       </div>
-      <div class="cardnumbernone" v-if="carNumberddata.length == 0"></div>
+      <div class="cardnumbernone" v-if="filtercarNumberddata.length == 0"></div>
     </div>
     <v-dialog
       v-model="deletedialog"
@@ -206,9 +206,18 @@ export default {
     },
     removecardnumber(item) {
       let License = LicensePlateStore();
+      
       let self = this;
       License.deleteapi(this, item.licensePlateId).then((res) => {
-        self.carNumberddata = res.data;
+        let Result = ResultStore();
+        if (res.success === false) {
+          Result.errorres(res.message);   
+        }
+        if (res.success === true) {
+          self.carNumberddata = res.data;
+          Result.successres();
+        }
+
       });
     },
     clearcardnumber() {
