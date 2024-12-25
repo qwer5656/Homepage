@@ -16,9 +16,7 @@
         ></v-text-field>
       </div>
     </div>
-
-    <div class="cardmangerwrap" @click.capture="clearcard">
-      <div class="addcontent">
+    <div class="addcontent">
         <div>My Card</div>
         <div class="addiconwrap">
           <div @click="addcard">
@@ -27,6 +25,7 @@
           </div>
         </div>
       </div>
+    <div class="cardmangerwrap" @click.capture="clearcard">
       <div v-for="(item, index) in filtercarddata" :key="item">
         <h3>{{ item.cardName }}</h3>
 
@@ -92,6 +91,7 @@
             {{ mode == "add" ? "Create" : "Save" }}
           </div>
         </v-form>
+        
       </div>
     </v-dialog>
   </div>
@@ -116,13 +116,13 @@ export default {
       cardNamerules: [
         (value) => {
           if (value) return true;
-          return "Name is not null";
+          return "Name is  null";
         },
       ],
       cardNumberrules: [
         (value) => {
           if (value) return true;
-          return "CarNumber is not null";
+          return "CarNumber is  null";
         },
       ],
     };

@@ -118,13 +118,13 @@ export default {
       carNamerules: [
         (value) => {
           if (value) return true;
-          return "Name is not null";
+          return "Name is  null";
         },
       ],
       carNumberrules: [
         (value) => {
           if (value) return true;
-          return "CarNumber is not null";
+          return "CarNumber is  null";
         },
       ],
     };

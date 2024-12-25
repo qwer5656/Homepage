@@ -85,6 +85,7 @@
                 variant="solo"
                 persistent-placeholder
                 v-model="startDate"
+                :rules="Daterules"
               >
               </v-date-input>
             </v-col>
@@ -95,13 +96,14 @@
                 variant="solo"
                 persistent-placeholder
                 v-model="endDate"
+                :rules="Daterules"
               ></v-date-input>
             </v-col>
           </v-row>
           <div class="btwrap">
             <v-btn
               text="Export Report"
-              @click="ExportExcel"
+              @click="CheckExPortDate"
               style="color: white; background-color: green; padding: 10px"
             ></v-btn>
           </div>
@@ -121,7 +123,7 @@ import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import * as echarts from "echarts";
 import { mdiMagnify } from "@mdi/js";
-
+import { ResultStore } from "@/stores/result";
 import { VDateInput } from "vuetify/labs/VDateInput";
 
 import {
@@ -129,6 +131,7 @@ import {
   TooltipComponent,
   LegendComponent,
 } from "echarts/components";
+import VChart, { THEME_KEY } from "vue-echarts"; //有用到
 import {
   computed,
   ref,
@@ -144,6 +147,13 @@ import "@mdi/font/css/materialdesignicons.css";
 use([CanvasRenderer, TitleComponent, TooltipComponent, LegendComponent]);
 
 const { locale, messages } = useI18n();
+
+const Daterules = [
+  (value) => {
+    if (value) return true;
+    return "Date is null";
+  },
+];
 
 // 使用 computed 確保資料是反應式的
 const headers = computed(() =>
@@ -223,7 +233,6 @@ const options = ref({
   ],
 });
 
-
 const obj = ref({});
 
 const desserts = ref([]);
@@ -240,15 +249,12 @@ onMounted(() => {
   for (let i = 0; i < 7; i++) {
     var currentDate = new Date();
 
-    // 將日期加一天
     currentDate.setDate(currentDate.getDate() + i);
 
-    // 取得加一天後的年、月、日
     var year = currentDate.getFullYear();
     var month = currentDate.getMonth() + 1;
     var day = currentDate.getDate();
 
-    // 格式化年月日字串
     var dateString =
       year +
       "-" +
@@ -299,11 +305,27 @@ let filterdesserts = computed(() => {
 
 // 獲取組件實例
 const instance = getCurrentInstance();
-console.log(instance); // 這裡可以查看 attrs、props 等組件信息
+
+const CheckExPortDate = function () {
+  instance?.proxy.$refs.entryForm.validate().then(function (res) {
+    let Result = ResultStore();
+
+    if (startDate.value>endDate.value) {
+      Result.errorres("The startDate is greater than the endDate");
+      return;
+    }
+
+
+
+    if (res.valid == true) {
+      ExportExcel();
+    }
+  });
+};
 
 // 定義導出 Excel 的方法
 const ExportExcel = async () => {
-  const exportexcel = exportStore(); 
+  const exportexcel = exportStore();
 
   let data = {
     startDate: formatDateToYMD(startDate.value, true),
@@ -319,9 +341,8 @@ const ExportExcel = async () => {
     let day = String(dateTime.getDate()).padStart(2, "0");
     let date = `${year}/${month}/${day}`;
 
-    const fileName = `${date}.csv`; 
+    const fileName = `${date}.csv`;
 
-    // 調用下載函數
     downloadFile(res, fileName);
   } catch (error) {
     console.error("導出失敗:", error);
@@ -340,16 +361,18 @@ const downloadFile = (response, fileName) => {
   const blob = new Blob([response.data], {
     type: response.headers["content-type"],
   });
+
   const downloadUrl = URL.createObjectURL(blob);
+
   const a = document.createElement("a");
   a.href = downloadUrl;
   a.download = fileName;
   document.body.appendChild(a);
+
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(downloadUrl);
 };
-
 
 function changetimeshowValue(value) {
   timeshow.value = value;
@@ -427,7 +450,7 @@ function changetimeshowValue(value) {
   border: 1px solid rgba(107, 107, 107, 1);
 }
 .historydialogwrap .exportwrap {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.5);
 }
 .historydialogwrap .formwrap {
   gap: 50px;
@@ -435,17 +458,15 @@ function changetimeshowValue(value) {
   border-radius: 20px;
 }
 
-
 /* custom <v-date-picker> Style Start */
-  .v-date-picker-month__day .v-btn.v-date-picker-month__day-btn {
+.v-date-picker-month__day .v-btn.v-date-picker-month__day-btn {
   --v-btn-height: 24px;
   --v-btn-size: 0.85rem;
   color: white;
   background: black;
 }
 
-  .v-date-picker-month__day--selected
-  .v-btn.v-date-picker-month__day-btn {
+.v-date-picker-month__day--selected .v-btn.v-date-picker-month__day-btn {
   --v-btn-height: 24px;
   --v-btn-size: 0.85rem;
   color: black;
@@ -478,15 +499,11 @@ function changetimeshowValue(value) {
   text-align: left;
 }
 
-
 .v-date-picker {
   color: white;
   background: rgba(0, 0, 0, 0.9) !important;
 }
 /* <v-date-picker> Style End */
-
-
-
 
 @media (max-width: 576px) {
   .historywrap .chart {
