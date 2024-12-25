@@ -10,11 +10,11 @@
       <div class="container">
         <div class="content">
           <div class="switch">
-            <span>RFID</span>
+            <span>{{ $t("StartModepage.rfidtitle") }}</span>
             <Nswitch v-model="rfidswitchdata.enabled"></Nswitch>
           </div>
           <div class="explain">
-            Turn on this option and default card will be denied by this charger.
+            {{ $t("StartModepage.rfidcontent") }}
           </div>
           <div
             class="bt"
@@ -48,7 +48,7 @@ export default {
     return {
       rfidswitchdata: {},
       showcard: false,
-      init:false
+      init: false,
     };
   },
   components: {
@@ -58,14 +58,17 @@ export default {
   watch: {
     "rfidswitchdata.enabled"(val) {
       if (this.init == true) {
+        let self = this;
         let setting = settingStore();
-        if (this.rfidswitchdata.chargePointId == "") {         
-          setting.postapi(this,this.rfidswitchdata);
-        } else {
-         
-          setting.putapi(this,this.rfidswitchdata);
-
+        if (this.rfidswitchdata.chargePointId == "") {
+          setting.postapi(this, this.rfidswitchdata).then((res) => {
+            self.rfidswitchdata = res.data;
+          });
+          return;
         }
+        setting.putapi(this, this.rfidswitchdata).then((res) => {
+          self.rfidswitchdata = res.data;
+        });
       }
       this.init = true;
     },
@@ -75,13 +78,11 @@ export default {
       this.$router.push("/Startmode");
     },
     changeshowcard() {
-  
       if (this.rfidswitchdata.enabled == true) {
         this.showcard = true;
       }
     },
     Changestatus(val) {
-   
       this.showcard = val;
     },
   },

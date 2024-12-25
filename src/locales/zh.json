@@ -10,6 +10,9 @@
         }
     },
     "Historypage":{
+        "Title":"歷史紀錄",
+        "item":[{ "id": 1, "name": "Paul", "age": 23 },
+        { "id": 2, "name": "Marcelo", "age": 15 }],
         "Date":"充電日期",
         "Time":"充電時間",
         "Degree":"充電度數"
@@ -19,6 +22,36 @@
        
     },
     "Reservepage":{
-
+        "title":"日程清單",
+        "schedule":"我的日程"
+    },
+    "Touchstartpage":{
+        "title":"觸摸模式",
+        "content":"打開此選項需要按鍵 當您準備充電時"
+    },
+    "StartModepage":{
+        "qrcodetitle":"QR Code",
+        "qrcodecontent":"打開此選項，當您準備充電時需要掃描 QR 碼。",
+        "rfidtitle":"RFID",
+        "rfidcontent":"打開此選項，預設卡將被此充電器拒絕。",
+        "licensetitle":"Auto Scan Car License",
+        "licensecontent":"打開此選項將允許自動掃描車號以開始充電。"
+    },
+    "Settingpage":{
+        "bluetoothcontent":"打開此選項允許您透過藍牙配置設備。",
+        "wificontent":"打開此選項允許您將 EV 充電器設定到 AP 點。",
+        "ltecontent":"打開此選項允許您將 EV 充電器設定為 SIM 卡。"
+    },
+    "headers":[
+        { "title": "(卡片/車牌)", "key": "startTagId" },
+        { "title": "充電日期", "key": "dateTime" },
+        { "title": "充電時間", "key": "chargetime" },
+        { "title": "充電度數", "key": "drgee" }
+      ],
+      "dateitems":[ { "text": "周", "value": "week" },
+      { "text": "月", "value": "month" }],
+    "Ocpppage":{
+        "describe":"請輸入E-faner提供給您的後台位址。",
+        "connectiondescribe":"請等待連接過程。"
     }
 }

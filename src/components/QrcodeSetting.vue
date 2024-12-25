@@ -9,11 +9,11 @@
       <div class="container">
         <div class="content">
           <div class="qrcodeswitch">
-            <span>QR Code</span
+            <span>{{ $t("StartModepage.qrcodetitle") }}</span
             ><Nswitch v-model="qrcodeswitchdata.enabled"></Nswitch>
           </div>
           <div class="qrcodeexplain">
-            Turn on this option need to scan QR code when you ready to charge.
+            {{ $t("StartModepage.qrcodecontent") }}
           </div>
         </div>
         <div class="imgwrap">
@@ -70,11 +70,13 @@ export default {
         let setting = settingStore();
         if (this.qrcodeswitchdata.chargePointId == "") {         
           setting.postapi(this,this.qrcodeswitchdata).then((res) => {
+            self.qrcodeswitchdata=res.data;
               self.changeimg(res.data.enabled);
             });
         } else {
          
           setting.putapi(this,this.qrcodeswitchdata).then(res=>{
+            self.qrcodeswitchdata=res.data;
             self.changeimg(res.data.enabled);
           })
 

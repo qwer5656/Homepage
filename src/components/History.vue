@@ -1,10 +1,14 @@
 <template>
   <div class="historywrap">
     <div style="display: flex; padding-left: 80px; align-items: center">
-      <div class="title">History</div>
+      <div class="title">
+        {{ $t("Historypage.Title") }}
+      </div>
       <div>
         <v-select
-          :items="['week', 'month']"
+          :items="dateitems"
+          item-title="text"
+          item-value="value"
           style="width: 200px"
           variant="plain"
           clear-icon="clear"
@@ -12,10 +16,15 @@
           v-model="selectval"
           :prepend-inner-icon="mdiChevronDown"
         ></v-select>
+        <button
+          style="color: white; background-color: green; padding: 10px"
+          @click="ExportExcel"
+        >
+          export
+        </button>
       </div>
     </div>
     <div style="margin-top: 5px" v-if="selectval == 'month'">
-      
       <v-data-table
         v-model:page="page"
         :headers="headers"
@@ -54,6 +63,16 @@
         <v-chart class="chart" :option="options" autoresize />
       </div>
     </v-dialog> -->
+    <v-dialog v-model="timeshow" persistent width="800">
+      <div style="background-color: white">
+        <v-date-input label="Date input"></v-date-input>
+      </div>
+    </v-dialog>
+    <ul style="color: white">
+      <li v-for="(product, index) in products" :key="index">
+        {{ product }}
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -62,6 +81,7 @@ import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import * as echarts from "echarts";
 import { mdiMagnify } from "@mdi/js";
+
 import {
   TitleComponent,
   TooltipComponent,
@@ -78,11 +98,27 @@ import {
 } from "vue";
 import { historyStore } from "@/stores/history";
 import { mdiChevronDown } from "@mdi/js";
-
+import { useI18n } from "vue-i18n";
+import { exportStore } from "@/stores/export";
+import '@mdi/font/css/materialdesignicons.css';
 use([CanvasRenderer, TitleComponent, TooltipComponent, LegendComponent]);
 
-const selectval = ref("week");
+const { locale, messages } = useI18n();
 
+// 使用 computed 確保資料是反應式的
+const headers = computed(() =>
+  locale.value === "en" ? messages.value.en.headers : messages.value.zh.headers
+);
+
+const dateitems = computed(() =>
+  locale.value === "en"
+    ? messages.value.en.dateitems
+    : messages.value.zh.dateitems
+);
+
+const selectval = ref("week");
+const timeshow = true;
+let  startdate= new Date();
 const option = ref({
   xAxis: {
     type: "category",
@@ -153,21 +189,14 @@ const obj = ref({});
 const desserts = ref([]);
 const itemsPerPage = ref(5);
 const page = ref(1);
-const headers = ref([
-  { title: "(Card/licensePlate)", key: "startTagId" },
-  { title: "Charging Date", key: "dateTime" },
-  { title: "Charging Time", key: "chargetime" },
-  { title: "Charging Dgree", key: "drgee" },
-]);
+
 onMounted(() => {
   var history = historyStore();
-  const { proxy, ctx } = getCurrentInstance();
+  const { proxy } = getCurrentInstance();
   history.getapiAll(proxy).then((res) => {
     desserts.value = res.data;
   });
-
   let item = [];
-
   for (let i = 0; i < 7; i++) {
     var currentDate = new Date();
 
@@ -227,6 +256,48 @@ let filterdesserts = computed(() => {
     return val;
   });
 });
+
+// 獲取組件實例
+const instance = getCurrentInstance();
+console.log(instance); // 這裡可以查看 attrs、props 等組件信息
+
+// 定義導出 Excel 的方法
+const ExportExcel = async () => {
+  const exportexcel = exportStore(); // 假設你使用 Pinia
+  console.log(instance?.proxy); // 相當於 Vue 2/3 的 this
+  try {
+    const res = await exportexcel.getapi(instance?.proxy, ""); // 傳遞組件實例
+    const fileName = "exported-file.csv"; // 或從後端響應中提取檔案名稱
+
+    // 調用下載函數
+    downloadFile(res, fileName);
+  } catch (error) {
+    console.error("導出失敗:", error);
+  }
+};
+
+const downloadFile = (response, fileName) => {
+  // 創建 Blob 對象
+  const blob = new Blob([response.data], {
+    type: response.headers["content-type"], // 從後端返回的 Content-Type 中讀取
+  });
+
+  // 創建 URL
+  const downloadUrl = URL.createObjectURL(blob);
+
+  // 創建隱藏的 <a> 標籤
+  const a = document.createElement("a");
+  a.href = downloadUrl;
+  a.download = fileName; // 設置檔案名稱
+  document.body.appendChild(a);
+
+  // 自動點擊下載
+  a.click();
+
+  // 移除 <a> 標籤並釋放 URL
+  document.body.removeChild(a);
+  URL.revokeObjectURL(downloadUrl);
+};
 
 function changeValue(value, obj) {
   if (obj != undefined) {
@@ -323,6 +394,5 @@ function changeValue(value, obj) {
   .historywrap .v-table {
     font-size: 14px;
   }
-
 }
 </style>

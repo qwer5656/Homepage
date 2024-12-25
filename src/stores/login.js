@@ -3,12 +3,11 @@ import { defineStore } from "pinia";
 export const loginStore = defineStore("login", {
   state: () => {
     return {
-        apiurl:"https://localhost:7120/api/Login"
+        apiurl:"Login"
     };
   },
   actions: {
     accountlogin(self,data) {
-  
       return new Promise((resolve, reject) => {
         self.$axios
           .post(
@@ -23,7 +22,7 @@ export const loginStore = defineStore("login", {
       return new Promise((resolve, reject) => {
         self.$axios
           .get(
-            this.apiurl+"?token="+data,false)
+            this.apiurl,data,false)
           .then((res) => {
             resolve(res);
           });

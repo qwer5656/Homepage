@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 export const reverseStore = defineStore("reverse", {
   state: () => {
     return {
-      apiurl: "https://localhost:7120/api/ScheduleTask",
+      apiurl: "ScheduleTask",
     };
   },
   actions: {
@@ -11,7 +11,7 @@ export const reverseStore = defineStore("reverse", {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
         self.$axios
-        .get(this.apiurl +"/GetAll/"+token, true)
+        .get(this.apiurl +"/GetAll",token, true)
         .then((res) => {
             resolve(res);
         });
@@ -19,7 +19,8 @@ export const reverseStore = defineStore("reverse", {
     },
     getapi(self, cardId) {
       return new Promise((resolve, reject) => {
-        self.$axios.get(this.apiurl + "/" + cardId, true).then((res) => {
+        let token = JSON.parse(localStorage.getItem("token"));
+        self.$axios.get(this.apiurl + "/" + cardId,token, true).then((res) => {
           resolve(res);
         });
       });
@@ -28,7 +29,6 @@ export const reverseStore = defineStore("reverse", {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
         data.token=token;
-        console.log(data);
         self.$axios.post(this.apiurl, data, true).then((res) => {
           resolve(res);
         });

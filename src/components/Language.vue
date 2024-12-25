@@ -3,33 +3,38 @@
     <h3>Select language</h3>
     <div class="date">
       <div class="selectwrap">
-          <v-select
-            :items="languageitem"
-            class="timeselect"
-            variant="plain"
-            color="#000"
-            v-model="languagedata"
-          ></v-select>
-      </div> 
+        <v-select
+          :items="languageitem"
+          class="timeselect"
+          variant="plain"
+          color="#000"
+          v-model="languagedata"
+        ></v-select>
+      </div>
     </div>
     <div class="nbtwrap">
-      <Nbt title="Save" enabled="true" @click="savetime()" />
+      <Nbt title="Save" enabled="true" @click="savelanguage()" />
     </div>
   </div>
 </template>
 <script>
 import Nbt from "./public/Nbt.vue";
-import { useMainStore } from "@/stores/main";
 export default {
   data() {
     return {
-      languagedata:"English",
-      languageitem:["English"]
+      languagedata: "English",
+      languageitem: ["English", "中文"],
     };
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
+    savelanguage() {
+      if (this.languagedata === "English") {
+        this.$i18n.locale = "en";
+        return;
+      }
+      this.$i18n.locale = "zh";
+    },
   },
   components: {
     Nbt,
@@ -84,8 +89,8 @@ export default {
 .languagemodewrap .timetitle {
   margin-bottom: 19px;
 }
-.languagemodewrap .v-field__append-inner{
-  margin-right:10px;
+.languagemodewrap .v-field__append-inner {
+  margin-right: 10px;
 }
 
 @media (max-width: 576px) {
@@ -94,9 +99,8 @@ export default {
   }
   .languagemodewrap {
     padding: 30px;
-    margin-top:0px;
+    margin-top: 0px;
     width: 100%;
-    
   }
   .languagemodewrap .nbtwrap {
     margin-top: 60px;
@@ -106,14 +110,14 @@ export default {
     width: 100%;
   }
   .languagemodewrap .timeselect {
-    width:calc( 100vw - 60px);
+    width: calc(100vw - 60px);
     height: 20px;
     text-align: center;
   }
-  .languagemodewrap .selectwrap{
+  .languagemodewrap .selectwrap {
     margin: 20px 0;
   }
-  .languagemodewrap .timetitle{
+  .languagemodewrap .timetitle {
     margin-bottom: 10px;
   }
 }

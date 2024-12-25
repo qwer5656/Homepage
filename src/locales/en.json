@@ -9,6 +9,8 @@
         }
     },
     "Historypage":{
+        "Title":"History",
+        "item":["111"],
         "Date":"Charging Date",
         "Time":"Charging Time",
         "Degree":"Charging Degree"
@@ -18,6 +20,40 @@
         
     },
     "Reservepage":{
+        "title":"Schedule List",
+        "schedule":"My Schedule"
 
+    },
+    "Touchstartpage":{
+        "title":"Touch Start",
+        "content":"Turn on this option need to click start button when you ready to charge"
+    },
+    "StartModepage":{
+        "qrcodetitle":"QR Code",
+        "qrcodecontent":"Turn on this option need to scan QR code when you ready to charge.",
+        "rfidtitle":"RFID",
+        "rfidcontent":"Turn on this option and default card will be denied by this charger.",
+        "licensetitle":"Auto Scan Car License",
+        "licensecontent":"Turn on this option will be allow auto scan car number to start the charging."
+
+        
+    },
+    "Settingpage":{
+        "bluetoothcontent":"Turn on this option allow you configure your device via bluetooth.",
+        "wificontent":"Turn on this option allow you configure your EV charger to AP point.",
+        "ltecontent":"Turn on this option allow you configure your EV charger to SIM."
+    },
+    "headers":[
+        { "title": "(Card/licensePlate)", "key": "startTagId" },
+        { "title": "Charging Date", "key": "dateTime" },
+        { "title": "Charging Time", "key": "chargetime" },
+        { "title": "Charging Dgree", "key": "drgee" }
+      ],
+    "dateitems":[
+         { "text": "week", "value": "week" },
+          { "text": "month", "value": "month" }],
+    "Ocpppage":{
+        "describe":"Please key in the backend address provided to you by E-Faner.",
+        "connectiondescribe":"Please wait to connection process."
     }
 }

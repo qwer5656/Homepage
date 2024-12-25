@@ -9,12 +9,11 @@
       <div class="container">
         <div class="content">
           <div class="switch">
-            <span>Auto Scan Car License</span
+            <span>{{ $t("StartModepage.licensetitle") }}</span
             ><Nswitch v-model="carnumberswitchdata.enabled"></Nswitch>
           </div>
           <div class="explain">
-            Turn on this option will be allow auto scan car number to start the
-            charging.
+            {{ $t("StartModepage.licensecontent") }}
           </div>
           <div
             class="bt"
@@ -68,11 +67,16 @@ export default {
   watch: {
     "carnumberswitchdata.enabled"(val) {
       if (this.init == true) {
+        let self=this;
         let setting = settingStore();
         if (this.carnumberswitchdata.chargePointId == "") {
-          setting.postapi(this,this.carnumberswitchdata);
+          setting.postapi(this,this.carnumberswitchdata).then(res=>{
+            self.carnumberswitchdata=res.data;
+          });
         } else {
-          setting.putapi(this,this.carnumberswitchdata);
+          setting.putapi(this,this.carnumberswitchdata).then(res=>{
+            self.carnumberswitchdata=res.data;
+          });
 
         }
       }

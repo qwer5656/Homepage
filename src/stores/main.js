@@ -6,7 +6,7 @@ export const useMainStore = defineStore('main', {
     loading:false,
     curpage:"",
     chargepilemode:"standby",
-    userapi:"https://localhost:7120/api/UpdatePassword",
+    userapi:"UpdatePassword",
     userdata:{},
   }
   },

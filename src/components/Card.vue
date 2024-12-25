@@ -309,6 +309,7 @@ export default {
   display: flex;
   justify-self: center;
   align-items: center;
+  width: 100%;
 }
 .Cardwrap {
   color: white;

@@ -2,7 +2,7 @@
   <div class="reservewrap">
     <div class="datepicker">
       <div>
-        <v-date-picker bg-color="#000" title="Schedule List" v-model="date">
+        <v-date-picker bg-color="#000" :title="$t('Reservepage.title')" v-model="date">
           <template v-slot:header>
             <h1 class="datepickerheader">{{ getheaderdate }}</h1>
           </template></v-date-picker
@@ -10,7 +10,8 @@
       </div>
       <div class="schedulewrap" @click.capture="clearscheduledata()">
         <div class="addserverwrap">
-          <h4>My schedule</h4>
+          <h4>{{ $t("Reservepage.schedule") }}
+          </h4>
           <div>
             <img
               src="../assets/img/Adddeep_On.png"
@@ -212,12 +213,12 @@ export default {
         obj.valid = true;
         obj.result = "";
         reverse.postapi(self, obj).then((res) => {
-          if (res.success === undefined) {
-            Result.errorres(res);
-          }
           if (res.success === true) {
             self.cratescheduleitem = res.data;
             Result.successres();
+            this.changedialog(false);
+          } else {
+            Result.errorres(res.message);
           }
         });
       }
@@ -232,16 +233,15 @@ export default {
         obj.title = this.scheduledata.title;
         obj.scheduleTaskId = this.scheduledata.scheduleTaskId;
         reverse.putapi(self, obj).then((res) => {
-          if (res.success === undefined) {
-            Result.errorres(res);
-          }
           if (res.success === true) {
             self.cratescheduleitem = res.data;
             Result.successres();
+            this.changedialog(false);
+          } else {
+            Result.errorres(res.message);
           }
         });
       }
-      this.changedialog(false);
     },
     selectdata(e) {
       this.cratescheduleitem.forEach((el) => {
@@ -379,11 +379,10 @@ export default {
     getcalendarlist() {
       let arr = [];
       arr.push(this.getcalendar);
-
       return arr;
     },
     filterdata() {
-      if( this.cratescheduleitem===null)return[];    
+      if (this.cratescheduleitem === null) return [];
       return this.cratescheduleitem.filter((e) => {
         let date = this.date;
         let year = date.getFullYear();

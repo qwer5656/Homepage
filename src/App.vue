@@ -58,33 +58,37 @@
               {{ this.$i18n.locale.toLocaleUpperCase() }}
             </div>
             <img src="./assets/img/Dropdown.png" />
+            <ul class="menuwrap" id="languagewrap">
+              <li @click.stop="changelanguage('zh')">
+                <a :class="{ active: lang }">中文</a>
+              </li>
+              <li @click.stop="changelanguage('en')">
+                <a
+                  :class="{ active: !lang }"
+                  style="font-size: 13px; font-weight: bold"
+                  >English</a
+                >
+              </li>
+            </ul>
           </div>
           <div class="midaccount" @click="openmenu('accountwrap')">
+            <span class="accountName">{{ userName }}</span>
             <img src="./assets/img/people.png" />
+            <ul class="menuwrap" id="accountwrap">
+              <li @click.stop="editpassword">
+                <a
+                  class=""
+                  style="padding: 0; font-size: 13px; font-weight: bold"
+                  >Change Password</a
+                >
+              </li>
+              <li @click="logout">
+                <a class="" style="font-size: 13px; font-weight: bold"
+                  >Logout</a
+                >
+              </li>
+            </ul>
           </div>
-          <ul class="menuwrap" id="accountwrap">
-            <li @click="editpassword">
-              <a class="" style="padding: 0; font-size: 13px; font-weight: bold"
-                >Change Password</a
-              >
-            </li>
-            <li @click="logout">
-              <a class="" style="font-size: 13px; font-weight: bold">Logout</a>
-            </li>
-          </ul>
-
-          <ul class="menuwrap" id="languagewrap">
-            <!-- <li @click="changelanguage('zh')">
-              <a :class="{ active: lang }">中文</a>
-            </li> -->
-            <li @click="changelanguage('en')">
-              <a
-                :class="{ active: !lang }"
-                style="font-size: 13px; font-weight: bold"
-                >English</a
-              >
-            </li>
-          </ul>
         </div>
       </div>
       <div class="pctopwrap" v-if="loginshow"></div>
@@ -141,7 +145,7 @@
     </v-main>
 
     <Loading v-if="isshow"></Loading>
-    <Result/>
+    <Result />
   </v-app>
 </template>
 
@@ -161,19 +165,17 @@ import Mode_On from "@/assets/img/Mode_On.png";
 import Mode_Off from "@/assets/img/Mode_Off.png";
 import Settings_On from "@/assets/img/Settings_On.png";
 import Settings_Off from "@/assets/img/Settings_Off.png";
-import Result  from "@/components/Result.vue";
+import Result from "@/components/Result.vue";
 import qrcodsscan from "@/assets/img/qrcodsscan.png";
 import QrcodeEnabled from "@/assets/img/QrcodeEnabled.png";
 
-import {
-  mdiAccount,
-} from "@mdi/js";
+import { mdiAccount } from "@mdi/js";
 
 export default {
   name: "App",
   components: {
     Loading,
-    Result
+    Result,
   },
   computed: {
     isshow() {
@@ -186,6 +188,10 @@ export default {
     },
     lang() {
       return this.$i18n.locale == "zh" ? true : false;
+    },
+    userName() {
+      let data = JSON.parse(localStorage.getItem("userdata"));
+      return data.accout;
     },
   },
   data: () => ({
@@ -221,6 +227,7 @@ export default {
       this.$router.push(`/`);
     },
     editpassword() {
+      document.querySelector("#accountwrap").style.display = "none";
       this.footvalue = -1;
       this.$router.push(`/EditPassword`);
     },
@@ -279,7 +286,7 @@ export default {
           if (res.success === true) {
             this.loginshow = true;
           } else {
-           this.logout();
+            this.logout();
           }
         });
         return true;
@@ -295,7 +302,7 @@ export default {
   },
   watch: {
     "$route.path"(topath, frompath) {
-        this.checklogin();
+      this.checklogin();
     },
   },
   mounted() {
@@ -347,6 +354,10 @@ body {
 }
 ::-webkit-scrollbar {
   width: 5px;
+}
+.accountName {
+  color: white;
+  padding: 0 10px;
 }
 .phonediv {
   height: 65px;
@@ -455,6 +466,7 @@ body {
 }
 .midaccount {
   cursor: pointer;
+  position: relative;
 }
 .midaccountwrap {
   margin-left: auto;
@@ -470,9 +482,13 @@ body {
   position: absolute;
   z-index: 9999;
   right: 0;
-  top: 80%;
+  top: 120%;
   width: 150px;
   display: none;
+}
+
+.languagemenuwrap {
+  left: 0;
 }
 
 .menuwrap li {
@@ -497,7 +513,7 @@ body {
   margin: 0 20px;
   color: rgba(107, 107, 107, 1);
   display: flex;
-
+  position: relative;
   cursor: pointer;
 }
 .leftbarconent {
@@ -567,10 +583,8 @@ body {
     color: white;
     cursor: pointer;
   }
-  .settingnavbar .navbarul li:hover{
-    
+  .settingnavbar .navbarul li:hover {
     color: rgba(91, 228, 114, 1);
-
   }
   .settingnavbar .navbarul {
     position: absolute;

@@ -13,10 +13,14 @@
               <img v-if="wifi" src="../assets/img/Wifi-On.png" />
               <img v-else src="../assets/img/Wifi-Off.png" />
             </div>
-            <div><img v-if="lte" src="../assets/img/LTE-On.png" />
-              <img v-else src="../assets/img/LTE-Off.png" /></div>
-            <div><img v-if="bluetooth" src="../assets/img/Buletooth-On.png" />
-              <img v-else src="../assets/img/Buletooth-Off.png" /></div>
+            <div>
+              <img v-if="lte" src="../assets/img/LTE-On.png" />
+              <img v-else src="../assets/img/LTE-Off.png" />
+            </div>
+            <div>
+              <img v-if="bluetooth" src="../assets/img/Buletooth-On.png" />
+              <img v-else src="../assets/img/Buletooth-Off.png" />
+            </div>
           </div>
           <div class="contentmid">
             <img
@@ -34,7 +38,10 @@
             </div>
           </div>
         </div>
+
         <div class="bottomwrap">
+          <!-- <div class="chargebt" @click="reset()">Reset</div> -->
+
           <div
             class="chargetxt"
             v-if="!touchstart && chargestauts"
@@ -95,9 +102,9 @@ export default {
     Nowdate: "",
     Nowmonth: "",
     TimeData: null,
-    wifi:false,
-    lte:false,
-    bluetooth:false
+    wifi: false,
+    lte: false,
+    bluetooth: false,
   }),
   mounted() {
     let self = this;
@@ -137,30 +144,38 @@ export default {
           const mainstore = useMainStore();
           self.chargestauts = false;
           mainstore.chargepilemode = "standby";
-        } else {
-          let data = res.data;
-          self.wifi=data.wifi;
-          self.lte=data.lte;
-          self.bluetooth=data.bluetooth;
-          const mainstore = useMainStore();
-          if (
-            data.lastStatus == "Available" &&
-            (mainstore.chargepilemode == "finish" ||
-              mainstore.chargepilemode == "selectmode")
-          ) {
-          } else {
-            if (data.lastStatus == "Charging") {
-              mainstore.chargepilemode = "charging";
-            }
-            if (data.lastStatus == "Preparing") {
-              mainstore.chargepilemode = "preparing";
-            }
-            if (data.lastStatus == "Available") {
-              self.chargestauts = true;
-              mainstore.chargepilemode = "standby";
-            }
-          }
+          return;
         }
+
+        let data = res.data;
+        self.wifi = data.wifi;
+        self.lte = data.lte;
+        self.bluetooth = data.bluetooth;
+        const mainstore = useMainStore();
+        if (
+          data.lastStatus == "Available" &&
+          (mainstore.chargepilemode == "finish" ||
+            mainstore.chargepilemode == "selectmode")
+        ) {
+          return;
+        }
+        if (data.lastStatus == "Charging") {
+          mainstore.chargepilemode = "charging";
+        }
+        if (data.lastStatus == "Preparing") {
+          mainstore.chargepilemode = "preparing";
+        }
+        if (data.lastStatus == "Available") {
+          self.chargestauts = true;
+          mainstore.chargepilemode = "standby";
+        }
+      });
+    },
+    reset() {
+      let self = this;
+      let chargePile = chargePileStore();
+      chargePile.Reset(self).then((res) => {
+        console.log(res.data);
       });
     },
   },

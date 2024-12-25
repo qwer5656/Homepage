@@ -2,11 +2,11 @@
   <div class="touchstartmainwrap">
     <div class="touchstartwrap">
       <div class="touchstartcontainer">
-        <span class="touchstarttxt">Touch Start</span>
+        <span class="touchstarttxt">{{ $t("Touchstartpage.title") }}</span>
         <v-switch v-model="data.enabled" inset hide-details></v-switch>
       </div>
       <div class="txt">
-        Turn on this option need to click start button when you ready to charge.
+        {{ $t("Touchstartpage.content") }}
       </div>
     </div>
     <div class="flex">
@@ -39,12 +39,17 @@ export default {
     "data.enabled"(val) {
       if (this.init == true) {
         let setting = settingStore();
+        let self=this;
         if (this.data.chargePointId == "") {
          
-          setting.postapi(this,this.data);
+          setting.postapi(this,this.data).then(res=>{
+            self.data=res.data;
+          });
         } else {
          
-          setting.putapi(this,this.data);
+          setting.putapi(this,this.data).then(res=>{
+            self.data=res.data;
+          });
 
         }
       }

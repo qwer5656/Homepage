@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 export const settingStore = defineStore("setting", {
   state: () => {
     return {
-      apiurl: "https://localhost:7120/api/Setting",
+      apiurl: "Setting",
     };
   },
   actions: {
@@ -12,7 +12,7 @@ export const settingStore = defineStore("setting", {
         let token = JSON.parse(localStorage.getItem("token"));
 
         self.$axios
-          .get(this.apiurl + "/" + token + "/" + methods, true)
+          .get(this.apiurl + "/" + methods,token, true)
           .then((res) => {
             resolve(res);
           });

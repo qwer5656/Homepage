@@ -75,6 +75,7 @@ export default {
     savetime() {
       let setting = settingStore();
       let Result = ResultStore();
+      let self=this;
       this.timedata.methodsContent =
         this.hour + ":" + this.min + ":" + this.sec;
       if (this.timedata.chargePointId == "") {

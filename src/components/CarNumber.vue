@@ -325,6 +325,7 @@ export default {
   justify-self: center;
   align-items: center;
   margin: 0px 0px 30px 0px;
+  width: 100%;
 }
 .carnumberwrap {
   color: white;

@@ -10,7 +10,7 @@
         <div class="wrap">
           <span class="txt">Wifi</span>
           <h5 style="color: rgba(107, 107, 107, 1)">
-            Turn on this option allow you configure your EV charger to AP point.
+            {{ $t("Settingpage.wificontent") }}
           </h5>
         </div>
       </div>
@@ -30,11 +30,16 @@ export default {
   watch: {
     "Wifidata.enabled"(val) {
       if (this.init == true) {
+        let self=this;
         let setting = settingStore();
         if (this.Wifidata.chargePointId == "") {
-          setting.postapi(this,this.Wifidata);
+          setting.postapi(this,this.Wifidata).then(res=>{
+            self.Wifidata=res.data;
+          });
         } else {
-          setting.putapi(this,this.Wifidata);
+          setting.putapi(this,this.Wifidata).then(res=>{
+            self.Wifidata=res.data;
+          });
 
         }
       }

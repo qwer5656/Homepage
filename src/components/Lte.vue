@@ -10,7 +10,7 @@
         <div class="wrap">
           <span class="txt">LTE</span>
           <h5 style="color: rgba(107, 107, 107, 1)">
-            Turn on this option allow you configure your EV charger to SIM.
+            {{ $t("Settingpage.ltecontent") }}
           </h5>
         </div>
       </div>
@@ -30,11 +30,16 @@ export default {
   watch: {
     "Ltedata.enabled"(val) {
       if (this.init == true) {
+        let self=this;
         let setting = settingStore();
         if (this.Ltedata.chargePointId == "") {
-          setting.postapi(this,this.Ltedata);
+          setting.postapi(this,this.Ltedata).then(res=>{
+            self.Ltedata=res.data;
+          });
         } else {
-          setting.putapi(this,this.Ltedata);
+          setting.putapi(this,this.Ltedata).then(res=>{
+            self.Ltedata=res.data;
+          });
 
         }
       }
@@ -72,14 +77,11 @@ export default {
 }
 .Ltewrap .v-switch--inset .v-switch__track {
   background: #ffffff1a;
-
   width: 52.89px;
   height: 28px;
   border-radius: 30px;
   border: 2px solid #474747;
-
   box-shadow: 0px 8px 30px 0px #00000069;
-
   box-shadow: 0px 0px 12px 0px #ffffff08 inset;
 }
 .Ltewrap h2{

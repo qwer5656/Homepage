@@ -7,7 +7,7 @@
     <div>
       <div class="title">{{ ocppdata.title }}</div>
       <div class="describe">
-        {{ ocppdata.describe }}
+        {{ describe }}
       </div>
       <div>
         <form class="formwrap">
@@ -61,6 +61,7 @@ import ocppwebsuccess from "@/assets/img/ocppwebsuccess.png";
 import ocppbackend from "@/assets/img/ocppbackend.png";
 import ocppbackendsuccess from "@/assets/img/ocppbackendsuccess.png";
 import Yes from "@/assets/img/Yes.png";
+import { useI18n } from "vue-i18n";
 import { settingStore } from "@/stores/setting";
 export default {
   data() {
@@ -81,10 +82,19 @@ export default {
       webtobackendlineimg: grayline,
       devicetowebimg: "",
       webtobackendimg: "",
+      myt: "",
     };
   },
   components: {
     Nbt,
+  },
+  computed: {
+    describe() {
+      if (this.mode === "address") {
+        return this.myt("Ocpppage.describe");
+      }
+      return this.myt("Ocpppage.connectiondescribe");
+    },
   },
   methods: {
     previous() {
@@ -104,13 +114,14 @@ export default {
     chagetxt() {
       if (this.mode == "address") {
         this.ocppdata.title = "Backend Address";
-        this.ocppdata.describe =
-          "Please key in the backend address provided to you by E-Faner.";
         this.bttitle = "Next";
         this.btenabled = true;
-      } else if (this.mode == "connent") {
+        return;
+      }
+
+      if (this.mode == "connent") {
         this.ocppdata.title = "Connecting";
-        this.ocppdata.describe = "Please wait to connection process.";
+
         this.bttitle = "OK";
         this.btenabled = false;
         this.devicetowebprogressimg = No;
@@ -126,7 +137,9 @@ export default {
         setTimeout(function () {
           self.changemode("devicetoweb");
         }, 1000);
-      } else if (this.mode == "devicetoweb") {
+        return;
+      }
+      if (this.mode == "devicetoweb") {
         this.devicetowebprogressimg = Yes;
         this.devicetoweblineimg = greenline;
         this.devicetowebimg = ocppwebsuccess;
@@ -135,7 +148,9 @@ export default {
         setTimeout(function () {
           self.changemode("webtobackend");
         }, 1000);
-      } else if (this.mode == "webtobackend") {
+        return;
+      }
+      if (this.mode == "webtobackend") {
         this.webtobackendprogressimg = Yes;
         this.webtobackendlineimg = greenline;
         this.webtobackendimg = ocppbackendsuccess;
@@ -148,13 +163,13 @@ export default {
             self.ocpp = res.data;
             mainstore.loading = false;
           });
-        }
-        else{
+        } else {
           setting.putapi(this, this.ocpp).then((res) => {
             self.ocpp = res.data;
             mainstore.loading = false;
           });
         }
+        return;
       }
     },
   },
@@ -162,6 +177,8 @@ export default {
     this.chagetxt();
   },
   beforeMount() {
+    const { t } = useI18n();
+    this.myt = t;
     let setting = settingStore();
     let self = this;
     setting.getapi(this, "OCPPSetting").then((res) => {

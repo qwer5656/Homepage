@@ -3,21 +3,22 @@ import { defineStore } from "pinia";
 export const cardStore = defineStore("card", {
   state: () => {
     return {
-      apiurl: "https://localhost:7120/api/Card",
+      apiurl: "Card",
     };
   },
   actions: {
     getapiAll(self) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios.get(this.apiurl + "/GetAll/"+token+"/", true).then((res) => {
+        self.$axios.get(this.apiurl + "/GetAll",token, true).then((res) => {
           resolve(res);
         });
       });
     },
     getapi(self, cardId) {
       return new Promise((resolve, reject) => {
-        self.$axios.get(this.apiurl + "/" + cardId, true).then((res) => {
+        let token = JSON.parse(localStorage.getItem("token"));
+        self.$axios.get(this.apiurl + "/" + cardId,token, true).then((res) => {
           resolve(res);
         });
       });

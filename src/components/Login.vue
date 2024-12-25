@@ -15,7 +15,6 @@
             v-model="accountdata"
           ></v-text-field>
           <v-text-field
-         
             :append-inner-icon="show1 ? mdiEye : mdiEyeOff"
             :type="show1 ? 'text' : 'password'"
             label="password"

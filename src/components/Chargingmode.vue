@@ -80,8 +80,8 @@ export default {
       const mainstore = useMainStore();
       let chargePile = chargePileStore();
       chargePile.RemoteStopTransaction(this).then((res) => {
-        console.log(res);
-        if (res.status == "Accepted") {
+        let data=JSON.parse(res.data);
+        if (data.status == "Accepted") {
           mainstore.chargepilemode = val;
         }
       });
@@ -89,9 +89,7 @@ export default {
     random() {
       let self = this;
       let chargePile = chargePileStore();
-
       chargePile.GetChargePiledata(this).then((res) => {
-        console.log(res);
         self.time++;
         if (res.data !== null) {
           res.data[0].meterValue[0].sampledValue.forEach((e) => {

@@ -10,7 +10,7 @@
         <div class="wrap">
           <span class="txt">Bluetooth</span>
           <h5 style="color: rgba(107, 107, 107, 1)">
-            Turn on this option allow you configure your device via bluetooth.
+            {{ $t("Settingpage.bluetoothcontent") }}
           </h5>
         </div>
       </div>
@@ -29,13 +29,19 @@ export default {
   watch: {
     "Bluetoothdata.enabled"(val) {
       if (this.init == true) {
+        let self=this;
         let setting = settingStore();
         if (this.Bluetoothdata.chargePointId == "") {
-          setting.postapi(this,this.Bluetoothdata);
-        } else {
-          setting.putapi(this,this.Bluetoothdata);
+          setting.postapi(this,this.Bluetoothdata).then(res=>{
+            self.Bluetoothdata=res.data;
+          });
+          return;
+        }  
+        setting.putapi(this,this.Bluetoothdata).then(res=>{
+            self.Bluetoothdata=res.data;
+        });
 
-        }
+        
       }
       this.init = true;
     },
