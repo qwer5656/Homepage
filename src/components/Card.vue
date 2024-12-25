@@ -16,6 +16,11 @@
         ></v-text-field>
       </div>
     </div>
+<<<<<<< HEAD
+    <div class="cardmangerwrap" @click.capture="clearcard">
+      <div v-for="(item, index) in carddata" :key="item">
+        <h3>{{ item.CardNumberName }}</h3>
+=======
     <div class="addcontent">
       <div>My Card</div>
       <div class="addiconwrap">
@@ -28,6 +33,7 @@
     <div class="cardmangerwrap" @click.capture="clearcard">
       <div v-for="(item, index) in filtercarddata" :key="item">
         <h3>{{ item.cardName }}</h3>
+>>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
         <div class="cardcontent" @click.capture="cardclick(item)">
           <img src="../assets/img/cardLogo.png" alt="" />
           <div class="cardoperatewrap" v-if="item.select == true">
@@ -230,6 +236,11 @@ export default {
         }
       });
     },
+    clearcard(){
+      this.carddata.forEach((e) => {
+          e.select = false;
+      });
+    }
   },
 };
 </script>

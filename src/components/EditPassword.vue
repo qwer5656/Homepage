@@ -148,7 +148,11 @@ export default {
     margin-top: 20px;
   }
   .passwordwrap .formwrap {
+<<<<<<< HEAD
+   width: 100%;
+=======
     width: 100%;
+>>>>>>> dfee2160ae59ebff1f8a62416ace88320651501d
   }
 }
 </style>

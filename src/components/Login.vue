@@ -24,7 +24,7 @@
             variant="solo"
             @keyup.enter="passwordConfirmationRule"
           ></v-text-field>
-          <div class="chargebt" @click="passwordConfirmationRule">Log in</div>
+          <div class="chargebt" @click="passwordConfirmationRule" >Log in</div>
         </v-form>
       </div>
       <div class="loginchargepilewrap">
@@ -219,3 +219,4 @@ export default {
   }
 }
 </style>
+

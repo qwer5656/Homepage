@@ -360,6 +360,12 @@ function changeValue(value, obj) {
   color: rgba(107, 107, 107, 1);
 }
 
+
+@media (max-width: 576px) {
+  .historywrap .chart {
+   padding-bottom: 30px;
+  }
+
 .historywrap .vtablewrap {
   background-color: black;
   color: white;
@@ -384,15 +390,6 @@ function changeValue(value, obj) {
 .historywrap .headerwrap {
   padding: 20px 10px !important;
 }
-@media (max-width: 576px) {
-  .historywrap .chart {
-    padding-bottom: 30px;
-  }
-  .historywrap .vtablewrap {
-    padding: 0 10px;
-  }
-  .historywrap .v-table {
-    font-size: 14px;
-  }
+
 }
 </style>

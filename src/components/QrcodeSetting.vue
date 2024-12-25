@@ -33,6 +33,7 @@ export default {
   setup() {},
   data() {
     return {
+
       qrcodeswitchdata: {},
       qrcodeimg: QrcodeEnabled,
       error: "",
@@ -64,6 +65,7 @@ export default {
     });
   },
   watch: {
+
     "qrcodeswitchdata.enabled"(val) {
       let self = this;
       if (this.init == true) {

@@ -10,12 +10,14 @@
       </div>
     </div>
     <div class="flex">
+
       <img
         v-if="Touchstartmodeimg"
         :src="TouchStarmtmodeimageUrl"
         class="sizeclass"
       />
       <img v-else :src="CarimageUrl" />
+
     </div>
   </div>
 </template>

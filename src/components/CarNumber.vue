@@ -236,6 +236,11 @@ export default {
         }
       });
     },
+    clearcardnumber(){
+      this.carNumberddata.forEach((e) => {
+          e.select = false;
+      });
+    }
   },
 };
 </script>

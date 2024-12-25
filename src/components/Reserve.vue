@@ -20,6 +20,7 @@
             />
           </div>
         </div>
+
         <div class="reservecontent">
           <div class="reservenone" v-if="timedata.length == 0">none</div>
           <div class="reserveschedulewrap" v-for="item in timedata" :key="item">
@@ -272,6 +273,7 @@ export default {
       this.scheduledata = JSON.parse(JSON.stringify(e));
       this.changedialog(true);
     },
+
     clearscheduledata() {
       this.cratescheduleitem.forEach((e) => {
         e.active = false;
