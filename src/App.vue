@@ -296,7 +296,6 @@ export default {
     },
   },
   beforeMount() {
-
     if (this.$route.path == "/") {
       this.checklogin();
     }
@@ -309,10 +308,8 @@ export default {
   mounted() {
     let self = this;
     window.addEventListener("resize", function () {
-
       var windowWidth = document.body.clientWidth;
       const mainstore = useMainStore();
-
 
       if (windowWidth <= 576) {
         if (mainstore.curpage == "Setting") {
@@ -526,9 +523,6 @@ body {
   display: none;
 }
 
-
-
-
 @media (max-width: 576px) {
   .leftbarconent {
     width: 100%;
@@ -610,7 +604,6 @@ body {
 @media (max-height: 740px) {
   .pctopwrap {
     padding: 0;
-    
   }
 }
 </style>
