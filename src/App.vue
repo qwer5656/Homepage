@@ -593,7 +593,7 @@ body {
     left: 0px;
     list-style: none;
     padding: 10px;
-    height: calc(100vh - 46px);
+    height: calc(100vh - 50px);
   }
   .settingnavbar .navbarul li span {
     margin-right: auto;

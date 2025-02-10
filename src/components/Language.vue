@@ -8,7 +8,7 @@
           class="timeselect"
           variant="plain"
           color="#000"
-          v-model="languagedata"
+          v-model="languagedata.methodsContent"
         ></v-select>
       </div>
     </div>
@@ -19,22 +19,50 @@
 </template>
 <script>
 import Nbt from "./public/Nbt.vue";
+import { settingStore } from "@/stores/setting";
 export default {
   data() {
     return {
-      languagedata: "English",
+      languagedata: {},
       languageitem: ["English", "中文"],
     };
   },
   mounted() {},
   methods: {
     savelanguage() {
+
+
+      let self = this;
+      let setting = settingStore();
+      if (this.languagedata.chargePointId == "") {
+        setting.postapi(this, this.languagedata).then((res) => {
+          self.languagedata = res.data;
+          self.chagelanuage();
+        });
+        return;
+      }
+      setting.putapi(this, this.languagedata).then((res) => {
+        self.languagedata = res.data;
+        self.chagelanuage();
+      });
+    },
+    chagelanuage(){
       if (this.languagedata === "English") {
         this.$i18n.locale = "en";
         return;
       }
       this.$i18n.locale = "zh";
-    },
+    }
+  },
+  beforeMount() {
+    let setting = settingStore();
+    let self = this;
+    setting.getapi(this, "LanguageSetting").then((res) => {
+      self.languagedata = res.data;
+      if (res.data.chargePointId == "") {
+        self.languagedata.methodsContent = "English";
+      }
+    });
   },
   components: {
     Nbt,

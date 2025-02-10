@@ -15,8 +15,8 @@
   </div>
 </template>
 <script>
-import { useMainStore } from "@/stores/main";
 import { chargePileStore } from "@/stores/chargePile";
+import { ResultStore } from "@/stores/result";
 export default {
   data() {
     return {
@@ -27,26 +27,28 @@ export default {
     let self = this;
 
     setTimeout(function () {
-      const mainstore = useMainStore();
-      let chargePile=chargePileStore();
+      let chargePile = chargePileStore();
       chargePile.RemoteStartTransaction(self).then((res) => {
-          if (res.success == true) {
-            mainstore.chargepilemode = "charging";
-            setTimeout(function () {
-             self.$router.push(`/`);
-            }, 500);
-          } else {
+        if (res.success == true) {
+          let data = JSON.parse(res.data);
+          if (data.status === "Rejected") {
             self.error();
+          } else {
+            setTimeout(function () {
+              self.$router.push(`/`);
+            }, 500);
           }
-        });
+        } else {
+          self.error();
+        }
+      });
     }, 1000);
   },
   methods: {
     error() {
-      const mainstore = useMainStore();
-      mainstore.chargepilemode = "standby";
+      const Result = ResultStore();
       this.$router.push(`/`);
-      console.log("error");
+      Result.errorres("RemoteStartTransaction Fail");
     },
   },
 };

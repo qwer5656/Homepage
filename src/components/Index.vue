@@ -40,7 +40,7 @@
         </div>
 
         <div class="bottomwrap">
-          <!-- <div class="chargebt" @click="reset()">Reset</div> -->
+          <div class="chargebt" @click="reset()">Reset</div>
 
           <div
             class="chargetxt"

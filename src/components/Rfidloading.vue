@@ -12,26 +12,36 @@
   </div>
 </template>
 <script>
-import { useMainStore } from "@/stores/main";
 import { chargePileStore } from "@/stores/chargePile";
+import { ResultStore } from "@/stores/result";
 export default {
   mounted() {
     let self = this;
 
     setTimeout(function () {
-      const mainstore = useMainStore();
       let chargePile = chargePileStore();
       chargePile.RemoteStartTransaction(self).then((res) => {
         if (res.success == true) {
-          mainstore.chargepilemode = "charging";
-          setTimeout(function () {
-            self.$router.push(`/`);
-          }, 500);
-          return;
+          let data = JSON.parse(res.data);
+          if (data.status === "Rejected") {
+            self.error();
+          } else {
+            setTimeout(function () {
+              self.$router.push(`/`);
+            }, 500);
+          }
+        } else {
+          self.error();
         }
-        self.error();
       });
     }, 1000);
+  },
+  methods: {
+    error() {
+      const Result = ResultStore();
+      this.$router.push(`/`);
+      Result.errorres("RemoteStartTransaction Fail");
+    },
   },
 };
 </script>

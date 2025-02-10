@@ -219,7 +219,7 @@ export default {
     padding-top: 20px;
   }
   .rfidSettingwrap .imgwrap img {
-    width: 40vw;
+    width: 35vw;
   }
   .rfidSettingwrap .phonebt {
     display: block !important;

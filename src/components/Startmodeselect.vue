@@ -1,27 +1,31 @@
 <template lang="">
-  <div class="startmodegwrap">
-    <div class="wrap" @click="goto('QrcodeStartmode')">
-      <div>
-        <img src="../assets/img/QRCode.png" alt="" />
-      </div>
-      <div class="txt">QR Code</div>
+    <div class="backicon" @click="previous()">
+      <img src="../assets/img/Previous.png" alt="" />
+      <span>Back</span>
     </div>
-    <div class="wrap" @click="goto('Rfidloading')">
-      <div>
-        <img src="../assets/img/RFID.png" alt="" />
+    <div class="startmodegwrap">
+      <div class="wrap" @click="goto('QrcodeStartmode')">
+        <div>
+          <img src="../assets/img/QRCode.png" alt="" />
+        </div>
+        <div class="txt">QR Code</div>
       </div>
-      <div class="txt">RFID</div>
-    </div>
-    <div class="wrap" @click="goto('CarNumberloading')">
-      <div>
-
-        <img src="../assets/img/ScanCarNumber.png" alt="" />
+      <div class="wrap" @click="goto('Rfidloading')">
+        <div>
+          <img src="../assets/img/RFID.png" alt="" />
+        </div>
+        <div class="txt">RFID</div>
       </div>
-      <div class="txt">Car Number</div>
+      <div class="wrap" @click="goto('CarNumberloading')">
+        <div>
+          <img src="../assets/img/ScanCarNumber.png" alt="" />
+        </div>
+        <div class="txt">Car Number</div>
+      </div>
     </div>
-  </div>
 </template>
 <script>
+import { useMainStore } from "@/stores/main";
 export default {
   data() {
     return {
@@ -34,10 +38,25 @@ export default {
     goto(val) {
       this.$router.push(`/${val}`);
     },
+    previous(){
+      const mainstore=useMainStore();
+      mainstore.chargepilemode = "standby";
+    }
   },
 };
 </script>
 <style scoped>
+
+.backicon{
+  color: white;
+  margin: 0 50px;
+  display: inline-block;
+  cursor: pointer;
+}
+.backicon img{
+  vertical-align: middle;
+  margin: 0 5px;
+}
 .startmodegwrap {
   color: white;
   display: flex;
