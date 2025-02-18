@@ -17,14 +17,14 @@
       </div>
     </div>
     <div class="addcontent">
-        <div>My Card</div>
-        <div class="addiconwrap">
-          <div @click="addcard">
-            Add
-            <img src="../assets/img/Add_On.png" alt="" />
-          </div>
+      <div>My Card</div>
+      <div class="addiconwrap">
+        <div @click="addcard">
+          Add
+          <img src="../assets/img/Add_On.png" alt="" />
         </div>
       </div>
+    </div>
     <div class="cardmangerwrap" @click.capture="clearcard">
       <div v-for="(item, index) in filtercarddata" :key="item">
         <h3>{{ item.cardName }}</h3>
@@ -91,162 +91,162 @@
             {{ mode == "add" ? "Create" : "Save" }}
           </div>
         </v-form>
-        
       </div>
     </v-dialog>
   </div>
 </template>
-<script>
-import { mdiMinusCircle, mdiPencil } from "@mdi/js";
+<script setup>
 import { useMainStore } from "@/stores/main";
 import { cardStore } from "@/stores/card";
 import { ResultStore } from "@/stores/result";
-import { mdiMagnify } from "@mdi/js";
-export default {
-  data() {
-    return {
-      deletedialog: false,
-      newCarddata: {},
-      carddata: [],
-      tempdata: {},
-      mode: "",
-      error: "",
-      searchText: "",
-      mdiMagnify,
-      cardNamerules: [
-        (value) => {
-          if (value) return true;
-          return "Name is  null";
-        },
-      ],
-      cardNumberrules: [
-        (value) => {
-          if (value) return true;
-          return "CarNumber is  null";
-        },
-      ],
-    };
-  },
-  methods: {
-    previous() {
-      this.$emit("changestatus", false);
-    },
-    close() {
-      this.deletedialog = false;
-    },
-    open() {
-      this.deletedialog = true;
-    },
-    savecard() {
-      let self = this;
-      this.$refs.entryForm.validate().then(function (res) {
-        if (res.valid == true) {
-          let cardoperate = cardStore();
-          let Result = ResultStore();
 
-          if (self.mode == "edit") {
-            cardoperate.putapi(self, self.newCarddata).then((res) => {
-              if (res.success === false) {
-                Result.errorres(res.message);
-              }
-              if (res.success === true) {
-                self.carddata = res.data;
-                Result.successres();
-              }
-            });
-          }
-          if (self.mode == "add") {
-            let obj = {
-              blocked: false,
-              cardId: "00000000-0000-0000-0000-000000000000",
-              createTime: new Date(),
-              updateTime: new Date(),
-              expiryDate: null,
-            };
+import {
+  ref,
+  computed,
+  onBeforeMount,
+  getCurrentInstance,
+  defineEmits,
+} from "vue";
+const emit = defineEmits();
+const deletedialog = ref(false);
+const newCarddata = ref({});
+const carddata = ref([]);
+const tempdata = ref({});
+const mode = ref("");
+const error = ref("");
+const searchText = ref("");
+const instance = getCurrentInstance();
+const cardNamerules = ref([
+  (value) => {
+    if (value) return true;
+    return "Name is  null";
+  },
+]);
+const cardNumberrules = ref([
+  (value) => {
+    if (value) return true;
+    return "CarNumber is  null";
+  },
+]);
 
-            obj.cardName = self.newCarddata.cardName;
-            obj.cardNumber = self.newCarddata.cardNumber;
+const filtercarddata = computed(() => {
+  if (carddata.value == null) return [];
+  return carddata.value.filter((e) => {
+    if (
+      e.cardNumber.indexOf(searchText.value) != -1 ||
+      e.cardName.indexOf(searchText.value) != -1
+    ) {
+      return true;
+    }
+  });
+});
 
-            cardoperate.postapi(self, obj).then((res) => {
-              if (res.success === false) {
-                Result.errorres(res.message);
-              }
-              if (res.success === true) {
-                self.carddata = res.data;
-                Result.successres();
-                self.newCarddata = {};
-                self.deletedialog = false;
-              }
-            });
-          }
-        }
-      });
-    },
-    cardclick(item) {
-      item.select = true;
-      this.carddata.forEach((e) => {
-        if (e != item) {
-          e.select = false;
-        }
-      });
-    },
-    addcard() {
-      this.open();
-      this.mode = "add";
-      this.newCarddata = {};
-    },
-    editcard(item) {
-      this.tempdata = item;
-      this.newCarddata = JSON.parse(JSON.stringify(item));
-      this.open();
-      this.mode = "edit";
-    },
-    removecard(item) {
-      let card = cardStore();
-      let self = this;
-      card.deleteapi(this, item.cardId).then((res) => {
-        let Result = ResultStore();
-        if (res.success === false) {
-          Result.errorres(res.message);   
-        }
-        if (res.success === true) {
-          self.carddata = res.data;
-          Result.successres();
-        }
-      });
-    },
-    clearcard() {
-      this.carddata.forEach((e) => {
-        e.select = false;
-      });
-    },
-  },
-  beforeMount() {
-    let card = cardStore();
-    let self = this;
-    card.getapiAll(this).then((res) => {
-      self.carddata = res.data;
-    });
-  },
-  computed: {
-    filtercarddata() {
-      if (this.carddata == null) return [];
-      return this.carddata.filter((e) => {
-        if (
-          e.cardNumber.indexOf(this.searchText) != -1 ||
-          e.cardName.indexOf(this.searchText) != -1
-        ) {
-          return true;
-        }
-      });
-    },
-    clearcard() {
-      this.carddata.forEach((e) => {
-        e.select = false;
-      });
-    },
-  },
+const clearcard = computed(() => {
+  carddata.value.forEach((e) => {
+    e.select = false;
+  });
+});
+
+const previous = function () {
+  emit("changestatus", false);
 };
+
+const close = function () {
+  deletedialog.value = false;
+};
+
+const open = function () {
+  deletedialog.value = true;
+};
+
+onBeforeMount(() => {
+  let card = cardStore();
+  card.getapiAll(instance?.proxy).then((res) => {
+    carddata.value = res.data;
+  });
+});
+
+const savecard = function () {
+  instance?.proxy.$refs.entryForm.validate().then(function (res) {
+    if (res.valid == true) {
+      let cardoperate = cardStore();
+      let Result = ResultStore();
+
+      if (mode.value == "edit") {
+        cardoperate.putapi(instance?.proxy, newCarddata.value).then((res) => {
+          if (res.success === false) {
+            Result.errorres(res.message);
+          }
+          if (res.success === true) {
+            carddata.value = res.data;
+            Result.successres();
+            deletedialog.value = false;
+          }
+          
+        });
+      }
+      if (mode.value == "add") {
+        let obj = {
+          blocked: false,
+          cardId: "00000000-0000-0000-0000-000000000000",
+          createTime: new Date(),
+          updateTime: new Date(),
+          expiryDate: null,
+        };
+
+        obj.cardName = newCarddata.value.cardName;
+        obj.cardNumber = newCarddata.value.cardNumber;
+
+        cardoperate.postapi(instance?.proxy, obj).then((res) => {
+          if (res.success === false) {
+            Result.errorres(res.message);
+          }
+          if (res.success === true) {
+            carddata.value = res.data;
+            Result.successres();
+            newCarddata.value = {};
+            deletedialog.value = false;
+          }
+        });
+      }
+    }
+  });
+};
+
+const cardclick = function (item) {
+  item.select = true;
+  carddata.value.forEach((e) => {
+    if (e != item) {
+      e.select = false;
+    }
+  });
+};
+const addcard = function () {
+  open();
+  mode.value = "add";
+  newCarddata.value = {};
+};
+const editcard = function (item) {
+  tempdata.value = item;
+  newCarddata.value = JSON.parse(JSON.stringify(item));
+  open();
+  mode.value = "edit";
+};
+const removecard = function (item) {
+  let card = cardStore();
+
+  card.deleteapi(instance?.proxy, item.cardId).then((res) => {
+    let Result = ResultStore();
+    if (res.success === false) {
+      Result.errorres(res.message);
+    }
+    if (res.success === true) {
+      carddata.value = res.data;
+      Result.successres();
+    }
+  });
+};
+
 </script>
 <style>
 .Cardwrap .cardmangerwrap {

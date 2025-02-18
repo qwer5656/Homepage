@@ -1,5 +1,6 @@
 <template lang="">
   <div>
+    <div class="chargebt" @click="reset()" style="width: 50px;margin:20px">Reset</div>
     <Chargingmode
       v-if="getchargepilemode == 'charging' || getchargepilemode == 'preparing'"
     />
@@ -40,7 +41,7 @@
         </div>
 
         <div class="bottomwrap">
-          <div class="chargebt" @click="reset()">Reset</div>
+      
 
           <div
             class="chargetxt"

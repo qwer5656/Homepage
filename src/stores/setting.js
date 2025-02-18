@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-
+import axios from "@/axios";
 export const settingStore = defineStore("setting", {
   state: () => {
     return {
@@ -11,7 +11,7 @@ export const settingStore = defineStore("setting", {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
 
-        self.$axios
+        axios
           .get(this.apiurl + "/" + methods,token, true)
           .then((res) => {
             resolve(res);
@@ -23,7 +23,7 @@ export const settingStore = defineStore("setting", {
         let token = JSON.parse(localStorage.getItem("token"));
         data.token = token;
 
-        self.$axios.post(this.apiurl, data, true).then((res) => {
+        axios.post(this.apiurl, data, true).then((res) => {
           resolve(res);
         });
       });
@@ -32,7 +32,7 @@ export const settingStore = defineStore("setting", {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
         data.token = token;
-        self.$axios.put(this.apiurl, data, true).then((res) => {
+        axios.put(this.apiurl, data, true).then((res) => {
           resolve(res);
         });
       });

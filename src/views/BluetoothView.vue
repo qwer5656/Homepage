@@ -1,6 +1,6 @@
 
 <script>
-import Bluetooth from "@/components/Bluetooth.vue";
+import Bluetooth from "@/components/Bluetooth/Bluetooth.vue";
 import { useMainStore } from "@/stores/main";
 export default {
   components: {

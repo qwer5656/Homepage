@@ -41,7 +41,7 @@
 <script>
 import OCPPmode from "../components/OCPPmode.vue"
 import Timemode from "../components/Timemode.vue"
-import Bluetooth from '../components/Bluetooth.vue'
+import Bluetooth from "../components/Bluetooth/Bluetooth.vue";
 import Wifi from '../components/Wifi.vue'
 import Lte from '../components/Lte.vue'
 export default {
