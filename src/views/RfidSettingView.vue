@@ -2,19 +2,13 @@
 <RfidSetting />
 </template>
 
-<script>
+<script setup>
 import RfidSetting from "@/components/RfidSetting.vue";
 import { useMainStore } from "@/stores/main";
-export default {
-  components: {
-    RfidSetting
-  },
-  methods: {
-   
-  },
-  mounted(){
-    const mainstore = useMainStore();
-      mainstore.curpage="Startmode";
-  }
-};
+import { onMounted } from "vue";
+onMounted(() => {
+  const mainstore = useMainStore();
+  mainstore.curpage="Startmode";
+
+});
 </script>

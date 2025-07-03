@@ -1,15 +1,15 @@
-<script>
+<script setup>
 import TouchStartmode from "@/components/TouchStartmode.vue";
 import { useMainStore } from "@/stores/main";
-export default {
-  components: {
-    TouchStartmode,
-  },
-  mounted() {
-    const mainstore = useMainStore();
-    mainstore.curpage = "Touchstart";
-  },
-};
+import { onMounted } from "vue";
+
+
+onMounted(()=>{
+  const mainstore = useMainStore();
+  mainstore.curpage = "Touchstart";
+});
+
+
 </script>
 
 <template>

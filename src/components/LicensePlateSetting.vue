@@ -1,6 +1,10 @@
 <template>
-  <CarNumber v-if="carnumbershow"  @changestatus="Changestatus"></CarNumber>
-  <div class="CarNumberSettingwrap" v-else>
+  <LicensePlate
+    v-if="licensePlateshow"
+    @changestatus="Changestatus"
+  ></LicensePlate>
+  
+  <div class="licensePlateSettingwrap" v-else>
     <div>
       <!-- <div class="backicon" @click="previous()">
         <img src="../assets/img/Previous.png" alt="" />
@@ -10,25 +14,25 @@
         <div class="content">
           <div class="switch">
             <span>{{ $t("StartModepage.licensetitle") }}</span
-            ><Nswitch v-model="carnumberswitchdata.enabled"></Nswitch>
+            ><Nswitch v-model="licensePlateswitchdata.enabled"></Nswitch>
           </div>
           <div class="explain">
             {{ $t("StartModepage.licensecontent") }}
           </div>
           <div
             class="bt"
-            :class="{ btenabled: carnumberswitchdata.enabled }"
-            @click="changecarnumbershow"
+            :class="{ btenabled: licensePlateswitchdata.enabled }"
+            @click="changelicensePlateshow"
           >
-          My Car License
+            My Car License
           </div>
         </div>
         <div class="imgwrap">
           <img src="../assets/img/CarNumberEnabled.png" alt="" />
           <div
             class="phonebt bt"
-            :class="{ btenabled: carnumberswitchdata.enabled }"
-            @click="changecarnumbershow"
+            :class="{ btenabled: licensePlateswitchdata.enabled }"
+            @click="changelicensePlateshow"
           >
             My Car License
           </div>
@@ -37,79 +41,70 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
 import Nswitch from "./public/Nswitch.vue";
-import CarNumber from "@/components/CarNumber.vue";
+import LicensePlate from "@/components/LicensePlate.vue";
 import { settingStore } from "@/stores/setting";
-export default {
-  setup() {},
-  data() {
-    return {
-      carnumberswitchdata: {},
-      carnumbershow: false,
-    };
-  },
-  components: {
-    Nswitch,
-    CarNumber,
-  },
-  methods: {
-    changecarnumbershow() {
-      if (this.carnumberswitchdata.enabled == true) {
-          this.carnumbershow=true;
-      }
-    },
-    Changestatus(val){
-     
-      this.carnumbershow = val;
-    }
-  },
-  watch: {
-    "carnumberswitchdata.enabled"(val) {
-      if (this.init == true) {
-        let self=this;
-        let setting = settingStore();
-        if (this.carnumberswitchdata.chargePointId == "") {
-          setting.postapi(this,this.carnumberswitchdata).then(res=>{
-            self.carnumberswitchdata=res.data;
-          });
-        } else {
-          setting.putapi(this,this.carnumberswitchdata).then(res=>{
-            self.carnumberswitchdata=res.data;
-          });
-
-        }
-      }
-      this.init = true;
-    },
-  },
-  beforeMount() {
-    let setting = settingStore();
-    let self = this;
-    setting.getapi(this, "CarNumberSetting").then((res) => {
-      self.carnumberswitchdata = res.data;
-    });
-  },
+import { ref, watch, onBeforeMount, getCurrentInstance } from "vue";
+const instance = getCurrentInstance();
+const proxy = instance?.proxy;
+const licensePlateswitchdata = ref({});
+const licensePlateshow = ref(false);
+const init=ref(false);
+const changelicensePlateshow = function () {
+  if (licensePlateswitchdata.value.enabled == true) {
+    licensePlateshow.value = true;
+  }
 };
+
+const Changestatus=function(val){
+  licensePlateshow.value = val;
+}
+
+watch(
+  () => licensePlateswitchdata.value.enabled,
+  () => {
+    if (init.value == true) {
+      let setting = settingStore();
+      if (licensePlateswitchdata.value.chargePointId == "") {
+        setting.postapi(proxy, licensePlateswitchdata.value).then((res) => {
+          licensePlateswitchdata.value = res.data;
+        });
+        return;
+      }
+      setting.putapi(proxy, licensePlateswitchdata.value).then((res) => {
+        licensePlateswitchdata.value = res.data;
+      });
+    }
+    init.value = true;
+  }
+);
+
+onBeforeMount(() => {
+  let setting = settingStore();
+  setting.getapi(proxy, "LicensePlateSetting").then((res) => {
+    licensePlateswitchdata.value = res.data;
+  });
+});
 </script>
 <style>
-.CarNumberSettingwrap {
+.licensePlateSettingwrap {
   display: flex;
   justify-content: center;
   margin-top: 101px;
 }
-.CarNumberSettingwrap .imgwrap img {
+.licensePlateSettingwrap .imgwrap img {
   width: 347.86px;
   height: 205px;
 }
-.CarNumberSettingwrap .backicon {
+.licensePlateSettingwrap .backicon {
   color: white;
   cursor: pointer;
 }
-.CarNumberSettingwrap .backicon img {
+.licensePlateSettingwrap .backicon img {
   vertical-align: middle;
 }
-.CarNumberSettingwrap .backicon span {
+.licensePlateSettingwrap .backicon span {
   margin-left: 15px;
   font-family: SF Pro;
   font-size: 18px;
@@ -118,7 +113,7 @@ export default {
   text-align: left;
   vertical-align: middle;
 }
-.CarNumberSettingwrap .switch span {
+.licensePlateSettingwrap .switch span {
   font-family: SF Pro;
   font-size: 18px;
   font-weight: 400;
@@ -126,14 +121,14 @@ export default {
   text-align: left;
   margin-right: 22px;
 }
-.CarNumberSettingwrap .content {
+.licensePlateSettingwrap .content {
   color: white;
 }
-.CarNumberSettingwrap .switch {
+.licensePlateSettingwrap .switch {
   display: flex;
   align-items: center;
 }
-.CarNumberSettingwrap .explain {
+.licensePlateSettingwrap .explain {
   color: rgba(107, 107, 107, 1);
   font-family: SF Pro;
   font-size: 14px;
@@ -142,17 +137,17 @@ export default {
   text-align: justified;
   width: 265px;
 }
-.CarNumberSettingwrap .container {
+.licensePlateSettingwrap .container {
   display: flex;
   width: 680px;
 }
-.CarNumberSettingwrap .container > div {
+.licensePlateSettingwrap .container > div {
   flex: 1;
 }
-.CarNumberSettingwrap .backicon {
+.licensePlateSettingwrap .backicon {
   margin-bottom: 101px;
 }
-.CarNumberSettingwrap .bt {
+.licensePlateSettingwrap .bt {
   /* Stop */
 
   box-sizing: border-box;
@@ -182,7 +177,7 @@ export default {
   margin-top: 80px;
   cursor: not-allowed;
 }
-.CarNumberSettingwrap .btenabled {
+.licensePlateSettingwrap .btenabled {
   background: radial-gradient(
     51.11% 51.11% at 50% 0%,
     #c8ffd1 0%,
@@ -191,35 +186,35 @@ export default {
   color: black;
   cursor: pointer !important;
 }
-.CarNumberSettingwrap .phonebt {
+.licensePlateSettingwrap .phonebt {
   display: none !important;
 }
 @media (max-width: 576px) {
-  .CarNumberSettingwrap .container {
+  .licensePlateSettingwrap .container {
     flex-direction: column;
     padding: 0 20px;
     width: 100%;
   }
-  .CarNumberSettingwrap .bt {
+  .licensePlateSettingwrap .bt {
     display: none;
   }
-  .CarNumberSettingwrap .explain {
+  .licensePlateSettingwrap .explain {
     width: 100%;
   }
-  .CarNumberSettingwrap {
+  .licensePlateSettingwrap {
     margin-top: 0px;
   }
-  .CarNumberSettingwrap .imgwrap {
+  .licensePlateSettingwrap .imgwrap {
     flex-direction: column;
     align-items: center;
     padding-top: 20px;
     text-align: center;
   }
-  .CarNumberSettingwrap .imgwrap img {
+  .licensePlateSettingwrap .imgwrap img {
     width: 80%;
     height: auto;
   }
-  .CarNumberSettingwrap .phonebt {
+  .licensePlateSettingwrap .phonebt {
     display: block !important;
     margin: 20px auto;
     text-align: center;

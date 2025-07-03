@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useMainStore } from "@/stores/main";
 let config = {
-  //baseURL: "https://efaner.japaneast.cloudapp.azure.com:5001/api/",
+  //  baseURL: "https://efaner.japaneast.cloudapp.azure.com:5001/api/",
   baseURL: "https://localhost:7120/api/",
   timeout: 10000,
   withCredentials: true,

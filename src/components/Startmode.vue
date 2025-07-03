@@ -13,8 +13,8 @@
       </div>
         <div
           class="licenseplate imgsize"
-          :class="{ licenseplateenabled: selectmode == 'carnumber' }"
-          @click="changeselectmode('carnumber')"
+          :class="{ licenseplateenabled: selectmode == 'LicensePlate' }"
+          @click="changeselectmode('LicensePlate')"
         ></div>
     </div>
     <div>
@@ -26,36 +26,34 @@
         <RfidSetting v-if="selectmode == 'rfid'" />
       </div>
       <div>
-        <CarNumberSetting v-if="selectmode == 'carnumber'" />
+        <LicensePlateSetting v-if="selectmode == 'LicensePlate'" />
       </div>
     </div>
   </div>
 </template>
-<script>
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router'; // Use vue-router in Vue 3
+
 import QrcodeSetting from "@/components/QrcodeSetting.vue";
 import RfidSetting from "@/components/RfidSetting.vue";
-import CarNumberSetting from "@/components/CarNumberSetting.vue";
-export default {
-  data() {
-    return {
-      radioval: "two",
-      selectmode: "qrcode",
-      selected: [],
-    };
-  },
-  components: {
-    QrcodeSetting,
-    RfidSetting,
-    CarNumberSetting,
-  },
-  methods: {
-    goto(val) {
-      this.$router.push(`/${val}`);
-    },
-    changeselectmode(val) {
-      this.selectmode = val;
-    },
-  },
+import LicensePlateSetting from "@/components/LicensePlateSetting.vue";
+
+// Reactive state
+const radioval = ref("two");
+const selectmode = ref("qrcode");
+const selected = ref([]);
+
+// Router for navigation
+const router = useRouter();
+
+// Methods
+const goto = (val) => {
+  router.push(`/${val}`);
+};
+
+const changeselectmode = (val) => {
+  selectmode.value = val;
 };
 </script>
 <style scoped>

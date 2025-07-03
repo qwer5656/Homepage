@@ -1,20 +1,20 @@
 <template>
-<CarNumberloading />
+<LicensePlateloading />
 </template>
 
 <script>
-import CarNumberloading from "@/components/CarNumberloading.vue";
+import LicensePlateloading from "@/components/LicensePlateloading.vue";
 import { useMainStore } from "@/stores/main";
 export default {
   components: {
-    CarNumberloading
+    LicensePlateloading
   },
   methods: {
    
   },
   mounted(){
     const mainstore = useMainStore();
-      mainstore.curpage="CarNumberloading";
+      mainstore.curpage="licensePlateloading";
   }
 };
 </script>

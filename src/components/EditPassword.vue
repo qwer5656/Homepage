@@ -6,7 +6,7 @@
           <div>New Password</div>
           <v-text-field
             :prepend-inner-icon="mdiLockOutline"
-            :append-inner-icon="show1 ? mdiEye : mdiEyeOff"
+            :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
             :type="show1 ? 'text' : 'password'"
             label="password"
             @click:append-inner="show1 = !show1"
@@ -17,7 +17,7 @@
           <div>Confirm New Password</div>
           <v-text-field
             :prepend-inner-icon="mdiLockOutline"
-            :append-inner-icon="show ? mdiEye : mdiEyeOff"
+            :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
             :type="show ? 'text' : 'password'"
             label="password"
             @click:append-inner="show = !show"
@@ -33,78 +33,71 @@
     </div>
   </div>
 </template>
-<script>
-import { mdiEyeOff, mdiEye } from "@mdi/js";
+<script setup>
 import Nbt from "./public/Nbt.vue";
 import { useMainStore } from "@/stores/main";
 import { ResultStore } from "@/stores/result";
-export default {
-  data() {
-    return {
-      visible: false,
-      visible1: false,
-      mdiEyeOff,
-      mdiEye,
-      show1: false,
-      show: false,
-      newPassword: "",
-      errortxt: "",
-      confirmnewPassword: "",
-      newPasswordrules: [
-        (value) => {
-          if (value) return true;
-          return "newPassword is not null";
-        },
-      ],
-      confirmnewPasswordrules: [
-        (value) => {
-          if (this.errortxt !== "") {
-            let temp = this.errortxt;
-            this.errortxt = "";
-            return temp;
+import { ref,getCurrentInstance } from "vue";
+
+
+
+
+const instance = getCurrentInstance();
+const proxy = instance?.proxy;
+const show1 = ref(false);
+const show = ref(false);
+const newPassword = ref("");
+const errortxt = ref("");
+const confirmnewPassword = ref("");
+const newPasswordrules = ref([
+  (value) => {
+    if (value) return true;
+    return "newPassword is not null";
+  },
+]);
+
+const confirmnewPasswordrules = ref([
+  (value) => {
+    if (errortxt.value !== "") {
+      let temp = errortxt.value;
+      errortxt.value = "";
+      return temp;
+    }
+    if (value) return true;
+    return "confirm New Password is not null";
+  },
+]);
+const savedata = function () {
+  proxy.$refs.passwordForm.validate().then(function (res) {
+    if (res.valid == true) {
+      if (newPassword.value !== confirmnewPassword.value) {
+        errortxt.value = "confirm New Password is not equal newPassword";
+        proxy.$refs.passwordForm.validate();
+      } else {
+        let store = useMainStore();
+        let data = JSON.parse(localStorage.getItem("userdata"));
+        let token = JSON.parse(localStorage.getItem("token"));
+        let obj = {};
+        obj.accout = data.accout;
+        obj.password = newPassword.value;
+        obj.token = token;
+        store.updatePassword(proxy, obj).then((res) => {
+          let Result = ResultStore();
+          if (res.success === undefined) {
+            Result.errorres(res);
+          } else if (res.success == true) {
+            newPassword.value = "";
+            confirmnewPassword.value = "";
+            proxy.$refs.passwordForm.reset();
+            Result.successres();
           }
-          if (value) return true;
-          return "confirm New Password is not null";
-        },
-      ],
-    };
-  },
-  components: {
-    Nbt,
-  },
-  methods: {
-    savedata() {
-      let self = this;
-      this.$refs.passwordForm.validate().then(function (res) {
-        if (res.valid == true) {
-          if (self.newPassword !== self.confirmnewPassword) {
-            self.errortxt = "confirm New Password is not equal newPassword";
-            self.$refs.passwordForm.validate();
-          } else {
-            let store = useMainStore();
-            let data = JSON.parse(localStorage.getItem("userdata"));
-            let token = JSON.parse(localStorage.getItem("token"));
-            let obj = {};
-            obj.accout = data.accout;
-            obj.password = self.newPassword;
-            obj.token = token;
-            store.updatePassword(self, obj).then((res) => {
-              let Result = ResultStore();
-              if (res.success === undefined) {
-                Result.errorres(res);
-              } else if (res.success == true) {
-                self.newPassword = "";
-                self.confirmnewPassword = "";
-                self.$refs.passwordForm.reset();
-                Result.successres();
-              }
-            });
-          }
-        }
-      });
-    },
-  },
+        });
+      }
+    }
+  });
 };
+
+
 </script>
 <style>
 .passwordwrap .v-field {

@@ -17,57 +17,48 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
 import Nbt from "./public/Nbt.vue";
 import { settingStore } from "@/stores/setting";
-export default {
-  data() {
-    return {
-      languagedata: {},
-      languageitem: ["English", "中文"],
-    };
-  },
-  mounted() {},
-  methods: {
-    savelanguage() {
-
-
-      let self = this;
-      let setting = settingStore();
-      if (this.languagedata.chargePointId == "") {
-        setting.postapi(this, this.languagedata).then((res) => {
-          self.languagedata = res.data;
-          self.chagelanuage();
-        });
-        return;
-      }
-      setting.putapi(this, this.languagedata).then((res) => {
-        self.languagedata = res.data;
-        self.chagelanuage();
-      });
-    },
-    chagelanuage(){
-      if (this.languagedata === "English") {
-        this.$i18n.locale = "en";
-        return;
-      }
-      this.$i18n.locale = "zh";
-    }
-  },
-  beforeMount() {
-    let setting = settingStore();
-    let self = this;
-    setting.getapi(this, "LanguageSetting").then((res) => {
-      self.languagedata = res.data;
-      if (res.data.chargePointId == "") {
-        self.languagedata.methodsContent = "English";
-      }
+import { ref, getCurrentInstance, onBeforeMount } from "vue";
+const languagedata = ref({});
+const languageitem = ref(["English", "中文"]);
+const instance = getCurrentInstance();
+const proxy = instance?.proxy;
+const savelanguage = function () {
+  let setting = settingStore();
+  if (languagedata.value.chargePointId == "") {
+    setting.postapi(proxy, languagedata.value).then((res) => {
+      languagedata.value = res.data;
+      chagelanuage();
     });
-  },
-  components: {
-    Nbt,
-  },
+    return;
+  }
+  setting.putapi(proxy, languagedata.value).then((res) => {
+    languagedata.value = res.data;
+    chagelanuage();
+  });
 };
+
+const chagelanuage = function () {
+  if (languagedata.value.methodsContent === "English") {
+    proxy.$i18n.locale = "en";
+    return;
+  }
+  proxy.$i18n.locale = "zh";
+};
+
+onBeforeMount(() => {
+  let setting = settingStore();
+  setting.getapi(proxy, "LanguageSetting").then((res) => {
+    languagedata.value = res.data;
+    if (res.data.chargePointId == "") {
+      languagedata.value.methodsContent = "English";
+    }
+  });
+});
+
+
 </script>
 <style>
 .languagemodewrap .nbtwrap {

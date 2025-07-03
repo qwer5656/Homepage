@@ -1,9 +1,9 @@
 <script setup>
-import CarNumber from "@/components/CarNumber.vue";
+import LicensePlate from "@/components/LicensePlate.vue";
 </script>
 
 <template>
-<CarNumber />
+<LicensePlate />
 </template>
 
 <style scoped>

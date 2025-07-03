@@ -2,19 +2,12 @@
 <QrcodeSetting />
 </template>
 
-<script>
+<script setup>
 import QrcodeSetting from "@/components/QrcodeSetting.vue";
 import { useMainStore } from "@/stores/main";
-export default {
-  components: {
-    QrcodeSetting
-  },
-  methods: {
-   
-  },
-  mounted(){
-    const mainstore = useMainStore();
-      mainstore.curpage="Startmode";
-  }
-};
+import { onMounted } from "vue";
+onMounted(() => {
+  const mainstore = useMainStore();
+  mainstore.curpage="Startmode";
+});
 </script>

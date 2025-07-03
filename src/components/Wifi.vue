@@ -17,43 +17,38 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
+import { ref, onBeforeMount, watch } from 'vue';
 import { settingStore } from "@/stores/setting";
-export default {
-  data() {
-    return {
-      Wifidata: {},
-      init:false
-    };
-  },
-  components: {},
-  watch: {
-    "Wifidata.enabled"(val) {
-      if (this.init == true) {
-        let self=this;
-        let setting = settingStore();
-        if (this.Wifidata.chargePointId == "") {
-          setting.postapi(this,this.Wifidata).then(res=>{
-            self.Wifidata=res.data;
-          });
-        } else {
-          setting.putapi(this,this.Wifidata).then(res=>{
-            self.Wifidata=res.data;
-          });
 
-        }
-      }
-      this.init = true;
-    },
-  },
-  beforeMount() {
+// Reactive state
+const Wifidata = ref({});
+const init = ref(false);
+
+// Watcher for Wifidata.enabled changes
+watch(() => Wifidata.value.enabled, (val) => {
+  if (init.value === true) {
     let setting = settingStore();
-    let self = this;
-    setting.getapi(this, "WifiSetting").then((res) => {
-      self.Wifidata = res.data;
-    });
-  },
-};
+    if (Wifidata.value.chargePointId === "") {
+      setting.postapi(null, Wifidata.value).then(res => {
+        Wifidata.value = res.data;
+      });
+    } else {
+      setting.putapi(null, Wifidata.value).then(res => {
+        Wifidata.value = res.data;
+      });
+    }
+  }
+  init.value = true;
+});
+
+// Lifecycle hook (beforeMount in Vue 2)
+onBeforeMount(() => {
+  let setting = settingStore();
+  setting.getapi(null, "WifiSetting").then((res) => {
+    Wifidata.value = res.data;
+  });
+});
 </script>
 <style>
 .Wifiwrap .v-switch--inset .v-selection-control--dirty .v-switch__track {

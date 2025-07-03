@@ -23,71 +23,63 @@
     </div>
   </div>
 </template>
-<script>
-import Nswitch from "./public/Nswitch.vue";
-import { useMainStore } from "@/stores/main";
-import qrcodsscan from "@/assets/img/qrcodsscan.png";
-import QrcodeEnabled from "@/assets/img/QrcodeEnabled.png";
-import { settingStore } from "@/stores/setting";
-export default {
-  setup() {},
-  data() {
-    return {
+<script setup>
+import { ref, watch, onBeforeMount } from 'vue';
+import Nswitch from './public/Nswitch.vue';
+import { settingStore } from '@/stores/setting';
+import qrcodsscan from '@/assets/img/qrcodsscan.png';
+import QrcodeEnabled from '@/assets/img/QrcodeEnabled.png';
+import { useRouter } from 'vue-router';
 
-      qrcodeswitchdata: {},
-      qrcodeimg: QrcodeEnabled,
-      error: "",
-      init: false,
-    };
-  },
-  components: {
-    Nswitch,
-  },
-  methods: {
-    previous() {
-      this.$router.push("/Startmode");
-    },
-    changeimg(val) {
-      if (val == true) {
-        this.qrcodeimg = qrcodsscan;
-      }
-      if (val == false) {
-        this.qrcodeimg = QrcodeEnabled;
-      }
-    },
-  },
-  beforeMount() {
-    let setting = settingStore();
-    let self = this;
-    setting.getapi(this, "QrcodeSetting").then((res) => {
-      self.qrcodeswitchdata = res.data;
-        self.changeimg(res.data.enabled);
-    });
-  },
-  watch: {
+// Reactive state variables
+const qrcodeswitchdata = ref({});
+const qrcodeimg = ref(QrcodeEnabled);
+const error = ref('');
+const init = ref(false);
 
-    "qrcodeswitchdata.enabled"(val) {
-      let self = this;
-      if (this.init == true) {
-        let setting = settingStore();
-        if (this.qrcodeswitchdata.chargePointId == "") {         
-          setting.postapi(this,this.qrcodeswitchdata).then((res) => {
-            self.qrcodeswitchdata=res.data;
-              self.changeimg(res.data.enabled);
-            });
-        } else {
-         
-          setting.putapi(this,this.qrcodeswitchdata).then(res=>{
-            self.qrcodeswitchdata=res.data;
-            self.changeimg(res.data.enabled);
-          })
+// Router instance
+const router = useRouter();
 
-        }
-      }
-      this.init = true;
-    },
-  },
+// Methods
+const previous = () => {
+  router.push('/Startmode');
 };
+
+const changeimg = (val) => {
+  if (val) {
+    qrcodeimg.value = qrcodsscan;
+  } else {
+    qrcodeimg.value = QrcodeEnabled;
+  }
+};
+
+// Watcher for qrcodeswitchdata.enabled
+watch(() => qrcodeswitchdata.value.enabled, (val) => {
+  if (init.value) {
+    const setting = settingStore();
+    if (qrcodeswitchdata.value.chargePointId === '') {
+      setting.postapi(this, qrcodeswitchdata.value).then((res) => {
+        qrcodeswitchdata.value = res.data;
+        changeimg(res.data.enabled);
+      });
+    } else {
+      setting.putapi(this, qrcodeswitchdata.value).then((res) => {
+        qrcodeswitchdata.value = res.data;
+        changeimg(res.data.enabled);
+      });
+    }
+  }
+  init.value = true;
+});
+
+// Lifecycle hook - Fetch data before component is mounted
+onBeforeMount(() => {
+  const setting = settingStore();
+  setting.getapi(this, 'QrcodeSetting').then((res) => {
+    qrcodeswitchdata.value = res.data;
+    changeimg(res.data.enabled);
+  });
+});
 </script>
 <style>
 .qrcodesettingwrap {

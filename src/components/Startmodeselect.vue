@@ -16,7 +16,7 @@
         </div>
         <div class="txt">RFID</div>
       </div>
-      <div class="wrap" @click="goto('CarNumberloading')">
+      <div class="wrap" @click="goto('licensePlateloading')">
         <div>
           <img src="../assets/img/ScanCarNumber.png" alt="" />
         </div>
@@ -24,25 +24,26 @@
       </div>
     </div>
 </template>
-<script>
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useMainStore } from "@/stores/main";
-export default {
-  data() {
-    return {
-      radioval: "two",
-      selected: [],
-    };
-  },
-  components: {},
-  methods: {
-    goto(val) {
-      this.$router.push(`/${val}`);
-    },
-    previous(){
-      const mainstore=useMainStore();
-      mainstore.chargepilemode = "standby";
-    }
-  },
+
+// Reactive state
+const radioval = ref("two");
+const selected = ref([]);
+
+// Router for navigation
+const router = useRouter();
+const mainStore = useMainStore();
+
+// Methods
+const goto = (val) => {
+  router.push(`/${val}`);
+};
+
+const previous = () => {
+  mainStore.chargepilemode = "standby";
 };
 </script>
 <style scoped>

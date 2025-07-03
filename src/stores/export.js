@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-
+import axios from "@/axios";
 export const exportStore = defineStore("export", {
   state: () => {
     return {
@@ -12,7 +12,7 @@ export const exportStore = defineStore("export", {
         let token = JSON.parse(localStorage.getItem("token"));
         let startTime=data.startDate;
         let endTime=data.endDate;
-        self.$axios.getExcel(this.apiurl +"?StartTimeDate="+startTime+"&EndTimeDate="+endTime,token, true).then((res) => {
+        axios.getExcel(this.apiurl +"?StartTimeDate="+startTime+"&EndTimeDate="+endTime,token, true).then((res) => {
           console.log(res);
           resolve(res);
         });

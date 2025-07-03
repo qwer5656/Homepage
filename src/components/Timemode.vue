@@ -44,81 +44,74 @@
     </div>
   </div>
 </template>
-<script>
-import Nbt from "./public/Nbt.vue";
+<script setup>
+import { ref, onMounted } from 'vue';
 import { settingStore } from "@/stores/setting";
 import { ResultStore } from "@/stores/result";
-export default {
-  data() {
-    return {
-      timedata: {},
-      hour: "23",
-      min: "59",
-      sec: "59",
-      houritems: [],
-      minitems: [],
-      secitems: [],
-    };
-  },
-  mounted() {
-    for (let i = 0; i < 24; i++) {
-      let num = i <= 9 ? "0" + i : i.toString();
-      this.houritems.push(num);
+import Nbt from "./public/Nbt.vue";
+
+// Reactive state
+const timedata = ref({});
+const hour = ref("23");
+const min = ref("59");
+const sec = ref("59");
+const houritems = ref([]);
+const minitems = ref([]);
+const secitems = ref([]);
+
+// Initialize items on mount
+onMounted(() => {
+  for (let i = 0; i < 24; i++) {
+    let num = i <= 9 ? "0" + i : i.toString();
+    houritems.value.push(num);
+  }
+  for (let i = 0; i < 60; i++) {
+    let num = i <= 9 ? "0" + i : i.toString();
+    minitems.value.push(num);
+    secitems.value.push(num);
+  }
+
+  let setting = settingStore();
+  setting.getapi(null, "TimeSetting").then((res) => {
+    timedata.value = res.data;
+    if (timedata.value.methodsContent !== "") {
+      const items = timedata.value.methodsContent.split(":");
+      hour.value = items[0];
+      min.value = items[1];
+      sec.value = items[2];
     }
-    for (let i = 0; i < 60; i++) {
-      let num = i <= 9 ? "0" + i : i.toString();
-      this.minitems.push(num);
-      this.secitems.push(num);
-    }
-  },
-  methods: {
-    savetime() {
-      let setting = settingStore();
-      let Result = ResultStore();
-      let self=this;
-      this.timedata.methodsContent =
-        this.hour + ":" + this.min + ":" + this.sec;
-      if (this.timedata.chargePointId == "") {
-        this.timedata.enabled = true;
-        setting.postapi(this, this.timedata).then((res) => {
-          if (res.success === undefined) {
-            Result.errorres(res);
-          }
-          if (res.success === true) {
-            self.timedata = res.data;
-            Result.successres();
-          }
-     
-        });
-      } else {
-        setting.putapi(this, this.timedata).then((res) => {
-          if (res.success === undefined) {
-            Result.errorres(res);
-          }
-          if (res.success === true) {
-            self.timedata = res.data;
-            Result.successres();
-          }
-        });
+  });
+});
+
+// Methods
+const savetime = () => {
+  let setting = settingStore();
+  let Result = ResultStore();
+
+  timedata.value.methodsContent = `${hour.value}:${min.value}:${sec.value}`;
+  
+  if (timedata.value.chargePointId === "") {
+    timedata.value.enabled = true;
+    setting.postapi(null, timedata.value).then((res) => {
+      if (res.success === undefined) {
+        Result.errorres(res);
       }
-    },
-  },
-  components: {
-    Nbt,
-  },
-  beforeMount() {
-    let setting = settingStore();
-    let self = this;
-    setting.getapi(this, "TimeSetting").then((res) => {
-      self.timedata = res.data;
-      if (self.timedata.methodsContent != "") {
-        var itme = self.timedata.methodsContent.split(":");
-        self.hour = itme[0];
-        self.min = itme[1];
-        self.sec = itme[2];
+      if (res.success === true) {
+        timedata.value = res.data;
+        Result.successres();
       }
     });
-  },
+  } else {
+    setting.putapi(null, timedata.value).then((res) => {
+      if (res.success === undefined) {
+        Result.errorres(res);
+      }
+      if (res.success === true) {
+        timedata.value = res.data;
+        Result.successres();
+      }
+    });
+  }
 };
 </script>
 <style>

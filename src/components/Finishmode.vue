@@ -21,16 +21,15 @@
     <div class="chargebt" @click="changemode('standby')">Ok</div>
   </div>
 </template>
-<script>
+<script setup>
 import { useMainStore } from "@/stores/main";
-export default {
-  methods: {
-    changemode(val) {
-      const mainstore = useMainStore();
-      mainstore.chargepilemode = val;
-    },
-  },
-};
+
+
+const changemode=function(val){
+  const mainstore = useMainStore();
+  mainstore.chargepilemode = val;
+}
+
 </script>
 <style scoped>
 .mainwrap {

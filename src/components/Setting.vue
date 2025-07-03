@@ -38,27 +38,16 @@
     </v-card-text>
   </div>
 </template>
-<script>
-import OCPPmode from "../components/OCPPmode.vue"
-import Timemode from "../components/Timemode.vue"
+<script setup>
+import { ref } from 'vue';
+import OCPPmode from "../components/OCPPmode.vue";
+import Timemode from "../components/Timemode.vue";
 import Bluetooth from "../components/Bluetooth/Bluetooth.vue";
-import Wifi from '../components/Wifi.vue'
-import Lte from '../components/Lte.vue'
-export default {
-  data() {
-    return {
-      tab: "",
-      Bluetoothstatus: false,
-    };
-  },
-  components:{
-    OCPPmode,
-    Timemode,
-    Bluetooth,
-    Wifi,
-    Lte
-  }
-};
+import Wifi from '../components/Wifi.vue';
+import Lte from '../components/Lte.vue';
+
+// Reactive state
+const tab = ref("");
 </script>
 <style>
 .settingwrap {

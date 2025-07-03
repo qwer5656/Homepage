@@ -17,45 +17,41 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
 import { settingStore } from "@/stores/setting";
-export default {
-  data() {
-    return {
-      Ltedata: {},
-      init:false
-    };
-  },
-  components: {},
-  watch: {
-    "Ltedata.enabled"(val) {
-      if (this.init == true) {
-        let self=this;
-        let setting = settingStore();
-        if (this.Ltedata.chargePointId == "") {
-          setting.postapi(this,this.Ltedata).then(res=>{
-            self.Ltedata=res.data;
-          });
-        } else {
-          setting.putapi(this,this.Ltedata).then(res=>{
-            self.Ltedata=res.data;
-          });
+import { ref, watch, onBeforeMount,getCurrentInstance} from "vue";
+const instance = getCurrentInstance();
+const proxy=instance?.proxy;
+const Ltedata = ref({});
+const init = ref(false);
 
-        }
+watch(
+  () => Ltedata.value.enabled,
+  () => {
+    if (init.value == true) {
+      let setting = settingStore();
+      if (Ltedata.value.chargePointId == "") {
+        setting.postapi(proxy, Ltedata.value).then((res) => {
+          Ltedata.value = res.data;
+        });
+        return;
       }
-      this.init = true;
-    },
-  },
-  beforeMount() {
-    let setting = settingStore();
-    let self = this;
-    setting.getapi(this, "LteSetting").then((res) => {
-      self.Ltedata = res.data;
-    });
-  },
-};
+      setting.putapi(proxy, Ltedata.value).then((res) => {
+        Ltedata.value = res.data;
+      });
+    }
+    init.value = true;
+  }
+);
+
+onBeforeMount(() => {
+  let setting = settingStore();
+  setting.getapi(proxy, "LteSetting").then((res) => {
+    Ltedata.value = res.data;
+  });
+});
 </script>
-<style >
+<style>
 .Ltewrap .v-switch--inset .v-selection-control--dirty .v-switch__track {
   background: radial-gradient(
     51.11% 51.11% at 50% 0%,
@@ -84,10 +80,10 @@ export default {
   box-shadow: 0px 8px 30px 0px #00000069;
   box-shadow: 0px 0px 12px 0px #ffffff08 inset;
 }
-.Ltewrap h2{
+.Ltewrap h2 {
   font-size: 21px;
 }
-.Ltewrap{
+.Ltewrap {
   display: flex;
   color: white;
 }
@@ -102,14 +98,13 @@ export default {
   margin-left: 110px;
 }
 @media (max-width: 576px) {
-  .Ltewrap .bottomwrap{
+  .Ltewrap .bottomwrap {
     margin-top: 50px;
   }
   .Ltewrap {
     display: flex;
     flex-direction: column;
     padding: 70px 30px 0px 30px;
-
   }
   .Ltewrap .wrap {
     margin-left: 0px;
@@ -120,11 +115,9 @@ export default {
   .Ltewrap .bottomwrap {
     margin-left: 0px;
   }
-  .Ltewrap .container{
+  .Ltewrap .container {
     display: flex;
     align-items: center;
-  
   }
-
 }
 </style>

@@ -12,7 +12,7 @@
     <div class="flex">
 
       <img
-        v-if="Touchstartmodeimg"
+        v-if="touchstartmodeimg"
         :src="TouchStarmtmodeimageUrl"
         class="sizeclass"
       />
@@ -21,58 +21,53 @@
     </div>
   </div>
 </template>
-<script>
+
+<script setup>
+import { ref, onBeforeMount, watch, computed } from 'vue';
 import TouchStarmtmodeimageUrl from "@/assets/img/TouchStarmtmode.png";
 import CarimageUrl from "@/assets/img/Car.png";
 import { useMainStore } from "@/stores/main";
 import { settingStore } from "@/stores/setting";
-export default {
-  data() {
-    return {
-      data: {},
-      error: "",
-      init: false,
-      phoneimg: true,
-      TouchStarmtmodeimageUrl,
-      CarimageUrl,
-    };
-  },
-  watch: {
-    "data.enabled"(val) {
-      if (this.init == true) {
-        let setting = settingStore();
-        let self=this;
-        if (this.data.chargePointId == "") {
-         
-          setting.postapi(this,this.data).then(res=>{
-            self.data=res.data;
-          });
-        } else {
-         
-          setting.putapi(this,this.data).then(res=>{
-            self.data=res.data;
-          });
 
-        }
-      }
-      this.init = true;
-    },
-  },
-  computed: {
-    Touchstartmodeimg() {
-      return this.data.enabled == true ? false : true;
-    },
-  },
-  components: {},
-  methods: {},
-  beforeMount() {
+// Reactive state
+const data = ref({});
+const error = ref("");
+const init = ref(false);
+const phoneimg = ref(true);
+
+// Images
+const touchStarmtmodeimageUrl = TouchStarmtmodeimageUrl;
+const carimageUrl = CarimageUrl;
+
+// Watcher for data.enabled changes
+watch(() => data.value.enabled, (val) => {
+  if (init.value === true) {
     let setting = settingStore();
-    let self = this;
-    setting.getapi(this, "TouchStartmode").then((res) => {
-      self.data = res.data;
-    });
-  },
-};
+    if (data.value.chargePointId === "") {
+      setting.postapi(null, data.value).then(res => {
+        data.value = res.data;
+      });
+    } else {
+      setting.putapi(null, data.value).then(res => {
+        data.value = res.data;
+      });
+    }
+  }
+  init.value = true;
+});
+
+// Computed property for Touchstartmodeimg
+const touchstartmodeimg = computed(() => {
+  return data.value.enabled === true ? false : true;
+});
+
+// Lifecycle hook (beforeMount in Vue 2)
+onBeforeMount(() => {
+  let setting = settingStore();
+  setting.getapi(null, "TouchStartmode").then((res) => {
+    data.value = res.data;
+  });
+});
 </script>
 <style>
 .touchstartmainwrap .flex {

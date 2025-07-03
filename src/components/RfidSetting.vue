@@ -38,62 +38,63 @@
     </div>
   </div>
 </template>
-<script>
-import Card from "./Card.vue";
-import Nswitch from "./public/Nswitch.vue";
+<script setup>
+import { ref, watch, onMounted } from "vue";
 import { settingStore } from "@/stores/setting";
-export default {
-  setup() {},
-  data() {
-    return {
-      rfidswitchdata: {},
-      showcard: false,
-      init: false,
-    };
-  },
-  components: {
-    Nswitch,
-    Card,
-  },
-  watch: {
-    "rfidswitchdata.enabled"(val) {
-      if (this.init == true) {
-        let self = this;
-        let setting = settingStore();
-        if (this.rfidswitchdata.chargePointId == "") {
-          setting.postapi(this, this.rfidswitchdata).then((res) => {
-            self.rfidswitchdata = res.data;
-          });
-          return;
-        }
-        setting.putapi(this, this.rfidswitchdata).then((res) => {
-          self.rfidswitchdata = res.data;
+import Nswitch from "./public/Nswitch.vue";
+import Card from "./Card.vue";
+import { useRouter } from "vue-router";
+
+// State variables
+const rfidswitchdata = ref({});
+const showcard = ref(false);
+const init = ref(false);
+
+// Router instance
+const router = useRouter();
+
+// Watcher for rfidswitchdata.enabled
+watch(
+  () => rfidswitchdata.value.enabled,
+  (val) => {
+    if (init.value === true) {
+      const setting = settingStore();
+      if (rfidswitchdata.value.chargePointId === "") {
+        setting.postapi(null, rfidswitchdata.value).then((res) => {
+          rfidswitchdata.value = res.data;
+        });
+      } else {
+        setting.putapi(null, rfidswitchdata.value).then((res) => {
+          rfidswitchdata.value = res.data;
         });
       }
-      this.init = true;
-    },
-  },
-  methods: {
-    previous() {
-      this.$router.push("/Startmode");
-    },
-    changeshowcard() {
-      if (this.rfidswitchdata.enabled == true) {
-        this.showcard = true;
-      }
-    },
-    Changestatus(val) {
-      this.showcard = val;
-    },
-  },
-  beforeMount() {
-    let setting = settingStore();
-    let self = this;
-    setting.getapi(this, "RfidSetting").then((res) => {
-      self.rfidswitchdata = res.data;
-    });
-  },
+    }
+    init.value = true;
+  }
+);
+
+// Methods
+const previous = () => {
+  router.push("/Startmode");
 };
+
+const changeshowcard = () => {
+  if (rfidswitchdata.value.enabled === true) {
+    showcard.value = true;
+  }
+};
+
+const Changestatus = (val) => {
+  showcard.value = val;
+};
+
+// onMounted lifecycle hook
+onMounted(() => {
+  const setting = settingStore();
+  setting.getapi(null, "RfidSetting").then((res) => {
+    rfidswitchdata.value = res.data;
+  });
+});
 </script>
 <style>
 .rfidSettingwrap {

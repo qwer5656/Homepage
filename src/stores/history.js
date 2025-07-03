@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-
+import axios from "@/axios";
 export const historyStore = defineStore("history", {
   state: () => {
     return {
@@ -10,7 +10,7 @@ export const historyStore = defineStore("history", {
     getapiAll(self) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios.get(this.apiurl + "/GetAll",token, true).then((res) => {
+        axios.get(this.apiurl + "/GetAll", token, true).then((res) => {
           resolve(res);
         });
       });
@@ -18,9 +18,21 @@ export const historyStore = defineStore("history", {
     getapi(self, transactionId) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios.get(this.apiurl + "/" + transactionId,token, true).then((res) => {
-          resolve(res);
-        });
+        axios
+          .get(this.apiurl + "/" + transactionId, token, true)
+          .then((res) => {
+            resolve(res);
+          });
+      });
+    },
+    getapiInterval(startTime, endTime) {
+      return new Promise((resolve, reject) => {
+        let token = JSON.parse(localStorage.getItem("token"));
+        axios
+          .get(this.apiurl + "/GetTransactionIntervalAll?startTime=" + startTime+"&endTime="+endTime, token, true)
+          .then((res) => {
+            resolve(res);
+          });
       });
     },
   },

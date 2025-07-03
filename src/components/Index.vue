@@ -1,6 +1,58 @@
 <template lang="">
   <div>
-    <div class="chargebt" @click="reset()" style="width: 50px;margin:20px">Reset</div>
+    <div style="position:absolute;top:20%;left:20%;display: none">
+    <div class="chargebt" @click="reset()" style="width: 50px; margin: 20px">
+      Reset
+    </div>
+
+    <v-text-field
+      label="Fill in Name"
+      variant="solo"
+      v-model="dataTransferMessageId"
+      style="width: 200px"
+    ></v-text-field>
+    <div
+      class="chargebt"
+      @click="dataTransfer()"
+      style="width: 50px; margin: 20px"
+    >
+      DataTransfer
+    </div>
+
+    <v-col
+        class="d-flex"
+        cols="12"
+        sm="6"
+      >
+        <v-select
+          :items="changeAvailabilityItems"
+          class="changeAvailabilityselect"
+          variant="plain"
+          color="#000"
+     v-model="changeAvailabilityData"
+        ></v-select>
+      </v-col>
+
+
+    <div
+      class="chargebt"
+      @click="ChangeAvailability()"
+      style="width: 50px; margin: 20px"
+    >
+    ChangeAvailability
+    </div>
+
+
+
+    <div
+      class="chargebt"
+      @click="UnlockConnector()"
+      style="width: 50px; margin: 20px"
+    >
+    UnlockConnector
+    </div>
+
+  </div>
     <Chargingmode
       v-if="getchargepilemode == 'charging' || getchargepilemode == 'preparing'"
     />
@@ -41,8 +93,6 @@
         </div>
 
         <div class="bottomwrap">
-      
-
           <div
             class="chargetxt"
             v-if="!touchstart && chargestauts"
@@ -56,139 +106,183 @@
     </div>
   </div>
 </template>
-<script>
-import {
-  mdiTimerOutline,
-  mdiLightningBolt,
-  mdiSineWave,
-  mdiBatteryCharging,
-  mdiCar,
-} from "@mdi/js";
-
+<script setup>
 import Chargingmode from "@/components/Chargingmode.vue";
 import Finishmode from "@/components/Finishmode.vue";
 import Startmodeselect from "@/components/Startmodeselect.vue";
 import { useMainStore } from "@/stores/main";
 import { chargePileStore } from "@/stores/chargePile";
-export default {
-  name: "App",
-  components: {
-    Chargingmode,
-    Finishmode,
-    Startmodeselect,
-  },
-  data: () => ({
-    mdiLightningBolt,
-    mdiSineWave,
-    mdiBatteryCharging,
-    mdiTimerOutline,
-    mdiCar,
-    Nowtime: "",
-    touchstart: false,
-    chargestauts: false,
-    monthNames: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "June",
-      "July",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
-    Nowdate: "",
-    Nowmonth: "",
-    TimeData: null,
-    wifi: false,
-    lte: false,
-    bluetooth: false,
-  }),
-  mounted() {
-    let self = this;
-    self.setinit();
+import { ResultStore } from "@/stores/result";
 
-    this.TimeData = setInterval(function () {
-      self.setinit();
-    }, 1000);
-  },
-  beforeUnmount() {
-    clearInterval(this.TimeData);
-  },
-  methods: {
-    setinit() {
-      this.gettime();
-      this.getchargepilestatus();
-    },
-    gettime() {
-      let date = new Date();
-      let hour = date.getHours();
-      let min =
-        date.getMinutes() >= 10 ? date.getMinutes() : "0" + date.getMinutes();
-      this.Nowtime = hour + ":" + min;
-      this.Nowdate = date.getDate();
-      this.Nowmonth = this.monthNames[date.getMonth()];
-    },
-    changemode(val) {
-      const mainstore = useMainStore();
-      mainstore.chargepilemode = val;
-    },
-    getchargepilestatus() {
-      let self = this;
-      let chargePile = chargePileStore();
+import {
+  ref,
+  onMounted,
+  onUnmounted,
+  computed,
+  getCurrentInstance,
+} from "vue";
 
-      chargePile.GetChargePileStatus(this).then((res) => {
-        if (res.data === null || res.data === undefined) {
-          const mainstore = useMainStore();
-          self.chargestauts = false;
-          mainstore.chargepilemode = "standby";
-          return;
-        }
+const dataTransferMessageId = ref("");
+const instance = getCurrentInstance();
+const proxy = instance?.proxy;
+const Nowtime = ref("");
+const touchstart = ref(false);
+const chargestauts = ref(false);
+const monthNames = ref([
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "June",
+  "July",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+]);
+const Nowdate = ref("");
+const Nowmonth = ref("");
+const TimeData = ref("");
+const wifi = ref(false);
+const lte = ref(false);
+const bluetooth = ref(false);
+const changeAvailabilityItems=ref(["Inoperative","Operative"]);
+const changeAvailabilityData=ref("Inoperative");
+onMounted(() => {
+  setinit();
+  TimeData.value = setInterval(function () {
+    setinit();
+  }, 2000);
+});
 
-        let data = res.data;
-        self.wifi = data.wifi;
-        self.lte = data.lte;
-        self.bluetooth = data.bluetooth;
-        const mainstore = useMainStore();
-        if (
-          data.lastStatus == "Available" &&
-          (mainstore.chargepilemode == "finish" ||
-            mainstore.chargepilemode == "selectmode")
-        ) {
-          return;
-        }
-        if (data.lastStatus == "Charging") {
-          mainstore.chargepilemode = "charging";
-        }
-        if (data.lastStatus == "Preparing") {
-          mainstore.chargepilemode = "preparing";
-        }
-        if (data.lastStatus == "Available") {
-          self.chargestauts = true;
-          mainstore.chargepilemode = "standby";
-        }
-      });
-    },
-    reset() {
-      let self = this;
-      let chargePile = chargePileStore();
-      chargePile.Reset(self).then((res) => {
-        console.log(res.data);
-      });
-    },
-  },
-  computed: {
-    getchargepilemode() {
-      const mainstore = useMainStore();
-      return mainstore.chargepilemode;
-    },
-  },
+onUnmounted(() => {
+  if (TimeData.value !== null) {
+    clearInterval(TimeData.value);
+    TimeData.value = null;
+  }
+});
+const setinit = function () {
+  gettime();
+  getchargepilestatus();
 };
+
+const gettime = function () {
+  let date = new Date();
+  let hour = date.getHours();
+  let min =
+    date.getMinutes() >= 10 ? date.getMinutes() : "0" + date.getMinutes();
+  Nowtime.value = hour + ":" + min;
+  Nowdate.value = date.getDate();
+  Nowmonth.value = monthNames.value[date.getMonth()];
+};
+
+const changemode = function (val) {
+  const mainstore = useMainStore();
+  mainstore.chargepilemode = val;
+};
+
+const getchargepilestatus = function () {
+  let chargePile = chargePileStore();
+
+  chargePile.GetChargePileStatus(proxy).then((res) => {
+    if (res.data === null || res.data === undefined) {
+      const mainstore = useMainStore();
+      chargestauts.value = false;
+      mainstore.chargepilemode = "standby";
+      return;
+    }
+
+    let data = res.data;
+    wifi.value = data.wifi;
+    lte.value = data.lte;
+    bluetooth.value = data.bluetooth;
+    const mainstore = useMainStore();
+    if (
+      data.lastStatus == "Available" &&
+      (mainstore.chargepilemode == "finish" ||
+        mainstore.chargepilemode == "selectmode")
+    ) {
+      return;
+    }
+    if (data.lastStatus == "Charging") {
+      mainstore.chargepilemode = "charging";
+    }
+    if (data.lastStatus == "Preparing") {
+      mainstore.chargepilemode = "preparing";
+    }
+    if (data.lastStatus == "Available") {
+      chargestauts.value = true;
+      mainstore.chargepilemode = "standby";
+    }
+    if(data.lastStatus == "Unavailable"){
+      mainstore.chargepilemode = "standby";
+      chargestauts.value = false;
+    }
+  });
+};
+const reset = function () {
+  if (chargestauts.value == true) {
+    let chargePile = chargePileStore();
+    chargePile.Reset(proxy).then((res) => {
+      console.log(res.data);
+    });
+  }
+};
+
+const dataTransfer = function () {
+  if (chargestauts.value == true) {
+    let chargePile = chargePileStore();
+    chargePile.DataTransfer(proxy, changeAvailabilityItems.value).then((res) => {
+      let Result = ResultStore();
+      let json = JSON.parse(res.data);
+      let resjson = JSON.parse(json);
+      if (resjson.status == "Accepted") {
+        Result.successres(resjson.data);
+      }
+    });
+  }
+};
+
+
+const ChangeAvailability = function () {
+
+    let chargePile = chargePileStore();
+    chargePile.ChangeAvailability(proxy, changeAvailabilityData.value).then((res) => {
+      let Result = ResultStore();
+      let resjson = JSON.parse(res.data);
+      if (resjson.status == "Accepted") {
+        Result.successres(resjson.data);
+      }
+    });
+  
+};
+
+
+const UnlockConnector = function () {
+  if (chargestauts.value == true) {
+    let chargePile = chargePileStore();
+    chargePile.UnlockConnector(proxy).then((res) => {
+      console.log(res.data);
+    });
+  }
+};
+
+
+
+
+
+const getchargepilemode = computed(() => {
+  const mainstore = useMainStore();
+  return mainstore.chargepilemode;
+});
 </script>
 <style scoped>
+.changeAvailabilityselect{
+  color: white;
+  width: 300px;
+}
 .offline {
   opacity: 0.5;
 }

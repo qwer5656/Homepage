@@ -11,39 +11,45 @@
     </div>
   </div>
 </template>
-<script>
+
+<script setup>
 import { chargePileStore } from "@/stores/chargePile";
 import { ResultStore } from "@/stores/result";
-export default {
-  mounted() {
-    let self = this;
+import { onMounted,getCurrentInstance } from "vue";
 
-    setTimeout(function () {
-      let chargePile = chargePileStore();
-      chargePile.RemoteStartTransaction(self).then((res) => {
-        if (res.success == true) {
-          let data = JSON.parse(res.data);
-          if (data.status === "Rejected") {
-            self.error();
-          } else {
-            setTimeout(function () {
-              self.$router.push(`/`);
-            }, 500);
-          }
-        } else {
-          self.error();
-        }
-      });
-    }, 1000);
-  },
-  methods: {
-    error() {
-      const Result = ResultStore();
-      this.$router.push(`/`);
-      Result.errorres("RemoteStartTransaction Fail");
-    },
-  },
+import { useRouter } from "vue-router";
+
+// Get the router instance
+const router = useRouter();
+const instance = getCurrentInstance();
+const proxy=instance?.proxy;
+// Error handling method
+const error = () => {
+  const result = ResultStore();
+  router.push(`/`);
+  result.errorres("RemoteStartTransaction Fail");
 };
+
+// Mounted lifecycle hook
+onMounted(() => {
+  setTimeout(() => {
+    const chargePile = chargePileStore();
+    chargePile.RemoteStartTransaction(proxy).then((res) => {
+      if (res.success === true) {
+        let data = JSON.parse(res.data);
+        if (data.status === "Rejected") {
+          error();
+        } else {
+          setTimeout(() => {
+            router.push(`/`);
+          }, 500);
+        }
+      } else {
+        error();
+      }
+    });
+  }, 1000);
+});
 </script>
 <style scoped>
 .txt {

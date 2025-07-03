@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-
+import axios from "@/axios";
 export const cardStore = defineStore("card", {
   state: () => {
     return {
@@ -10,7 +10,7 @@ export const cardStore = defineStore("card", {
     getapiAll(self) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios.get(this.apiurl + "/GetAll",token, true).then((res) => {
+        axios.get(this.apiurl + "/GetAll",token, true).then((res) => {
           resolve(res);
         });
       });
@@ -18,7 +18,7 @@ export const cardStore = defineStore("card", {
     getapi(self, cardId) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios.get(this.apiurl + "/" + cardId,token, true).then((res) => {
+        axios.get(this.apiurl + "/" + cardId,token, true).then((res) => {
           resolve(res);
         });
       });
@@ -27,7 +27,7 @@ export const cardStore = defineStore("card", {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
         data.token=token;
-        self.$axios.post(this.apiurl, data, true).then((res) => {
+        axios.post(this.apiurl, data, true).then((res) => {
           resolve(res);
         });
       });
@@ -36,7 +36,7 @@ export const cardStore = defineStore("card", {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
         data.token=token;
-        self.$axios.put(this.apiurl, data, true).then((res) => {
+        axios.put(this.apiurl, data, true).then((res) => {
           resolve(res);
         });
       });

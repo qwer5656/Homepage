@@ -138,7 +138,7 @@
           </div>
         </div>
         <div class="leftbarconent">
-          <router-view @loginstauts="loginchange" />
+          <router-view  />
         </div>
       </div>
       <div class="phonediv"></div>
@@ -190,8 +190,7 @@ export default {
       return this.$i18n.locale == "zh" ? true : false;
     },
     userName() {
-      let data = JSON.parse(localStorage.getItem("userdata"));
-      return data.accout;
+      return this.userdata ? this.userdata.userName : null;
     },
   },
   data: () => ({
@@ -213,6 +212,7 @@ export default {
     Mode_Off,
     Settings_On,
     Settings_Off,
+    userdata:null,
   }),
   methods: {
     changenavbarstatus() {
@@ -220,11 +220,6 @@ export default {
     },
     goto(val) {
       this.$router.push(`/${val}`);
-    },
-    loginchange() {
-      this.loginshow = true;
-      this.footvalue = 0;
-      this.$router.push(`/`);
     },
     editpassword() {
       document.querySelector("#accountwrap").style.display = "none";
@@ -284,6 +279,7 @@ export default {
       if (token != null) {
         loginstore.tokenauth(self, token).then((res) => {
           if (res.success === true) {
+            this.userdata=JSON.parse(localStorage.getItem("userdata"));
             this.loginshow = true;
           } else {
             this.logout();
@@ -306,11 +302,14 @@ export default {
     },
   },
   mounted() {
+
+
     let self = this;
+    console.log(localStorage.getItem("userdata"));
     window.addEventListener("resize", function () {
       var windowWidth = document.body.clientWidth;
       const mainstore = useMainStore();
-
+      console.log(mainstore.curpage);
       if (windowWidth <= 576) {
         if (mainstore.curpage == "Setting") {
           self.$router.push(`/`);
@@ -319,9 +318,9 @@ export default {
       } else {
         if (
           mainstore.curpage == "Bluetooth" ||
-          mainstore.curpage == "LTE" ||
+          mainstore.curpage == "Lte" ||
           mainstore.curpage == "Wifi" ||
-          mainstore.curpage == "OCPP" ||
+          mainstore.curpage == "OCPPmode" ||
           mainstore.curpage == "Time" ||
           mainstore.curpage == "Language"
         ) {

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-
+import axios from "@/axios";
 export const reverseStore = defineStore("reverse", {
   state: () => {
     return {
@@ -7,45 +7,45 @@ export const reverseStore = defineStore("reverse", {
     };
   },
   actions: {
-    getapiAll(self) {
+    getapiAll() {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios
+        axios
         .get(this.apiurl +"/GetAll",token, true)
         .then((res) => {
             resolve(res);
         });
       });
     },
-    getapi(self, cardId) {
+    getapi(cardId) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios.get(this.apiurl + "/" + cardId,token, true).then((res) => {
+        axios.get(this.apiurl + "/" + cardId,token, true).then((res) => {
           resolve(res);
         });
       });
     },
-    postapi(self, data) {
-      return new Promise((resolve, reject) => {
-        let token = JSON.parse(localStorage.getItem("token"));
-        data.token=token;
-        self.$axios.post(this.apiurl, data, true).then((res) => {
-          resolve(res);
-        });
-      });
-    },
-    putapi(self, data) {
+    postapi(data) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
         data.token=token;
-        self.$axios.put(this.apiurl, data, true).then((res) => {
+        axios.post(this.apiurl, data, true).then((res) => {
           resolve(res);
         });
       });
     },
-    deleteapi(self, id) {
+    putapi(data) {
       return new Promise((resolve, reject) => {
-        self.$axios.delete(this.apiurl+"/"+id, true).then((res) => {
+        let token = JSON.parse(localStorage.getItem("token"));
+        data.token=token;
+       axios.put(this.apiurl, data, true).then((res) => {
+          resolve(res);
+        });
+      });
+    },
+    deleteapi(id) {
+      return new Promise((resolve, reject) => {
+        axios.delete(this.apiurl+"/"+id, true).then((res) => {
           resolve(res);
         });
       });

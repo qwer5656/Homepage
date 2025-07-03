@@ -2,7 +2,11 @@
   <div class="reservewrap">
     <div class="datepicker">
       <div>
-        <v-date-picker bg-color="#000" :title="$t('Reservepage.title')" v-model="date">
+        <v-date-picker
+          bg-color="#000"
+          :title="$t('Reservepage.title')"
+          v-model="date"
+        >
           <template v-slot:header>
             <h1 class="datepickerheader">{{ getheaderdate }}</h1>
           </template></v-date-picker
@@ -10,8 +14,7 @@
       </div>
       <div class="schedulewrap" @click.capture="clearscheduledata()">
         <div class="addserverwrap">
-          <h4>{{ $t("Reservepage.schedule") }}
-          </h4>
+          <h4>{{ $t("Reservepage.schedule") }}</h4>
           <div>
             <img
               src="../assets/img/Adddeep_On.png"
@@ -141,278 +144,262 @@
     </v-dialog>
   </div>
 </template>
-<script>
+<script setup>
+import { ref, computed, watch, onMounted, defineProps } from "vue";
 import { mdiMinusCircle, mdiPencil } from "@mdi/js";
 import { useMainStore } from "@/stores/main";
 import { reverseStore } from "@/stores/reverse";
 import { ResultStore } from "@/stores/result";
-export default {
-  data() {
-    return {
-      date: new Date(""),
-      day: "2024.01.02",
-      dayitems: [],
-      timeform: "00:00",
-      timeto: "00:00",
-      value: [0, 0],
-      title: "",
-      timeitem: [],
-      createdialog: false,
-      monthNames: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "June",
-        "July",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      cratescheduleitem: [],
-      mode: "",
-      scheduledata: {},
-      tempscheduledata: {},
-    };
-  },
-  methods: {
-    allowedDates: (val) => {
-      return (
-        parseInt(this.$vuetify.date.toISO(val).split("-")[2], 10) % 2 === 0
-      );
-    },
-    change() {
-      let sub = (this.value[1] - this.value[0]) / 2;
-      document.documentElement.style.setProperty("--hourvalue", `'${sub}hrs'`);
-    },
-    changedialog(val) {
-      this.createdialog = val;
-    },
-    adddata() {
-      this.scheduledata = {
-        title: "",
-        timeform: "00:00",
-        timeto: "00:00",
-        active: false,
-      };
-      this.mode = "add";
-      this.changedialog(true);
-    },
-    operationscheduledata() {
-      let self = this;
-      let reverse = reverseStore();
-      let Result = ResultStore();
-      if (this.mode == "add") {
-        let obj = {};
-        let day = this.convertDate.toString();
-        obj.startTime = day + "T" + this.scheduledata.timeform;
-        obj.endTime = day + "T" + this.scheduledata.timeto;
-        obj.title = this.scheduledata.title;
-        obj.valid = true;
-        obj.result = "";
-        reverse.postapi(self, obj).then((res) => {
-          if (res.success === true) {
-            self.cratescheduleitem = res.data;
-            Result.successres();
-            this.changedialog(false);
-          } else {
-            Result.errorres(res.message);
-          }
-        });
-      }
-      if (this.mode == "edit") {
-        let self = this;
-        let obj = {};
-        let day = this.convertDate.toString();
-        obj.startTime = day + "T" + this.scheduledata.timeform;
-        obj.endTime = day + "T" + this.scheduledata.timeto;
-        obj.valid = true;
-        obj.result = "";
-        obj.title = this.scheduledata.title;
-        obj.scheduleTaskId = this.scheduledata.scheduleTaskId;
-        reverse.putapi(self, obj).then((res) => {
-          if (res.success === true) {
-            self.cratescheduleitem = res.data;
-            Result.successres();
-            this.changedialog(false);
-          } else {
-            Result.errorres(res.message);
-          }
-        });
-      }
-    },
-    selectdata(e) {
-      this.cratescheduleitem.forEach((el) => {
-        if (el == e) {
-          el.active = true;
-        } else {
-          el.active = false;
-        }
-      });
-    },
-    deletedata(e) {
-      let self = this;
-      let reverse = reverseStore();
-      let Result = ResultStore();
-      reverse.deleteapi(self, e.scheduleTaskId).then((res) => {
-        if (res.success === undefined) {
-          Result.errorres(res);
-        }
-        if (res.success === true) {
-          self.cratescheduleitem = res.data;
-          Result.successres();
-        }
-      });
-    },
-    ediddata(e) {
-      this.mode = "edit";
-      this.tempscheduledata = e;
-      this.scheduledata = JSON.parse(JSON.stringify(e));
-      this.changedialog(true);
-    },
 
-    clearscheduledata() {
-      this.cratescheduleitem.forEach((e) => {
-        e.active = false;
-      });
-    },
-  },
-  watch: {
-    value: {
-      handler(val) {
-        let sub = (val[1] - val[0]) / 2;
-        this.scheduledata.timeform = this.timeitem[val[0]];
-        this.scheduledata.timeto = this.timeitem[val[1]];
-        document.documentElement.style.setProperty(
-          "--hourvalue",
-          `'${sub}hrs'`
-        );
-      },
-    },
-    "scheduledata.timeto"(val) {
-      console.log(val);
-      if (val < this.scheduledata.timeform) {
-        let temp = this.scheduledata.timeform;
-        this.scheduledata.timeform = val;
-        this.scheduledata.timeto = temp;
+const date = ref(new Date(""));
+const day = ref("2024.01.02");
+const dayitems = ref([]);
+const timeform = ref("00:00");
+const timeto = ref("00:00");
+const value = ref([0, 0]);
+const title = ref("");
+const timeitem = ref([]);
+const createdialog = ref(false);
+const monthNames = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "June",
+  "July",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+const cratescheduleitem = ref([]);
+const mode = ref("");
+const scheduledata = ref({});
+const tempscheduledata = ref({});
+
+const mainStore = useMainStore();
+const reverse = reverseStore();
+const resultStore = ResultStore();
+
+const allowedDates = (val) => {
+  return parseInt(mainStore.date.toISO(val).split("-")[2], 10) % 2 === 0;
+};
+
+const change = () => {
+  let sub = (value.value[1] - value.value[0]) / 2;
+  document.documentElement.style.setProperty("--hourvalue", `'${sub}hrs'`);
+};
+
+const changedialog = (val) => {
+  createdialog.value = val;
+};
+
+const adddata = () => {
+  scheduledata.value = {
+    title: "",
+    timeform: "00:00",
+    timeto: "00:00",
+    active: false,
+  };
+  mode.value = "add";
+  changedialog(true);
+};
+
+const operationscheduledata = () => {
+  if (mode.value == "add") {
+    let obj = {};
+    let dayString = convertDate.value.toString();
+    obj.startTime = dayString + "T" + scheduledata.value.timeform;
+    obj.endTime = dayString + "T" + scheduledata.value.timeto;
+    obj.title = scheduledata.value.title;
+    obj.valid = true;
+    obj.result = "";
+    reverse.postapi(obj).then((res) => {
+      if (res.success) {
+        cratescheduleitem.value = res.data;
+        resultStore.successres();
+        changedialog(false);
       } else {
-        let i =
-          parseInt(val.split(":")[0] * 2) + parseInt(val.split(":")[1] / 30);
-        this.value[1] = i;
-        this.change();
+        resultStore.errorres(res.message);
       }
-    },
-    "scheduledata.timeform"(val) {
-      if (val > this.scheduledata.timeto) {
-        let temp = this.scheduledata.timeto;
-        this.scheduledata.timeform = temp;
-        this.scheduledata.timeto = val;
+    });
+  }
+
+  if (mode.value == "edit") {
+    let obj = {};
+    let dayString = convertDate.value.toString();
+    obj.startTime = dayString + "T" + scheduledata.value.timeform;
+    obj.endTime = dayString + "T" + scheduledata.value.timeto;
+    obj.valid = true;
+    obj.result = "";
+    obj.title = scheduledata.value.title;
+    obj.scheduleTaskId = scheduledata.value.scheduleTaskId;
+    reverse.putapi(obj).then((res) => {
+      if (res.success) {
+        cratescheduleitem.value = res.data;
+        resultStore.successres();
+        changedialog(false);
       } else {
-        let i =
-          parseInt(val.split(":")[0] * 2) + parseInt(val.split(":")[1] / 30);
-        this.value[0] = i;
-        this.change();
+        resultStore.errorres(res.message);
       }
-    },
-  },
-  mounted() {
-    this.date = new Date();
-    let sub = (this.value[1] - this.value[0]) / 2;
-    document.documentElement.style.setProperty("--hourvalue", `'${sub}hrs'`);
+    });
+  }
+};
 
-    let timeval = [];
-    let hour = 0;
-    let min = 0;
+const selectdata = (e) => {
+  cratescheduleitem.value.forEach((el) => {
+    el.active = el === e;
+  });
+};
 
-    for (let i = 0; i <= 48; i++) {
-      timeval.push(
-        `${hour < 10 ? "0" + hour : hour}:${min < 30 ? min + "0" : min}`
-      );
-      if (i == 47) {
-        hour = 23;
-        min = 59;
-        continue;
-      }
+const deletedata = (e) => {
+  reverse.deleteapi(e.scheduleTaskId).then((res) => {
+    if (res.success === undefined) {
+      resultStore.errorres(res);
+    }
+    if (res.success) {
+      cratescheduleitem.value = res.data;
+      resultStore.successres();
+    }
+  });
+};
 
-      if (i % 2 == 0) {
-        min = 30;
-      } else {
-        hour++;
-        min = 0;
-      }
+const ediddata = (e) => {
+  mode.value = "edit";
+  tempscheduledata.value = e;
+  scheduledata.value = JSON.parse(JSON.stringify(e));
+  changedialog(true);
+};
+
+const clearscheduledata = () => {
+  cratescheduleitem.value.forEach((e) => {
+    e.active = false;
+  });
+};
+
+// Watchers
+watch(value, (val) => {
+  let sub = (val[1] - val[0]) / 2;
+  scheduledata.value.timeform = timeitem.value[val[0]];
+  scheduledata.value.timeto = timeitem.value[val[1]];
+  document.documentElement.style.setProperty("--hourvalue", `'${sub}hrs'`);
+});
+
+watch(
+  () => scheduledata.value.timeto,
+  (val) => {
+    if (val < scheduledata.value.timeform) {
+      let temp = scheduledata.value.timeform;
+      scheduledata.value.timeform = val;
+      scheduledata.value.timeto = temp;
+    } else {
+      let i =
+        parseInt(val.split(":")[0] * 2) + parseInt(val.split(":")[1] / 30);
+      value.value[1] = i;
+      change();
+    }
+  }
+);
+
+watch(
+  () => scheduledata.value.timeform,
+  (val) => {
+    if (val > scheduledata.value.timeto) {
+      let temp = scheduledata.value.timeto;
+      scheduledata.value.timeform = temp;
+      scheduledata.value.timeto = val;
+    } else {
+      let i =
+        parseInt(val.split(":")[0] * 2) + parseInt(val.split(":")[1] / 30);
+      value.value[0] = i;
+      change();
+    }
+  }
+);
+
+// Computed
+const getheaderdate = computed(() => {
+  let date = new Date();
+  let year = date.getFullYear();
+  return `${year}.${monthNames[date.getMonth()]}`;
+});
+
+const convertDate = computed(() => {
+  let nowdate = date.value;
+  let year = nowdate.getFullYear();
+  let month = (nowdate.getMonth() + 1).toString().padStart(2, "0");
+  let day = nowdate.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${day}`;
+});
+
+const getcalendar = computed(() => {
+  let nowdate = date.value;
+  let year = nowdate.getFullYear();
+  let month = (nowdate.getMonth() + 1).toString().padStart(2, "0");
+  let day = nowdate.getDate().toString().padStart(2, "0");
+  return `${year}.${month}.${day}`;
+});
+
+const getcalendarlist = computed(() => [getcalendar.value]);
+
+const filterdata = computed(() => {
+  if (!cratescheduleitem.value) return [];
+  return cratescheduleitem.value.filter((e) => {
+    let val = convertDate.value;
+    return e.startTime.split("T")[0] === val;
+  });
+});
+
+const timedata = computed(() => {
+  return filterdata.value.map((e) => {
+    e.timeform =
+      e.startTime.split("T")[1].split(":")[0] +
+      ":" +
+      e.startTime.split("T")[1].split(":")[1];
+    e.timeto =
+      e.endTime.split("T")[1].split(":")[0] +
+      ":" +
+      e.endTime.split("T")[1].split(":")[1];
+    return e;
+  });
+});
+
+// Mounted lifecycle
+onMounted(() => {
+  date.value = new Date();
+  let sub = (value.value[1] - value.value[0]) / 2;
+  document.documentElement.style.setProperty("--hourvalue", `'${sub}hrs'`);
+
+  let timeval = [];
+  let hour = 0;
+  let min = 0;
+
+  for (let i = 0; i <= 48; i++) {
+    timeval.push(
+      `${hour < 10 ? "0" + hour : hour}:${min < 30 ? min + "0" : min}`
+    );
+    if (i === 47) {
+      hour = 23;
+      min = 59;
+      continue;
     }
 
-    let reverse = reverseStore();
+    if (i % 2 === 0) {
+      min = 30;
+    } else {
+      hour++;
+      min = 0;
+    }
+  }
 
-    let self = this;
-    reverse.getapiAll(self).then((res) => {
-      self.cratescheduleitem = res.data;
-    });
-    this.timeitem = timeval;
-  },
-  computed: {
-    getheaderdate() {
-      let date = new Date();
-      let year = date.getFullYear();
-      return year + "." + this.monthNames[date.getMonth()];
-    },
-    convertDate() {
-      let date = this.date;
-      let year = date.getFullYear();
-      let month = date.getMonth() + 1;
-      month = month < 10 ? "0" + month : month;
-      let day = date.getDate();
-      day = day < 10 ? "0" + day : day;
-      return year + "-" + month + "-" + day;
-    },
-    getcalendar() {
-      let date = this.date;
-      let year = date.getFullYear();
-      let month = date.getMonth() + 1;
-      month = month < 10 ? "0" + month : month;
-      let day = date.getDate();
-      day = day < 10 ? "0" + day : day;
-      let val = year + "." + month + "." + day;
-      return val;
-    },
-    getcalendarlist() {
-      let arr = [];
-      arr.push(this.getcalendar);
-      return arr;
-    },
-    filterdata() {
-      if (this.cratescheduleitem === null) return [];
-      return this.cratescheduleitem.filter((e) => {
-        let date = this.date;
-        let year = date.getFullYear();
-        let month = date.getMonth() + 1;
-        month = month < 10 ? "0" + month : month;
-        let day = date.getDate();
-        day = day < 10 ? "0" + day : day;
-        let val = year + "-" + month + "-" + day;
-        if (e.startTime.split("T")[0] == val) {
-          return true;
-        }
-      });
-    },
-    timedata() {
-      return this.filterdata.map((e) => {
-        e.timeform =
-          e.startTime.split("T")[1].split(":")[0] +
-          ":" +
-          e.startTime.split("T")[1].split(":")[1];
-        e.timeto =
-          e.endTime.split("T")[1].split(":")[0] +
-          ":" +
-          e.endTime.split("T")[1].split(":")[1];
-        return e;
-      });
-    },
-  },
-};
+  reverse.getapiAll().then((res) => {
+    cratescheduleitem.value = res.data;
+  });
+
+  timeitem.value = timeval;
+});
 </script>
 <style>
 .reservewrap .reservenone {

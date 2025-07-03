@@ -14,20 +14,19 @@
     </div>
   </div>
 </template>
-<script>
-export default {
-  setup() {},
-  data() {
-    return {
-      val: false,
-    };
-  },
-  components: {},
-  methods: {
-    previous() {
-      this.$router.go(-1);
-    },
-  },
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+// Reactive state variable
+const val = ref(false);
+
+// Router instance
+const router = useRouter();
+
+// Methods
+const previous = () => {
+  router.go(-1);
 };
 </script>
 <style scoped>

@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import axios from "@/axios";
 export const LicensePlateStore = defineStore("LicensePlate", {
   state: () => {
     return {
@@ -9,7 +10,7 @@ export const LicensePlateStore = defineStore("LicensePlate", {
     getapiAll(self) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios.get(this.apiurl + "/GetAll",token, true).then((res) => {
+        axios.get(this.apiurl + "/GetAll",token, true).then((res) => {
           resolve(res);
         });
       });
@@ -17,7 +18,7 @@ export const LicensePlateStore = defineStore("LicensePlate", {
     getapi(self, cardId) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios.get(this.apiurl + "/" + cardId,token, true).then((res) => {
+        axios.get(this.apiurl + "/" + cardId,token, true).then((res) => {
           resolve(res);
         });
       });
@@ -26,7 +27,7 @@ export const LicensePlateStore = defineStore("LicensePlate", {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
         data.token=token;
-        self.$axios.post(this.apiurl, data, true).then((res) => {
+        axios.post(this.apiurl, data, true).then((res) => {
           resolve(res);
         });
       });
@@ -35,14 +36,14 @@ export const LicensePlateStore = defineStore("LicensePlate", {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
         data.token=token;
-        self.$axios.put(this.apiurl, data, true).then((res) => {
+        axios.put(this.apiurl, data, true).then((res) => {
           resolve(res);
         });
       });
     },
     deleteapi(self, id) {
       return new Promise((resolve, reject) => {
-        self.$axios.delete(this.apiurl+"/"+id, true).then((res) => {
+        axios.delete(this.apiurl+"/"+id, true).then((res) => {
           resolve(res);
         });
       });

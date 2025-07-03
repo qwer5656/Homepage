@@ -1,19 +1,11 @@
 <template lang="">
   <div>
-    <Login @loginstauts="loginchange" />
+    <Login />
   </div>
 </template>
-<script>
+<script setup>
 import Login from "@/components/Login.vue";
-export default {
-  components: {
-    Login,
-  },
-  methods: {
-    loginchange(){
-      this.$emit("loginstauts");
-    },
-  },
-};
+
+
 </script>
 <style lang=""></style>

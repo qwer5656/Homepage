@@ -1,9 +1,9 @@
 <template>
   <div class="background">
     <div class="content">
-      <div class="cardnumberwrap">
-        <div class="cardnumbercontent">
-          <span>{{ CardNumber }}</span>
+      <div class="licensePlatewrap">
+        <div class="licensePlatecontent">
+          <span>{{ LicensePlate }}</span>
         </div>
         <div class="unionwrap"></div>
       </div>
@@ -14,44 +14,40 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
 import { chargePileStore } from "@/stores/chargePile";
 import { ResultStore } from "@/stores/result";
-export default {
-  data() {
-    return {
-      CardNumber: "XXXX-XXX",
-    };
-  },
-  mounted() {
-    let self = this;
 
-    setTimeout(function () {
-      let chargePile = chargePileStore();
-      chargePile.RemoteStartTransaction(self).then((res) => {
-        if (res.success == true) {
-          let data = JSON.parse(res.data);
-          if (data.status === "Rejected") {
-            self.error();
-          } else {
-            setTimeout(function () {
-              self.$router.push(`/`);
-            }, 500);
-          }
-        } else {
-          self.error();
-        }
-      });
-    }, 1000);
-  },
-  methods: {
-    error() {
-      const Result = ResultStore();
-      this.$router.push(`/`);
-      Result.errorres("RemoteStartTransaction Fail");
-    },
-  },
+import { ref, onMounted,getCurrentInstance } from "vue";
+const instance = getCurrentInstance();
+const proxy=instance?.proxy;
+const LicensePlate = ref("XXXX-XXX");
+
+const error = function () {
+  const Result = ResultStore();
+  proxy.$router.push(`/`);
+  Result.errorres("RemoteStartTransaction Fail");
 };
+
+onMounted(() => {
+  setTimeout(function () {
+    let chargePile = chargePileStore();
+    chargePile.RemoteStartTransaction(proxy).then((res) => {
+      if (res.success == true) {
+        let data = JSON.parse(res.data);
+        if (data.status === "Rejected") {
+          error();
+        } else {
+          setTimeout(function () {
+            proxy.$router.push(`/`);
+          }, 500);
+        }
+      } else {
+        error();
+      }
+    });
+  }, 1000);
+});
 </script>
 <style scoped>
 .unionwrap {
@@ -62,14 +58,14 @@ export default {
   background-size: contain;
   top: 0px;
 }
-.cardnumberwrap {
+.licensePlatewrap {
   width: 230px;
   height: 120px;
   overflow: hidden;
   position: relative;
   border-radius: 10px;
 }
-.cardnumbercontent {
+.licensePlatecontent {
   width: 418px;
   height: 208px;
   background: url("../assets/img/CarPlate.png");
@@ -82,7 +78,7 @@ export default {
   top: -90px;
   left: -95px;
 }
-.cardnumbercontent span {
+.licensePlatecontent span {
   font-family: SF Pro;
   font-size: 20px;
   font-weight: 510;

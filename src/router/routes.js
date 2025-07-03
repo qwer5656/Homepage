@@ -67,10 +67,10 @@ const routes = [
     component: () => import("@/views/EditPasswordView.vue"),
   },
   {
-    path: "/CarNumber",
-    name: "CarNumber",
+    path: "/LicensePlate",
+    name: "LicensePlate",
     title: "車牌號碼",
-    component: () => import("@/views/CarNumberView.vue"),
+    component: () => import("@/views/LicensePlateView.vue"),
   },
   {
     path: "/QrcodeSetting",
@@ -85,10 +85,10 @@ const routes = [
     component: () => import("@/views/RfidSettingView.vue"),
   },
   {
-    path: "/CarNumberSetting",
-    name: "CarNumberSetting",
-    title: "CarNumberSetting",
-    component: () => import("@/views/CarNumberSettingView.vue"),
+    path: "/LicensePlateSetting",
+    name: "LicensePlateSetting",
+    title: "LicensePlateSetting",
+    component: () => import("@/views/LicensePlateSettingView.vue"),
   },
   {
     path: "/QrcodeStartmode",
@@ -103,10 +103,10 @@ const routes = [
     component: () => import("@/views/RfidloadingView.vue"),
   },
   {
-    path: "/CarNumberloading",
-    name: "CarNumberloading",
-    title: "CarNumberloading",
-    component: () => import("@/views/CarNumberloadingView.vue"),
+    path: "/LicensePlateloading",
+    name: "LicensePlateloading",
+    title: "LicensePlateloading",
+    component: () => import("@/views/LicensePlateloadingView.vue"),
   },
   {
     path: "/Bluetooth",

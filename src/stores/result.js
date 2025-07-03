@@ -14,11 +14,11 @@ export const ResultStore = defineStore("result", {
     getmode: (state) => state.mode,
   },
   actions: {
-    successres(restxt="") {
+    successres(restxt="Success") {
       let self=this;
       self.show = true;
       self.mode=1;
-      self.resulttext=restxt+"Success";
+      self.resulttext=restxt;
       setTimeout(() => {
         self.show=false;
       }, 500);

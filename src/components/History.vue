@@ -1,6 +1,6 @@
 <template>
   <div class="historywrap">
-    <div style="display: flex; padding: 0 120px 0 80px; align-items: center">
+    <div class="historytitle">
       <div class="title">
         {{ $t("Historypage.Title") }}
       </div>
@@ -39,7 +39,6 @@
                 type="text"
                 :label="header.title"
                 hide-details
-                :prepend-inner-icon="mdiMagnify"
               ></v-text-field>
             </td>
           </tr>
@@ -183,7 +182,7 @@ const option = ref({
 
   series: [
     {
-      data: [50, 100, 200, 150, 200, 150, 50],
+      data: [0, 0, 0, 0, 0, 0, 0],
       type: "line",
       areaStyle: {},
       itemStyle: {
@@ -205,34 +204,6 @@ const option = ref({
   ],
 });
 
-const options = ref({
-  xAxis: {
-    type: "category",
-    boundaryGap: false,
-    data: ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"],
-  },
-  yAxis: {
-    type: "value",
-  },
-  series: [
-    {
-      data: [100, 150, 300],
-      type: "line",
-      areaStyle: {},
-      color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-        {
-          offset: 0,
-          color: "rgb(91, 228, 114, 0.5)",
-        },
-        {
-          offset: 1,
-          color: "rgb(0, 0, 0, 0)",
-        },
-      ]),
-    },
-  ],
-});
-
 const obj = ref({});
 
 const desserts = ref([]);
@@ -241,21 +212,38 @@ const page = ref(1);
 
 onMounted(() => {
   var history = historyStore();
-  const { proxy } = getCurrentInstance();
-  history.getapiAll(proxy).then((res) => {
-    desserts.value = res.data;
-  });
+  // const { proxy } = getCurrentInstance();
+  // history.getapiAll(proxy).then((res) => {
+  //   desserts.value = res.data;
+  // });
+
+  const start = new Date();
+  const end = new Date();
+
+  const startMonthDate = new Date(start.getFullYear(), start.getMonth(), 1); // 當月第一天
+  const endMonthDate = new Date(end.getFullYear(), end.getMonth() + 1, 0); // 當月最後一天
+
+  let startMonthDatestring = formatDate(startMonthDate);
+  let endMonthDatestring = formatDate(endMonthDate);
+
+  history
+    .getapiInterval(startMonthDatestring, endMonthDatestring)
+    .then((res) => {
+      desserts.value = res.data;
+    });
+
   let item = [];
-  for (let i = 0; i < 7; i++) {
-    var currentDate = new Date();
+  let searchTime = {};
+  for (let i = 6; i >= 0; i--) {
+    let currentDate = new Date();
 
-    currentDate.setDate(currentDate.getDate() + i);
+    currentDate.setDate(currentDate.getDate() - i);
 
-    var year = currentDate.getFullYear();
-    var month = currentDate.getMonth() + 1;
-    var day = currentDate.getDate();
+    let year = currentDate.getFullYear();
+    let month = currentDate.getMonth() + 1;
+    let day = currentDate.getDate();
 
-    var dateString =
+    let dateString =
       year +
       "-" +
       (month < 10 ? "0" : "") +
@@ -264,12 +252,29 @@ onMounted(() => {
       (day < 10 ? "0" : "") +
       day;
     item.push(dateString);
+    searchTime[dateString] = 6 - i;
   }
 
   option.value.xAxis.data = item;
 
-  option.value.series[0].data = [10, 5, 6, 0, 20, 50, 100];
+  history.getapiInterval(item[0], item[item.length - 1]).then((res) => {
+    let val = [0, 0, 0, 0, 0, 0, 0];
+
+    res.data.forEach((e) => {
+      if (searchTime[e.dateTime] != undefined) {
+        val[searchTime[e.dateTime]] += e.drgee;
+      }
+    });
+    option.value.series[0].data = val;
+  });
 });
+
+let formatDate = function (date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // '07'
+  const day = String(date.getDate()).padStart(2, "0"); // '03'
+  return `${year}-${month}-${day}`;
+};
 
 let pageCount = computed(() => {
   return Math.ceil(desserts.value.length / itemsPerPage.value);
@@ -310,12 +315,10 @@ const CheckExPortDate = function () {
   instance?.proxy.$refs.entryForm.validate().then(function (res) {
     let Result = ResultStore();
 
-    if (startDate.value>endDate.value) {
+    if (startDate.value > endDate.value) {
       Result.errorres("The startDate is greater than the endDate");
       return;
     }
-
-
 
     if (res.valid == true) {
       ExportExcel();
@@ -417,6 +420,11 @@ function changetimeshowValue(value) {
   color: rgba(107, 107, 107, 1);
 }
 
+.historywrap .historytitle {
+  display: flex;
+  padding: 0 120px 0 80px;
+  align-items: center;
+}
 .historywrap .vtablewrap {
   background-color: black;
   color: white;
@@ -508,6 +516,15 @@ function changetimeshowValue(value) {
 @media (max-width: 576px) {
   .historywrap .chart {
     padding-bottom: 30px;
+  }
+  .historywrap .vtablewrap {
+    padding: 0 5px;
+    font-size: 12px;
+  }
+  .historywrap .historytitle {
+    display: flex;
+    padding: 0 30px 0 50px;
+    align-items: center;
   }
 }
 </style>

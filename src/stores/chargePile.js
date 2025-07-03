@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-
+import axios from "@/axios";
 export const chargePileStore = defineStore("chargePile", {
   state: () => {
     return {
@@ -10,7 +10,7 @@ export const chargePileStore = defineStore("chargePile", {
     RemoteStartTransaction(self) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios.get(this.apiurl + "/RemoteStartTransaction?connect=1",token, false).then((res) => {
+        axios.get(this.apiurl + "/RemoteStartTransaction?connect=1",token, false).then((res) => {
           resolve(res);
         });
       });
@@ -18,7 +18,7 @@ export const chargePileStore = defineStore("chargePile", {
     RemoteStopTransaction(self) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios.get(this.apiurl + "/RemoteStopTransaction",token, true).then((res) => {
+        axios.get(this.apiurl + "/RemoteStopTransaction",token, true).then((res) => {
           resolve(res);
         });
       });
@@ -26,7 +26,31 @@ export const chargePileStore = defineStore("chargePile", {
     Reset(self){
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios.get(this.apiurl + "/Reset",token, true).then((res) => {
+        axios.get(this.apiurl + "/Reset",token, true).then((res) => {
+          resolve(res);
+        });
+      });
+    },
+    UnlockConnector(self){
+      return new Promise((resolve, reject) => {
+        let token = JSON.parse(localStorage.getItem("token"));
+        axios.get(this.apiurl + "/UnlockConnector",token, true).then((res) => {
+          resolve(res);
+        });
+      });
+    },
+    DataTransfer(self,messageId){
+      return new Promise((resolve, reject) => {
+        let token = JSON.parse(localStorage.getItem("token"));
+        axios.get(this.apiurl + "/DataTransfer?messageId="+messageId,token, true).then((res) => {
+          resolve(res);
+        });
+      });
+    },
+    ChangeAvailability(self,message){
+      return new Promise((resolve, reject) => {
+        let token = JSON.parse(localStorage.getItem("token"));
+        axios.get(this.apiurl + "/ChangeAvailability?message="+message,token, true).then((res) => {
           resolve(res);
         });
       });
@@ -34,7 +58,7 @@ export const chargePileStore = defineStore("chargePile", {
     GetChargePileStatus(self) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios.get(this.apiurl + "/ChargePileStatus",token, false).then((res) => {
+        axios.get(this.apiurl + "/ChargePileStatus",token, false).then((res) => {
           resolve(res);
         });
       });
@@ -42,7 +66,7 @@ export const chargePileStore = defineStore("chargePile", {
     GetChargePiledata(self) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        self.$axios.get(this.apiurl + "/ChargePiledata",token, false).then((res) => {
+        axios.get(this.apiurl + "/ChargePiledata",token, false).then((res) => {
           resolve(res);
         });
       });

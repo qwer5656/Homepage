@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-
+import axios from "@/axios";
 export const useMainStore = defineStore('main', {
   state: () => {
     return { 
@@ -13,7 +13,7 @@ export const useMainStore = defineStore('main', {
   actions: {
        updatePassword(self,data){
         return new Promise((resolve, reject) => {
-          self.$axios.put(this.userapi, data, true).then((res) => {
+          axios.put(this.userapi, data, true).then((res) => {
             resolve(res);
           }).catch((res)=>{
             reject(res);

@@ -15,7 +15,7 @@
             v-model="accountdata"
           ></v-text-field>
           <v-text-field
-            :append-inner-icon="show1 ? mdiEye : mdiEyeOff"
+            :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
             :type="show1 ? 'text' : 'password'"
             label="password"
             v-model="passworddata"
@@ -24,98 +24,198 @@
             variant="solo"
             @keyup.enter="passwordConfirmationRule"
           ></v-text-field>
-          <div class="chargebt" @click="passwordConfirmationRule" >Log in</div>
+          <div style="display: flex; justify-content: right; margin: 10px 0">
+            <div style="color: #66ff80; cursor: pointer" @click="open">
+              Forget Password?
+            </div>
+          </div>
+          <div class="chargebt" @click="passwordConfirmationRule">Log in</div>
         </v-form>
       </div>
       <div class="loginchargepilewrap">
         <img src="../assets/img/loginlogo.png" alt="" />
       </div>
     </div>
+    <v-dialog
+      v-model="deletedialog"
+      persistent
+      width="auto"
+      class="emaildialogwrap"
+    >
+      <div class="emaildialog">
+        <div
+          style="
+            color: white;
+            text-align: right;
+            font-size: 40px;
+            padding-right: 10px;
+            cursor: pointer;
+          "
+        >
+          <img src="../assets/img/Close.png" @click="close" alt="" />
+        </div>
+        <v-form class="formwrap" ref="entryForm1">
+          <v-text-field
+            label="Account"
+            variant="solo"
+            v-model="resetaccount"
+            :rules="resetAccountrules"
+          ></v-text-field>
+          <v-text-field
+            label="Email"
+            variant="solo"
+            v-model="emaildata"
+            :rules="resetEmailrules"
+          ></v-text-field>
+          <div
+            class="chargebt"
+            @click="ResetpasswordConfirmationRule"
+            style="background-color: blue; color: white"
+          >
+            Reset Password
+          </div>
+        </v-form>
+      </div>
+    </v-dialog>
   </div>
 </template>
-<script>
-import { mdiEye, mdiEyeOff, mdiLockOutline } from "@mdi/js";
+<script setup>
 import { loginStore } from "@/stores/login";
 import { ResultStore } from "@/stores/result";
-export default {
-  data() {
-    return {
-      show1: false,
-      mdiEye,
-      mdiEyeOff,
-      mdiLockOutline,
-      passworddata: "",
-      accountdata: "",
-      accounterror:"",
-      passworderror:"",
-      sumbitenabled: false,
-      passwordrules: [
-        (value) => {
-          if (this.passworderror !== "") {
-            let temperror = this.passworderror;
-            this.passworderror = "";
-            return temperror;
-          }
-          if (value) return true;
-          return "password is not null";
-        },
-      ],
-      accountrules: [
-        (value) => {
-          if (this.accounterror !== "") {
-            let temperror = this.accounterror;
-            this.accounterror = "";
-            return temperror;
-          }
-          if (value) return true;
-          return "account is not null";
-        },
-      ],
-    };
+import { ref, getCurrentInstance, onBeforeMount } from "vue";
+
+const instance = getCurrentInstance();
+const proxy = instance?.proxy;
+const show1 = ref(false);
+const passworddata = ref("");
+const accountdata = ref("");
+const accounterror = ref("");
+const passworderror = ref("");
+const resetaccount = ref("");
+const emaildata = ref("");
+
+const resetaccounterror = ref("");
+const resetemailerror = ref("");
+
+const deletedialog = ref(false);
+const passwordrules = ref([
+  (value) => {
+    if (passworderror.value !== "") {
+      let temperror = passworderror.value;
+      passworderror.value = "";
+      return temperror;
+    }
+    if (value) return true;
+    return "password is not null";
   },
-  methods: {
-    passwordConfirmationRule() {
-      let self = this;
-      let login = loginStore();
-      this.$refs.entryForm.validate().then(function (res) {
-        if (res.valid == true) {
+]);
+const accountrules = ref([
+  (value) => {
+    if (accounterror.value !== "") {
+      let temperror = accounterror.value;
+      accounterror.value = "";
+      return temperror;
+    }
+    if (value) return true;
+    return "account is not null";
+  },
+]);
+
+const resetEmailrules = ref([
+  (value) => {
+    if (resetemailerror.value !== "") {
+      let temperror = resetemailerror.value;
+      resetemailerror.value = "";
+      return temperror;
+    }
+    if (value) return true;
+    return "email is not null";
+  },
+]);
+const resetAccountrules = ref([
+  (value) => {
+    if (resetaccounterror.value !== "") {
+      let temperror = resetaccounterror.value;
+      resetaccounterror.value = "";
+      return temperror;
+    }
+    if (value) return true;
+    return "account is not null";
+  },
+]);
+
+const passwordConfirmationRule = function () {
+  let login = loginStore();
+  proxy.$refs.entryForm.validate().then(function (res) {
+    if (res.valid == true) {
+      let obj = {};
+      obj.accout = accountdata.value;
+      obj.password = passworddata.value;
+      login.accountlogin(proxy, obj).then((res) => {
+        if (res.success == true) {
           let obj = {};
-          obj.accout = self.accountdata;
-          obj.password = self.passworddata;
-          login.accountlogin(self, obj).then((res) => {
-            if (res.success == true) {
-              let obj={};
-              obj.accout=res.data.accout;
-              obj.userName=res.data.userName;
-              localStorage.setItem('userdata', JSON.stringify(obj));
-              localStorage.setItem("token", JSON.stringify(res.data.token));
-              self.$router.push("/");
-            } else {
-              if(res.data==undefined){
-                  let Result=ResultStore();
-                  Result.errorres(res);
-              }
-              else if(res.data.error.indexOf("Account")!=-1){
-                self.accounterror = res.data.error;
-              }
-              else{
-                self.passworderror = res.data.error;
-              }
-              
-              self.$refs.entryForm.validate();
-            }
-          });
+          obj.accout = res.data.accout;
+          obj.userName = res.data.userName;
+          localStorage.setItem("userdata", JSON.stringify(obj));
+          localStorage.setItem("token", JSON.stringify(res.data.token));
+          proxy.$router.push("/");
+        } else {
+          if (res.data == undefined) {
+            let Result = ResultStore();
+            Result.errorres(res);
+          } else if (res.data.error.indexOf("Account") != -1) {
+            accounterror.value = res.data.error;
+          } else {
+            passworderror.value = res.data.error;
+          }
+
+          proxy.$refs.entryForm.validate();
         }
       });
-    },
-  },
-  beforeMount() {
-    let val = localStorage.getItem("token");
-    if (val != null) {
-      this.$router.push("/");
     }
-  },
+  });
 };
+
+const ResetpasswordConfirmationRule = function () {
+  let login = loginStore();
+  let Result = ResultStore();
+  proxy.$refs.entryForm1.validate().then(function (res) {
+    if (res.valid == true) {
+      let obj = {};
+      obj.accout = resetaccount.value;
+      obj.email = emaildata.value;
+      login.resetPassword(proxy, obj).then((res) => {
+        if (res.success == true) {
+          Result.successres();
+          close();
+        } else {
+          if (res.data != undefined) {
+            Result.errorres(res.data);
+          } 
+
+          proxy.$refs.entryForm1.validate();
+        }
+      });
+    }
+    console.log("1");
+  });
+};
+
+const close = function () {
+  deletedialog.value = false;
+};
+const open = function () {
+
+  resetaccount.value = "";
+  emaildata.value = "";
+  deletedialog.value = true;
+};
+onBeforeMount(() => {
+  let val = localStorage.getItem("token");
+  if (val != null) {
+    proxy.$router.push("/");
+  }
+});
 </script>
 <style>
 .loginwrap .error-message {
@@ -191,6 +291,35 @@ export default {
   cursor: pointer;
   margin-top: 15px;
 }
+.emaildialogwrap .emaildialog {
+  width: 500px;
+  height: 350px;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.emaildialogwrap .chargebt {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 93px;
+  gap: 10px;
+
+  height: 30px;
+  background: radial-gradient(
+    51.11% 51.11% at 50% 0%,
+    #c8ffd1 0%,
+    #66ff80 100%
+  );
+  border-radius: 32px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+.emaildialogwrap .formwrap {
+  padding: 0 30px;
+}
+
 .loginwrap .title {
   font-family: SF Pro;
   font-size: 32px;
@@ -217,6 +346,8 @@ export default {
   .loginwrap .title {
     font-size: 25px;
   }
+  .emaildialogwrap .emaildialog {
+    width: 100%;
+  }
 }
 </style>
-

@@ -1,19 +1,14 @@
 
-<script>
+<script setup>
 import Rfidloading from "@/components/Rfidloading.vue";
 import { useMainStore } from "@/stores/main";
-export default {
-  components: {
-    Rfidloading
-  },
-  methods: {
-   
-  },
-  mounted(){
-    const mainstore = useMainStore();
-      mainstore.curpage="Rfidloading";
-  }
-};
+
+import { onMounted } from "vue";
+onMounted(() => {
+  const mainstore = useMainStore();
+  mainstore.curpage="Rfidloading";
+
+});
 </script>
 
 <template>

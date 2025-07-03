@@ -13,37 +13,31 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
 import { ResultStore } from "@/stores/result";
+import { computed } from "vue";
 
-
-export default {
-  data() {
-    return {
-
-    };
-  },
-  methods:{
-    close(){
-        let Result=ResultStore();
-        Result.close();
-    }
-  },
-  computed:{
-    text(){
-        const counterStore = ResultStore();
-        return counterStore.getresulttext;
-    },
-    show(){
-        const counterStore = ResultStore();
-        return counterStore.getshow;
-    },
-    mode(){
-        const counterStore = ResultStore();
-        return counterStore.getmode;
-    }
-  }
+// Method to close
+const close = () => {
+  const result = ResultStore();
+  result.close();
 };
+
+// Computed properties
+const text = computed(() => {
+  const result = ResultStore();
+  return result.getresulttext;
+});
+
+const show = computed(() => {
+  const result = ResultStore();
+  return result.getshow;
+});
+
+const mode = computed(() => {
+  const result = ResultStore();
+  return result.getmode;
+});
 </script>
 
 <style scoped>

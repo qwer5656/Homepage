@@ -55,81 +55,87 @@
   </div>
   <div class="chargebt" @click="changemode('finish')" v-if="getmode">Stop</div>
 </template>
-<script>
+<script setup>
 import { useMainStore } from "@/stores/main";
 import { chargePileStore } from "@/stores/chargePile";
-export default {
-  data() {
-    return {
-      TimeData: null,
-      chargingdata: {
-        aval: 0,
-        wval: 0,
-        kwval: 0,
-        vval: 0,
-        timesval: {
-          hour: 0,
-          min: 0,
-        },
-      },
-      time: 0,
-    };
-  },
-  methods: {
-    changemode(val) {
-      const mainstore = useMainStore();
-      let chargePile = chargePileStore();
-      chargePile.RemoteStopTransaction(this).then((res) => {
-        let data=JSON.parse(res.data);
-        if (data.status == "Accepted") {
-          mainstore.chargepilemode = val;
-        }
-      });
-    },
-    random() {
-      let self = this;
-      let chargePile = chargePileStore();
-      chargePile.GetChargePiledata(this).then((res) => {
-        self.time++;
-        if (res.data !== null) {
-          res.data[0].meterValue[0].sampledValue.forEach((e) => {
-            if (e.unit == "kW") {
-              self.chargingdata.kwval = e.value;
-            }
-            if (e.unit == "A") {
-              self.chargingdata.aval = e.value;
-            }
-            if (e.unit == "V") {
-              self.chargingdata.vval = e.value;
-            }
-            if (e.unit == "W") {
-              self.chargingdata.wval = e.value;
-            }
-          });
-        }
-      });
-    },
-  },
-  mounted() {
-    const mainstore = useMainStore();
-    let self = this;
-    this.TimeData = setInterval(function () {
-      if (mainstore.chargepilemode == "charging") {
-        self.random();
-      }
-    }, 3000);
-  },
-  beforeUnmount() {
-    clearInterval(this.TimeData);
-  },
-  computed: {
-    getmode() {
-      const mainstore = useMainStore();
+import {
+  ref,
+  getCurrentInstance,
+  onMounted,
+  onBeforeMount,
+  computed,
+  reactive,
+} from "vue";
 
-      return mainstore.chargepilemode == "charging" ? true : false;
-    },
+const TimeData = ref(null);
+const instance = getCurrentInstance();
+const proxy = instance?.proxy;
+const chargingdata = reactive({
+  aval: 0,
+  wval: 0,
+  kwval: 0,
+  vval: 0,
+  timesval: {
+    hour: 0,
+    min: 0,
   },
+});
+
+const time = ref(0);
+
+const changemode = function (val) {
+  const mainstore = useMainStore();
+  let chargePile = chargePileStore();
+  chargePile.RemoteStopTransaction(proxy).then((res) => {
+    let data = JSON.parse(res.data);
+    if (data.status == "Accepted") {
+      mainstore.chargepilemode = val;
+    }
+  });
 };
+
+const random = function () {
+  let chargePile = chargePileStore();
+  chargePile.GetChargePiledata(proxy).then((res) => {
+    time.value++;
+    if (res.data !== null) {
+      res.data[0].meterValue[0].sampledValue.forEach((e) => {
+        if (e.unit == "kW") {
+          chargingdata.value.kwval = e.value;
+        }
+        if (e.unit == "A") {
+          chargingdata.value.aval = e.value;
+        }
+        if (e.unit == "V") {
+          chargingdata.value.vval = e.value;
+        }
+        if (e.unit == "W") {
+          chargingdata.value.wval = e.value;
+        }
+      });
+    }
+  });
+};
+
+onMounted(() => {
+  const mainstore = useMainStore();
+  TimeData.value = setInterval(function () {
+    if (mainstore.chargepilemode == "charging") {
+      random();
+    }
+  }, 3000);
+});
+
+onBeforeMount(() => {
+  clearInterval(TimeData.value);
+});
+
+const getmode = computed(() => {
+  const mainstore = useMainStore();
+  return mainstore.chargepilemode == "charging" ? true : false;
+});
+
+
 </script>
 <style scoped>
 .batterywrap {

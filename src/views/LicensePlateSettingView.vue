@@ -1,12 +1,12 @@
 <template>
-<CarNumberSetting />
+<LicensePlateSetting />
 </template>
 <script>
-import CarNumberSetting from "@/components/CarNumberSetting.vue";
+import LicensePlateSetting from "@/components/LicensePlateSetting.vue";
 import { useMainStore } from "@/stores/main";
 export default {
   components: {
-    CarNumberSetting,
+    LicensePlateSetting,
   },
   mounted() {
     const mainstore = useMainStore();
