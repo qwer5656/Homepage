@@ -1,6 +1,7 @@
 <template lang="">
   <div class="loginwrap">
-    <div class="logincotainer">
+    <UserInfo v-show="firstLogin" />
+    <div class="logincotainer" v-show="!firstLogin">
       <div class="logincontent">
         <div class="logoimg">
           <img src="../assets/img/logo.png" alt="" />
@@ -13,6 +14,7 @@
             label="Account"
             :rules="accountrules"
             v-model="accountdata"
+            @keyup.enter="passwordConfirmationRule"
           ></v-text-field>
           <v-text-field
             :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -82,7 +84,9 @@
 <script setup>
 import { loginStore } from "@/stores/login";
 import { ResultStore } from "@/stores/result";
-import { ref, getCurrentInstance, onBeforeMount } from "vue";
+import { useMainStore } from "@/stores/main";
+import { ref, getCurrentInstance, onBeforeMount, computed } from "vue";
+import UserInfo from "@/components/UserInfo.vue";
 
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
@@ -93,7 +97,6 @@ const accounterror = ref("");
 const passworderror = ref("");
 const resetaccount = ref("");
 const emaildata = ref("");
-
 const resetaccounterror = ref("");
 const resetemailerror = ref("");
 
@@ -146,6 +149,7 @@ const resetAccountrules = ref([
 
 const passwordConfirmationRule = function () {
   let login = loginStore();
+  let useMain = useMainStore();
   proxy.$refs.entryForm.validate().then(function (res) {
     if (res.valid == true) {
       let obj = {};
@@ -158,7 +162,11 @@ const passwordConfirmationRule = function () {
           obj.userName = res.data.userName;
           localStorage.setItem("userdata", JSON.stringify(obj));
           localStorage.setItem("token", JSON.stringify(res.data.token));
-          proxy.$router.push("/");
+          if (res.data.email == "") {
+            useMain.firstLogin = true;
+          } else {
+            proxy.$router.push("/");
+          }
         } else {
           if (res.data == undefined) {
             let Result = ResultStore();
@@ -176,6 +184,11 @@ const passwordConfirmationRule = function () {
   });
 };
 
+const firstLogin = computed(() => {
+  let useMain = useMainStore();
+  return useMain.firstLogin;
+});
+
 const ResetpasswordConfirmationRule = function () {
   let login = loginStore();
   let Result = ResultStore();
@@ -191,13 +204,11 @@ const ResetpasswordConfirmationRule = function () {
         } else {
           if (res.data != undefined) {
             Result.errorres(res.data);
-          } 
-
+          }
           proxy.$refs.entryForm1.validate();
         }
       });
     }
-    console.log("1");
   });
 };
 
@@ -205,14 +216,13 @@ const close = function () {
   deletedialog.value = false;
 };
 const open = function () {
-
   resetaccount.value = "";
   emaildata.value = "";
   deletedialog.value = true;
 };
 onBeforeMount(() => {
   let val = localStorage.getItem("token");
-  if (val != null) {
+  if (val != null && useMain.firstLogin == false) {
     proxy.$router.push("/");
   }
 });
@@ -265,9 +275,9 @@ onBeforeMount(() => {
 .loginwrap .logincontent {
   width: 478px;
   height: 518.49px;
-  padding: 74px 86px 74px 86px;
+  padding: 30px 86px 74px 86px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(255 255 255 / 10%);
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -348,6 +358,18 @@ onBeforeMount(() => {
   }
   .emaildialogwrap .emaildialog {
     width: 100%;
+  }
+  .loginwrap {
+    width: 100%;
+  }
+  .loginwrap .logincotainer {
+    width: 90%;
+  }
+  .emaildialogwrap  .v-overlay__content{
+    width: 100% !important;
+  }
+  .emaildialogwrap .chargebt {
+    padding: 0 20px;
   }
 }
 </style>

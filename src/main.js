@@ -14,7 +14,6 @@ import 'vuetify/styles'
 
 import { createI18n } from "vue-i18n";
 import { createPinia } from 'pinia'
-
 import en from "./locales/en.json";
 import zh from "./locales/zh.json";
 import axios from "./axios";

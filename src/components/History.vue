@@ -17,7 +17,7 @@
           :prepend-inner-icon="'mdi-chevron-down'"
         ></v-select>
         <v-btn
-          text="Export"
+          :text="$t('Historypage.Export')"
           @click="changetimeshowValue(true)"
           style="color: white; background-color: green; padding: 10px"
         ></v-btn>
@@ -101,7 +101,7 @@
           </v-row>
           <div class="btwrap">
             <v-btn
-              text="Export Report"
+              :text="$t('Historypage.Export')"
               @click="CheckExPortDate"
               style="color: white; background-color: green; padding: 10px"
             ></v-btn>
@@ -124,7 +124,7 @@ import * as echarts from "echarts";
 import { mdiMagnify } from "@mdi/js";
 import { ResultStore } from "@/stores/result";
 import { VDateInput } from "vuetify/labs/VDateInput";
-
+import _ from "lodash";
 import {
   TitleComponent,
   TooltipComponent,
@@ -170,6 +170,16 @@ const timeshow = ref(false);
 let startDate = ref(new Date());
 let endDate = ref(new Date());
 const option = ref({
+  tooltip: {
+    trigger: "axis",
+    backgroundColor: "rgba(50, 50, 50, 0.7)", // 背景色
+    borderColor: "#ccc", // 邊框顏色
+    borderWidth: 1, // 邊框寬度
+    textStyle: {
+      color: "#fff", // 字體顏色
+      fontSize: 14,
+    },
+  },
   xAxis: {
     type: "category",
     boundaryGap: false,
@@ -184,7 +194,6 @@ const option = ref({
     {
       data: [0, 0, 0, 0, 0, 0, 0],
       type: "line",
-      areaStyle: {},
       itemStyle: {
         color: "rgba(91, 228, 114, 1)",
       },
@@ -229,6 +238,25 @@ onMounted(() => {
   history
     .getapiInterval(startMonthDatestring, endMonthDatestring)
     .then((res) => {
+      res.data.forEach((e) => {
+        const input = e.startTime.slice(0, 19) + "Z"; // 當作 UTC 解析
+        const dateUtc = new Date(input);
+        const userLocale = navigator.language;
+        console.log(userLocale);
+        // 直接用 toLocaleString 轉成本地時間字串
+        e.startTime = dateUtc
+          .toLocaleString(userLocale, {
+            hour12: false, // 24小時制
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          })
+          .replace(/\//g, "-")
+          .replace(", ", " ");
+      });
       desserts.value = res.data;
     });
 
@@ -259,10 +287,12 @@ onMounted(() => {
 
   history.getapiInterval(item[0], item[item.length - 1]).then((res) => {
     let val = [0, 0, 0, 0, 0, 0, 0];
-
     res.data.forEach((e) => {
       if (searchTime[e.dateTime] != undefined) {
-        val[searchTime[e.dateTime]] += e.drgee;
+        val[searchTime[e.dateTime]] = _.round(
+          e.drgee + val[searchTime[e.dateTime]],
+          3
+        );
       }
     });
     option.value.series[0].data = val;
@@ -277,7 +307,7 @@ let formatDate = function (date) {
 };
 
 let pageCount = computed(() => {
-  return Math.ceil(desserts.value.length / itemsPerPage.value);
+  return Math.ceil(filterdesserts.value.length / itemsPerPage.value);
 });
 
 let filterdesserts = computed(() => {
@@ -335,6 +365,7 @@ const ExportExcel = async () => {
     endDate: formatDateToYMD(endDate.value, false),
   };
   try {
+    console.log(data);
     const res = await exportexcel.getapi(instance?.proxy, data);
 
     const dateTime = new Date();
@@ -458,7 +489,7 @@ function changetimeshowValue(value) {
   border: 1px solid rgba(107, 107, 107, 1);
 }
 .historydialogwrap .exportwrap {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 1);
 }
 .historydialogwrap .formwrap {
   gap: 50px;
@@ -509,7 +540,7 @@ function changetimeshowValue(value) {
 
 .v-date-picker {
   color: white;
-  background: rgba(0, 0, 0, 0.9) !important;
+  background: rgba(0, 0, 0, 1) !important;
 }
 /* <v-date-picker> Style End */
 

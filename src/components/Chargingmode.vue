@@ -12,130 +12,181 @@
         <div class="chargingwrap mg18">
           <div class="txtwrap">
             <div class="circle"></div>
-            <div class="txt">I</div>
+            <div class="txt">{{ $t("ChargingmodePage.I") }}</div>
           </div>
-          <div class="txtbottom">{{ chargingdata.aval }} <span>A</span></div>
+          <div class="txtbottom">
+            <div class="txtlen">{{ chargingdata.aval }}</div>
+            <span>A</span>
+          </div>
         </div>
         <div class="chargingwrap">
           <div class="txtwrap">
             <div class="circle"></div>
-            <div class="txt">TPC</div>
+            <div class="txt">{{ $t("ChargingmodePage.V") }}</div>
           </div>
-          <div class="txtbottom">{{ chargingdata.wval }} <span>W</span></div>
+          <div class="txtbottom">
+            <div class="txtlen">{{ chargingdata.vval }}</div>
+            <span>V</span>
+          </div>
         </div>
       </div>
       <div class="container">
         <div class="chargingwrap mg18">
           <div class="txtwrap">
             <div class="circle"></div>
-            <div class="txt">P</div>
+            <div class="txt">{{ $t("ChargingmodePage.P") }}</div>
           </div>
-          <div class="txtbottom">{{ chargingdata.kwval }} <span>kw</span></div>
+          <div class="txtbottom">
+            <div class="txtlen">{{ chargingdata.kwval }}</div>
+            <span>kw</span>
+          </div>
         </div>
         <div class="chargingwrap">
           <div class="txtwrap">
             <div class="circle"></div>
-            <div class="txt">V</div>
+            <div class="txt">{{ $t("ChargingmodePage.TPC") }}</div>
           </div>
-          <div class="txtbottom">{{ chargingdata.vval }} <span>V</span></div>
+          <div class="txtbottom">
+            <div class="txtlen">{{ chargingdata.kwhval }}</div>
+            <span>kwh</span>
+          </div>
         </div>
       </div>
     </div>
     <div class="chargingbottomwrap">
       <div class="txtwrap">
         <div class="circle"></div>
-        <div class="txt">Times</div>
+        <div class="txt">{{ $t("ChargingmodePage.Times") }}</div>
       </div>
       <div class="txtbottom timetxt">
-        {{ chargingdata.timesval.hour }}
-        <span style="margin-right: 20px">hrs</span>{{ Math.floor(time / 60) }}
-        <span>mins</span>
+        <div class="timewrap">
+          {{ timesval.hour }}
+          <span style="margin: 0px 10px 0px 5px">hrs</span>{{ timesval.min }}
+          <span style="margin: 0px 10px 0px 5px">mins</span>
+        </div>
+        <div class="timewrap">
+          {{ timesval.sec }}
+          <span style="margin: 0px 10px 0px 5px" s>secs</span>
+        </div>
       </div>
     </div>
   </div>
-  <div class="chargebt" @click="changemode('finish')" v-if="getmode">Stop</div>
+  <div class="chargebt" @click="changemode('finish')" v-if="getmode">
+    {{ $t("ChargingmodePage.Stop") }}
+  </div>
+  <div class="chargebt" v-if="!getmode" @click="goto('Rfidloading')">
+    {{ $t("ChargingmodePage.Remote") }}
+  </div>
 </template>
 <script setup>
+import { useRouter } from "vue-router";
 import { useMainStore } from "@/stores/main";
 import { chargePileStore } from "@/stores/chargePile";
+
+import _ from "lodash";
 import {
   ref,
   getCurrentInstance,
   onMounted,
-  onBeforeMount,
+  onUnmounted,
   computed,
   reactive,
 } from "vue";
-
+const router = useRouter();
 const TimeData = ref(null);
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
-const chargingdata = reactive({
+let chargingdata = ref({
   aval: 0,
-  wval: 0,
+  kwhval: 0,
   kwval: 0,
   vval: 0,
-  timesval: {
-    hour: 0,
-    min: 0,
-  },
 });
 
-const time = ref(0);
+const timesval = ref({
+  hour: 0,
+  min: 0,
+  sec: 0,
+});
 
 const changemode = function (val) {
   const mainstore = useMainStore();
   let chargePile = chargePileStore();
-  chargePile.RemoteStopTransaction(proxy).then((res) => {
-    let data = JSON.parse(res.data);
-    if (data.status == "Accepted") {
-      mainstore.chargepilemode = val;
-    }
-  });
+  mainstore.apibusy = true;
+  chargePile
+    .RemoteStopTransaction(proxy)
+    .then((res) => {
+      let data = JSON.parse(res.data);
+      if (data.apiResult.status == "Accepted") {
+        mainstore.transactionId = data.TransactionId;
+        mainstore.chargepilemode = val;
+      }
+      mainstore.apibusy = false;
+    })
+    .catch(() => {
+      mainstore.apibusy = false;
+    });
 };
-
-const random = function () {
+const goto = (val) => {
+  router.push(`/${val}`);
+};
+const GetMeterValue = function () {
   let chargePile = chargePileStore();
+
   chargePile.GetChargePiledata(proxy).then((res) => {
-    time.value++;
+    console.log(res.data);
     if (res.data !== null) {
-      res.data[0].meterValue[0].sampledValue.forEach((e) => {
-        if (e.unit == "kW") {
-          chargingdata.value.kwval = e.value;
-        }
-        if (e.unit == "A") {
-          chargingdata.value.aval = e.value;
-        }
-        if (e.unit == "V") {
-          chargingdata.value.vval = e.value;
-        }
-        if (e.unit == "W") {
-          chargingdata.value.wval = e.value;
-        }
-      });
+      console.log(res.data);
+      let Time = res.data.chargeTime;
+      let hour = Math.floor(Time / 3600);
+      let min = Math.floor((Time - 3600 * hour) / 60);
+      let sec = Time - 3600 * hour - 60 * min;
+      let MeterStart = res.data.meterStart;
+      timesval.value.hour = hour;
+      timesval.value.min = min;
+      timesval.value.sec = sec;
+
+      if (res.data.meterValuesRequest != null) {
+        res.data.meterValuesRequest.meterValue[0].sampledValue.forEach((e) => {
+          if (e.unit == "kW") {
+            chargingdata.value.kwval = e.value;
+          }
+          if (e.unit == "A") {
+            chargingdata.value.aval = e.value;
+          }
+          if (e.unit == "V") {
+            chargingdata.value.vval = e.value;
+          }
+          if (e.unit == "kWh") {
+            chargingdata.value.kwhval = _.round(e.value - MeterStart, 3);
+          }
+        });
+      }
     }
   });
 };
 
 onMounted(() => {
   const mainstore = useMainStore();
+  GetMeterValue();
   TimeData.value = setInterval(function () {
     if (mainstore.chargepilemode == "charging") {
-      random();
+      GetMeterValue();
     }
-  }, 3000);
+  }, 1000);
 });
 
-onBeforeMount(() => {
-  clearInterval(TimeData.value);
+onUnmounted(() => {
+  if (TimeData.value !== null) {
+    clearInterval(TimeData.value);
+    TimeData.value = null;
+  }
 });
 
 const getmode = computed(() => {
   const mainstore = useMainStore();
   return mainstore.chargepilemode == "charging" ? true : false;
 });
-
-
 </script>
 <style scoped>
 .batterywrap {
@@ -154,9 +205,7 @@ const getmode = computed(() => {
 
   position: relative;
 }
-.timetxt {
-  margin-top: 184px !important;
-}
+
 .batterycontainer::before {
   content: url(/src/assets/img/batterytop.png);
   display: inline-block;
@@ -185,7 +234,7 @@ const getmode = computed(() => {
 .batterycontent {
   background: url("../assets/img/battery.png") no-repeat;
   height: 174px;
-  width: 69px;
+  width: 0px;
   gap: 0px;
   border-radius: 8px 0px 0px 0px;
   position: absolute;
@@ -193,8 +242,12 @@ const getmode = computed(() => {
 }
 .startmode {
   animation: batteryrun 1.5s infinite ease-in;
+  width: 69px !important;
 }
-
+.timetxt {
+  margin-top: 144px !important;
+  font-size: 28px !important;
+}
 @keyframes batteryrun {
   from {
     bottom: -100%;
@@ -213,7 +266,7 @@ const getmode = computed(() => {
   width: 217.09px;
   height: 151px;
   background: url("../assets/img/background.png");
-  padding: 36px 29px 0px 29px;
+  padding: 36px 23px 0px 23px;
 }
 .mg18 {
   margin-right: 18px;
@@ -279,21 +332,32 @@ const getmode = computed(() => {
   line-height: 23.87px;
   text-align: left;
   color: gray;
+  margin-left: 5px;
 }
 .container {
   display: flex;
 }
 .chargingbottomwrap {
-  width: 240.09px;
+  width: 230px;
   height: 320px;
   gap: 0px;
   border-radius: 30px;
   border: 1px;
-  opacity: 0px;
   background: url("../assets/img/background2.png");
   background-size: cover;
   padding: 36px 29px 0px 29px;
   margin-left: 21px;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: auto;
+}
+.txtlen {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 125px;
+  display: inline-block;
+  vertical-align: bottom;
 }
 .chargebt {
   box-sizing: border-box;
@@ -301,7 +365,7 @@ const getmode = computed(() => {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  padding: 10px 93px;
+
   gap: 10px;
   width: 306px;
   height: 30px;
@@ -370,16 +434,19 @@ const getmode = computed(() => {
     top: 0px;
     border-radius: 25px;
   }
+  .startmode {
+    animation: batteryrun 1.5s infinite ease-in;
+    width: 241px !important;
+  }
   .batterycontent {
     background: url("../assets/img/phonebattery.png") no-repeat;
     height: 67px;
-    width: 241px;
+    width: 0px;
     gap: 0px;
     border-radius: 8px 0px 0px 0px;
     position: absolute;
     left: 0px;
     top: -10px;
-    animation: batteryrun 1.5s infinite ease-in;
   }
   .chargingwrap {
     width: 170px;
@@ -387,7 +454,7 @@ const getmode = computed(() => {
     background-size: contain;
     height: 120px;
     box-sizing: border-box;
-    padding: 16px 29px 10px 29px;
+    padding: 13px 14px 10px 14px;
     margin: 5px;
   }
   .container {
@@ -395,7 +462,7 @@ const getmode = computed(() => {
   }
   .chargingbottomwrap {
     background: url("../assets/img/phonebackground2.png") no-repeat;
-    width: 340px;
+    width: 350px;
     height: 120px;
     padding: 26px 29px 20px 29px;
     margin-top: 10px;
@@ -415,6 +482,17 @@ const getmode = computed(() => {
   }
   .chargebt {
     margin: 20px auto;
+  }
+
+  .txtbottom {
+    font-size: 28px;
+  }
+  .timewrap {
+    display: inline-block;
+  }
+
+  .txtlen {
+    max-width: 90px;
   }
 }
 </style>

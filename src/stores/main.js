@@ -7,6 +7,9 @@ export const useMainStore = defineStore('main', {
     curpage:"",
     chargepilemode:"standby",
     userapi:"UpdatePassword",
+    transactionId:0,
+    apibusy:false,
+    firstLogin:false,
     userdata:{},
   }
   },

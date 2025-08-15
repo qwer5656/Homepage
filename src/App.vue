@@ -15,7 +15,7 @@
             v-if="navbarstatus"
             @click="navbarstatus = !navbarstatus"
           >
-            <li @click="goto('Bluetooth')">
+            <!-- <li @click="goto('Bluetooth')">
               <img src="./assets/img/Buletoothicon.png" alt="" />
               <span>Bluetooth</span>
               <img src="./assets/img/Previous_2.png" alt="" />
@@ -39,7 +39,7 @@
               <img src="./assets/img/Timesicon.png" alt="" />
               <span>Time</span>
               <img src="./assets/img/Previous_2.png" alt="" />
-            </li>
+            </li> -->
             <li @click="goto('Language')">
               <img src="./assets/img/Languageicon.png" alt="" />
               <span>Language</span>
@@ -79,12 +79,12 @@
                 <a
                   class=""
                   style="padding: 0; font-size: 13px; font-weight: bold"
-                  >Change Password</a
+                  >{{ $t("Apppage.Header.Password") }}</a
                 >
               </li>
-              <li @click="logout">
-                <a class="" style="font-size: 13px; font-weight: bold"
-                  >Logout</a
+              <li @click.stop="logout">
+                <a class="" style="font-size: 13px; font-weight: bold">
+                  {{ $t("Apppage.Header.Lougt") }}</a
                 >
               </li>
             </ul>
@@ -115,7 +115,7 @@
               @click="goto('Reserve')"
             />
           </div>
-          <div>
+          <!-- <div>
             <img
               :src="curpage == 'Touchstart' ? Touch_Start_On : Touch_Start_Off"
               alt=""
@@ -135,10 +135,10 @@
               alt=""
               @click="goto('Setting')"
             />
-          </div>
+          </div> -->
         </div>
         <div class="leftbarconent">
-          <router-view  />
+          <router-view />
         </div>
       </div>
       <div class="phonediv"></div>
@@ -168,7 +168,7 @@ import Settings_Off from "@/assets/img/Settings_Off.png";
 import Result from "@/components/Result.vue";
 import qrcodsscan from "@/assets/img/qrcodsscan.png";
 import QrcodeEnabled from "@/assets/img/QrcodeEnabled.png";
-
+import { settingStore } from "@/stores/setting";
 import { mdiAccount } from "@mdi/js";
 
 export default {
@@ -194,7 +194,7 @@ export default {
     },
   },
   data: () => ({
-    loginshow: true,
+    loginshow: false,
     mdiAccount,
     footvalue: -1,
     icontouch: false,
@@ -212,7 +212,8 @@ export default {
     Mode_Off,
     Settings_On,
     Settings_Off,
-    userdata:null,
+    languagedata: {},
+    userdata: null,
   }),
   methods: {
     changenavbarstatus() {
@@ -232,8 +233,11 @@ export default {
       document.querySelector("#accountwrap").style.display = "none";
     },
     openmenu(type) {
+      
+      console.log(type);
       let arr = ["accountwrap", "languagewrap"];
       this.icontouch = type;
+
       document.querySelector(`#${type}`).style.display = "block";
 
       for (let i = 0; i < arr.length; i++) {
@@ -263,14 +267,17 @@ export default {
       this.icontouch = "none";
     },
     logout() {
+      let useMain = useMainStore();
       localStorage.removeItem("token");
       localStorage.removeItem("userdata");
       this.loginshow = false;
       this.$router.push(`/Login`);
+      useMain.firstLogin = false;
     },
     changelanguage(type) {
       document.querySelector("#languagewrap").style.display = "none";
       this.$i18n.locale = type;
+      this.savelanguage(type);
     },
     checklogin() {
       let token = JSON.parse(localStorage.getItem("token"));
@@ -279,8 +286,16 @@ export default {
       if (token != null) {
         loginstore.tokenauth(self, token).then((res) => {
           if (res.success === true) {
-            this.userdata=JSON.parse(localStorage.getItem("userdata"));
-            this.loginshow = true;
+            console.log(res);
+            if (res.data == "") {
+              this.userdata = JSON.parse(localStorage.getItem("userdata"));
+              this.loginshow = true;
+            } else {
+              let useMain = useMainStore();
+              useMain.firstLogin = true;
+              this.loginshow = false;
+              this.$router.push(`/Login`);
+            }
           } else {
             this.logout();
           }
@@ -290,8 +305,22 @@ export default {
       this.loginshow = false;
       this.$router.push(`/Login`);
     },
+    savelanguage(type) {
+      let setting = settingStore();
+      this.languagedata.methodsContent = type;
+      if (this.languagedata.chargePointId == "") {
+        setting.postapi("", this.languagedata).then((res) => {
+          this.languagedata = res.data;
+        });
+        return;
+      }
+      setting.putapi("", this.languagedata).then((res) => {
+        this.languagedata = res.data;
+      });
+    },
   },
   beforeMount() {
+    let self = this;
     if (this.$route.path == "/") {
       this.checklogin();
     }
@@ -299,17 +328,28 @@ export default {
   watch: {
     "$route.path"(topath, frompath) {
       this.checklogin();
+
+      let token = JSON.parse(localStorage.getItem("token"));
+      if (token != null) {
+        let setting = settingStore();
+        setting.getapi("", "LanguageSetting").then((res) => {
+          self.languagedata = res.data;
+          if (res.data.methodsContent === "") {
+            this.$i18n.locale = "en";
+            return;
+          }
+          this.$i18n.locale = res.data.methodsContent;
+        });
+      }
     },
   },
+
   mounted() {
-
-
     let self = this;
-    console.log(localStorage.getItem("userdata"));
+
     window.addEventListener("resize", function () {
       var windowWidth = document.body.clientWidth;
       const mainstore = useMainStore();
-      console.log(mainstore.curpage);
       if (windowWidth <= 576) {
         if (mainstore.curpage == "Setting") {
           self.$router.push(`/`);
@@ -597,6 +637,9 @@ body {
   .settingnavbar .navbarul li span {
     margin-right: auto;
     padding-left: 20px;
+  }
+  .menuwrap {
+    top: 170%;
   }
 }
 

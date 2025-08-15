@@ -3,10 +3,10 @@
     <div class="content">
       <div class="loadingwrap">
         <div class="loader"></div>
-        <img src="../assets/img/rfidadd.png" alt="" />
+        <img src="../assets/img/Touch Start_On.png" alt="" />
       </div>
       <div class="txt">
-        Please tap your card to the sensing area of the target charger.
+        {{ $t("RfidloadingPage.Startingup") }}
       </div>
     </div>
   </div>
@@ -15,14 +15,14 @@
 <script setup>
 import { chargePileStore } from "@/stores/chargePile";
 import { ResultStore } from "@/stores/result";
-import { onMounted,getCurrentInstance } from "vue";
+import { onMounted, getCurrentInstance } from "vue";
 
 import { useRouter } from "vue-router";
 
 // Get the router instance
 const router = useRouter();
 const instance = getCurrentInstance();
-const proxy=instance?.proxy;
+const proxy = instance?.proxy;
 // Error handling method
 const error = () => {
   const result = ResultStore();
@@ -34,20 +34,25 @@ const error = () => {
 onMounted(() => {
   setTimeout(() => {
     const chargePile = chargePileStore();
-    chargePile.RemoteStartTransaction(proxy).then((res) => {
-      if (res.success === true) {
-        let data = JSON.parse(res.data);
-        if (data.status === "Rejected") {
-          error();
+    chargePile
+      .RemoteStartTransaction(proxy)
+      .then((res) => {
+        if (res.success === true) {
+          let data = JSON.parse(res.data);
+          if (data.status === "Rejected") {
+            error();
+          } else {
+            setTimeout(() => {
+              router.push(`/`);
+            }, 4000);
+          }
         } else {
-          setTimeout(() => {
-            router.push(`/`);
-          }, 500);
+          error();
         }
-      } else {
-        error();
-      }
-    });
+      })
+      .catch((ex) => {
+        error(ex);
+      });
   }, 1000);
 });
 </script>

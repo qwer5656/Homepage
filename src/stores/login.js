@@ -10,7 +10,13 @@ export const loginStore = defineStore("login", {
     accountlogin(self, data) {
       return new Promise((resolve, reject) => {
         axios.post(this.apiurl, data, true).then((res) => {
-          console.log(res);
+          resolve(res);
+        });
+      });
+    },
+    updateAccount(self, data) {
+      return new Promise((resolve, reject) => {
+        axios.put("Users", data, true).then((res) => {
           resolve(res);
         });
       });
@@ -18,7 +24,6 @@ export const loginStore = defineStore("login", {
     resetPassword(self, data) {
       return new Promise((resolve, reject) => {
         axios.post("ForgetPassword", data, true).then((res) => {
-          console.log(res);
           resolve(res);
         });
       });

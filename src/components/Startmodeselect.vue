@@ -4,24 +4,24 @@
       <span>Back</span>
     </div>
     <div class="startmodegwrap">
-      <div class="wrap" @click="goto('QrcodeStartmode')">
+      <!-- <div class="wrap" @click="goto('QrcodeStartmode')">
         <div>
           <img src="../assets/img/QRCode.png" alt="" />
         </div>
         <div class="txt">QR Code</div>
-      </div>
+      </div> -->
       <div class="wrap" @click="goto('Rfidloading')">
         <div>
           <img src="../assets/img/RFID.png" alt="" />
         </div>
         <div class="txt">RFID</div>
       </div>
-      <div class="wrap" @click="goto('licensePlateloading')">
+      <!-- <div class="wrap" @click="goto('licensePlateloading')">
         <div>
           <img src="../assets/img/ScanCarNumber.png" alt="" />
         </div>
         <div class="txt">Car Number</div>
-      </div>
+      </div> -->
     </div>
 </template>
 <script setup>

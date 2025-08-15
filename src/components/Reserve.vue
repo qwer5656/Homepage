@@ -1,7 +1,7 @@
 <template lang="">
   <div class="reservewrap">
     <div class="datepicker">
-      <div>
+      <!-- <div>
         <v-date-picker
           bg-color="#000"
           :title="$t('Reservepage.title')"
@@ -11,7 +11,7 @@
             <h1 class="datepickerheader">{{ getheaderdate }}</h1>
           </template></v-date-picker
         >
-      </div>
+      </div> -->
       <div class="schedulewrap" @click.capture="clearscheduledata()">
         <div class="addserverwrap">
           <h4>{{ $t("Reservepage.schedule") }}</h4>
@@ -49,7 +49,8 @@
               :class="{ scheduleselect: item.active }"
               @click="selectdata(item)"
             >
-              {{ item.timeform }}-{{ item.timeto }}
+              {{ item.startDate }} {{ item.timeform }} - {{ item.endDate }}
+              {{ item.timeto }}
             </div>
           </div>
         </div>
@@ -64,14 +65,18 @@
       <div class="Schedulewrap">
         <div class="titlewrap">
           <div class="title">
-            {{ mode == "add" ? "Create" : "Edit" }} Schedule
+            {{
+              mode == "add"
+                ? $t("Reservepage.createSchedule")
+                : $t("Reservepage.editSchedule")
+            }}
           </div>
           <div>
             <img src="../assets/img/Close.png" @click="changedialog(false)" />
           </div>
         </div>
         <v-text-field
-          label="Text schedule title"
+          :label="$t('Reservepage.scheduleTitle')"
           variant="underlined"
           class="Scheduletxt"
           hide-details
@@ -81,45 +86,58 @@
         >
         </v-text-field>
         <div class="date">
-          <!-- <div>
-            <div>Day</div>
-            <div>
-              <v-select
-                :items="getcalendarlist"
-                style="width: 160px; height: 20px"
-                variant="plain"
-                color="#000"
-                v-model="getcalendar"
-              ></v-select>
-            </div>
-          </div> -->
-          <div>
-            <div>Time - Form</div>
-            <div>
-              <v-select
-                :items="timeitem"
-                style="width: 150px"
-                variant="plain"
-                color="#000"
-                v-model="scheduledata.timeform"
-              ></v-select>
-            </div>
-          </div>
-          <div>
-            <div>Time - to</div>
-            <div>
-              <v-select
-                :items="timeitem"
-                style="width: 150px"
-                variant="plain"
-                color="#000"
-                v-model="scheduledata.timeto"
-              ></v-select>
+          <div class="datewrap">
+            <div>{{ $t("Reservepage.startDateTime") }}</div>
+            <div class="datecontent">
+              <v-date-input
+                label="EndDate"
+                prepend-icon=""
+                variant="solo"
+                persistent-placeholder
+                v-model="scheduledata.startDate"
+                class="dateinput"
+                :min="minDate"
+              ></v-date-input>
+              <div>
+                <v-select
+                  :items="timeitem"
+                  class="dateselect"
+                  variant="plain"
+                  color="#000"
+                  v-model="scheduledata.timeform"
+                ></v-select>
+              </div>
             </div>
           </div>
         </div>
-
         <div>
+          <div class="date">
+            <div class="datewrap">
+              <div>{{ $t("Reservepage.endDateTime") }}</div>
+              <div class="datecontent">
+                <v-date-input
+                  label="EndDate"
+                  prepend-icon=""
+                  variant="solo"
+                  persistent-placeholder
+                  v-model="scheduledata.endDate"
+                  class="dateinput"
+                  :min="scheduledata.startDate"
+                ></v-date-input>
+                <div>
+                  <v-select
+                    :items="timeitem"
+                    class="dateselect"
+                    variant="plain"
+                    color="#000"
+                    v-model="scheduledata.timeto"
+                  ></v-select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- <div>
           <div style="padding: 0 0 70px 0">Duration</div>
           <div style="padding: 0 20px">
             <v-range-slider
@@ -136,7 +154,7 @@
               <div>23:59</div>
             </div>
           </div>
-        </div>
+        </div> -->
         <div class="chargebt" @click="operationscheduledata()">
           {{ mode == "add" ? "Create" : "Save" }}
         </div>
@@ -150,7 +168,7 @@ import { mdiMinusCircle, mdiPencil } from "@mdi/js";
 import { useMainStore } from "@/stores/main";
 import { reverseStore } from "@/stores/reverse";
 import { ResultStore } from "@/stores/result";
-
+import { VDateInput } from "vuetify/labs/VDateInput";
 const date = ref(new Date(""));
 const day = ref("2024.01.02");
 const dayitems = ref([]);
@@ -159,6 +177,9 @@ const timeto = ref("00:00");
 const value = ref([0, 0]);
 const title = ref("");
 const timeitem = ref([]);
+let minDate = ref(new Date().toISOString().split("T")[0]);
+let EndDate = ref(new Date());
+
 const createdialog = ref(false);
 const monthNames = [
   "Jan",
@@ -183,6 +204,9 @@ const mainStore = useMainStore();
 const reverse = reverseStore();
 const resultStore = ResultStore();
 
+const today = new Date().toISOString().slice(0, 10);
+day.value = today;
+
 const allowedDates = (val) => {
   return parseInt(mainStore.date.toISO(val).split("-")[2], 10) % 2 === 0;
 };
@@ -199,20 +223,30 @@ const changedialog = (val) => {
 const adddata = () => {
   scheduledata.value = {
     title: "",
-    timeform: "00:00",
-    timeto: "00:00",
+    startDate: new Date(),
+    endDate: new Date(),
+    timeform: String(new Date().getHours()).padStart(2, "0") + ":00",
+    timeto: String(new Date().getHours()).padStart(2, "0") + ":00",
     active: false,
   };
   mode.value = "add";
   changedialog(true);
 };
 
+const convertDateFormat = (date) => {
+  let year = date.getFullYear();
+  let month = (date.getMonth() + 1).toString().padStart(2, "0");
+  let day = date.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const operationscheduledata = () => {
   if (mode.value == "add") {
     let obj = {};
-    let dayString = convertDate.value.toString();
-    obj.startTime = dayString + "T" + scheduledata.value.timeform;
-    obj.endTime = dayString + "T" + scheduledata.value.timeto;
+    let startDate = convertDateFormat(scheduledata.value.startDate).toString();
+    let endDate = convertDateFormat(scheduledata.value.endDate).toString();
+    obj.startTime = startDate + "T" + scheduledata.value.timeform;
+    obj.endTime = endDate + "T" + scheduledata.value.timeto;
     obj.title = scheduledata.value.title;
     obj.valid = true;
     obj.result = "";
@@ -229,9 +263,10 @@ const operationscheduledata = () => {
 
   if (mode.value == "edit") {
     let obj = {};
-    let dayString = convertDate.value.toString();
-    obj.startTime = dayString + "T" + scheduledata.value.timeform;
-    obj.endTime = dayString + "T" + scheduledata.value.timeto;
+    let startDate = convertDateFormat(scheduledata.value.startDate).toString();
+    let endDate = convertDateFormat(scheduledata.value.endDate).toString();
+    obj.startTime = startDate + "T" + scheduledata.value.timeform;
+    obj.endTime = endDate + "T" + scheduledata.value.timeto;
     obj.valid = true;
     obj.result = "";
     obj.title = scheduledata.value.title;
@@ -267,9 +302,12 @@ const deletedata = (e) => {
 };
 
 const ediddata = (e) => {
+  console.log(e);
   mode.value = "edit";
   tempscheduledata.value = e;
   scheduledata.value = JSON.parse(JSON.stringify(e));
+  scheduledata.value.startDate = new Date(scheduledata.value.startTime);
+  scheduledata.value.endDate = new Date(scheduledata.value.endTime);
   changedialog(true);
 };
 
@@ -278,46 +316,6 @@ const clearscheduledata = () => {
     e.active = false;
   });
 };
-
-// Watchers
-watch(value, (val) => {
-  let sub = (val[1] - val[0]) / 2;
-  scheduledata.value.timeform = timeitem.value[val[0]];
-  scheduledata.value.timeto = timeitem.value[val[1]];
-  document.documentElement.style.setProperty("--hourvalue", `'${sub}hrs'`);
-});
-
-watch(
-  () => scheduledata.value.timeto,
-  (val) => {
-    if (val < scheduledata.value.timeform) {
-      let temp = scheduledata.value.timeform;
-      scheduledata.value.timeform = val;
-      scheduledata.value.timeto = temp;
-    } else {
-      let i =
-        parseInt(val.split(":")[0] * 2) + parseInt(val.split(":")[1] / 30);
-      value.value[1] = i;
-      change();
-    }
-  }
-);
-
-watch(
-  () => scheduledata.value.timeform,
-  (val) => {
-    if (val > scheduledata.value.timeto) {
-      let temp = scheduledata.value.timeto;
-      scheduledata.value.timeform = temp;
-      scheduledata.value.timeto = val;
-    } else {
-      let i =
-        parseInt(val.split(":")[0] * 2) + parseInt(val.split(":")[1] / 30);
-      value.value[0] = i;
-      change();
-    }
-  }
-);
 
 // Computed
 const getheaderdate = computed(() => {
@@ -345,15 +343,13 @@ const getcalendar = computed(() => {
 const getcalendarlist = computed(() => [getcalendar.value]);
 
 const filterdata = computed(() => {
-  if (!cratescheduleitem.value) return [];
-  return cratescheduleitem.value.filter((e) => {
-    let val = convertDate.value;
-    return e.startTime.split("T")[0] === val;
-  });
+  return cratescheduleitem.value;
 });
 
 const timedata = computed(() => {
   return filterdata.value.map((e) => {
+    e.startDate = e.startTime.split("T")[0];
+    e.endDate = e.endTime.split("T")[0];
     e.timeform =
       e.startTime.split("T")[1].split(":")[0] +
       ":" +
@@ -376,22 +372,22 @@ onMounted(() => {
   let hour = 0;
   let min = 0;
 
-  for (let i = 0; i <= 48; i++) {
+  for (let i = 0; i <= 96; i++) {
     timeval.push(
-      `${hour < 10 ? "0" + hour : hour}:${min < 30 ? min + "0" : min}`
+      `${String(hour).padStart(2, "0")}:${String(min).padStart(2, "0")}`
     );
-    if (i === 47) {
+    if (i === 95) {
       hour = 23;
       min = 59;
       continue;
     }
-
-    if (i % 2 === 0) {
-      min = 30;
-    } else {
-      hour++;
+    
+    min += 15;
+    if (min === 60) {
       min = 0;
+      hour++;
     }
+
   }
 
   reverse.getapiAll().then((res) => {
@@ -435,7 +431,7 @@ onMounted(() => {
 }
 .reservewrap .reservecontent {
   margin-top: 18px;
-  height: 400px;
+  height: 600px;
   overflow: auto;
   scrollbar-color: rgba(107, 107, 107, 1) #000;
   padding: 0 15px 0 0;
@@ -452,6 +448,19 @@ onMounted(() => {
   border-radius: 50px;
   padding: 0px 10px 12px 20px;
   margin-top: 10px;
+}
+.datecontent .dateinput .v-field {
+  padding: 0;
+}
+.datecontent .dateinput {
+  margin: 0 20px;
+}
+.datecontent .v-field {
+  border-radius: 33px;
+  background-color: black;
+  cursor: text;
+  color: white;
+  border: 1px solid rgba(107, 107, 107, 1);
 }
 
 .reservewrap .datepicker {
@@ -493,6 +502,9 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
 }
+.schedulewrap {
+  width: 500px;
+}
 .datebottom {
   display: flex;
   justify-content: space-between;
@@ -514,6 +526,15 @@ onMounted(() => {
   display: flex;
   justify-content: space-around;
 }
+
+.Schedulewrap .datewrap {
+  width: 100%;
+}
+
+.Schedulewrap .datecontent {
+  display: flex;
+}
+
 .reservewrap .title {
   font-family: SF Pro;
   font-size: 18px;
@@ -613,9 +634,12 @@ onMounted(() => {
   padding: 16px 26px 16px 26px;
   border-radius: 33px;
   margin-bottom: 18px;
-  width: 195px;
+  width: 100%;
   height: 50px;
   cursor: pointer;
+}
+.reservewrap .dateselect {
+  width: 200px;
 }
 .reservewrap .v-slider-track__fill {
   position: relative;
@@ -647,7 +671,8 @@ onMounted(() => {
   margin: 30px 0;
 }
 .reservewrap .v-input {
-  flex: 0;
+  flex: 1;
+  flex-basis: 300px;
 }
 .reservewrap .Schedulewrap .titlewrap {
   display: flex;
@@ -656,12 +681,29 @@ onMounted(() => {
 .reservewrap .Schedulewrap .titlewrap img {
   cursor: pointer;
 }
+.v-date-picker-month__day .v-btn.v-date-picker-month__day-btn {
+  --v-btn-height: 24px;
+  --v-btn-size: 0.85rem;
+  color: white;
+  background: black;
+}
 
+.v-date-picker-month__day--selected .v-btn.v-date-picker-month__day-btn {
+  --v-btn-height: 24px;
+  --v-btn-size: 0.85rem;
+  color: black;
+  background: rgba(91, 228, 114, 1);
+}
+.v-date-picker {
+  color: white;
+  background: rgba(0, 0, 0, 1) !important;
+}
 @media (max-width: 576px) {
   .reservewrap .datepicker {
     padding: 0 20px;
     height: auto;
     flex-direction: column;
+    width: 100%;
   }
   .Schedulewrap {
     width: 100%;
@@ -684,6 +726,21 @@ onMounted(() => {
   .reservewrap .reservescheduleoperation img {
     width: 30px;
     margin: 0 10px;
+  }
+  .schedulewrap {
+    width: 100%;
+  }
+  .reservewrap .dateselect {
+    width: 150px;
+  }
+  .reservewrap .Scheduletxt .v-input__control {
+    height: 100px;
+  }
+  .reservewrap .Scheduletxt .v-input {
+    height: 100px;
+  }
+  .reservewrap .Schedulewrap {
+    display: block;
   }
 }
 </style>

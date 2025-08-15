@@ -3,7 +3,7 @@
     <div class="container">
       <div class="content">
         <v-form class="formwrap" ref="passwordForm">
-          <div>New Password</div>
+          <div>{{ $t("EditPasswordPage.NewPassword") }}</div>
           <v-text-field
             :prepend-inner-icon="mdiLockOutline"
             :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -13,8 +13,9 @@
             variant="solo"
             v-model="newPassword"
             :rules="newPasswordrules"
+               maxlength="16"
           ></v-text-field>
-          <div>Confirm New Password</div>
+          <div>{{ $t("EditPasswordPage.ConfirmNewPassword") }}</div>
           <v-text-field
             :prepend-inner-icon="mdiLockOutline"
             :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
@@ -24,6 +25,7 @@
             variant="solo"
             v-model="confirmnewPassword"
             :rules="confirmnewPasswordrules"
+               maxlength="16"
           ></v-text-field>
         </v-form>
         <div class="btwrap">
@@ -38,10 +40,10 @@ import Nbt from "./public/Nbt.vue";
 import { useMainStore } from "@/stores/main";
 import { ResultStore } from "@/stores/result";
 import { ref,getCurrentInstance } from "vue";
+import { useI18n } from 'vue-i18n'
 
 
-
-
+const { t } = useI18n()
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
 const show1 = ref(false);
@@ -52,7 +54,7 @@ const confirmnewPassword = ref("");
 const newPasswordrules = ref([
   (value) => {
     if (value) return true;
-    return "newPassword is not null";
+    return `${t("EditPasswordPage.NewPassword")} ${t("notNull")}`;
   },
 ]);
 
@@ -64,7 +66,7 @@ const confirmnewPasswordrules = ref([
       return temp;
     }
     if (value) return true;
-    return "confirm New Password is not null";
+    return `${t("EditPasswordPage.ConfirmNewPassword")} ${t("notNull")}`;
   },
 ]);
 const savedata = function () {

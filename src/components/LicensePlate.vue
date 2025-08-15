@@ -163,7 +163,6 @@ const clearlicensePlatedata = computed(() => {
 });
 
 const previous = function () {
-  console.log("1");
   emit("changestatus", false);
 };
 

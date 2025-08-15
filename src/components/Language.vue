@@ -5,11 +5,13 @@
       <div class="selectwrap">
         <v-select
           :items="languageitem"
+          item-title="text"
+          item-value="value"
           class="timeselect"
           variant="plain"
           color="#000"
           v-model="languagedata.methodsContent"
-        ></v-select>
+        />
       </div>
     </div>
     <div class="nbtwrap">
@@ -22,7 +24,10 @@ import Nbt from "./public/Nbt.vue";
 import { settingStore } from "@/stores/setting";
 import { ref, getCurrentInstance, onBeforeMount } from "vue";
 const languagedata = ref({});
-const languageitem = ref(["English", "中文"]);
+const languageitem = ref([
+  { text: "English", value: "en" },
+  { text: "中文", value: "zh" },
+]);
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
 const savelanguage = function () {
@@ -41,11 +46,11 @@ const savelanguage = function () {
 };
 
 const chagelanuage = function () {
-  if (languagedata.value.methodsContent === "English") {
+  if (languagedata.value.methodsContent === "") {
     proxy.$i18n.locale = "en";
     return;
   }
-  proxy.$i18n.locale = "zh";
+  proxy.$i18n.locale = languagedata.value.methodsContent;
 };
 
 onBeforeMount(() => {
@@ -57,8 +62,6 @@ onBeforeMount(() => {
     }
   });
 });
-
-
 </script>
 <style>
 .languagemodewrap .nbtwrap {

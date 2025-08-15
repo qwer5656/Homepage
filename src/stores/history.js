@@ -15,7 +15,7 @@ export const historyStore = defineStore("history", {
         });
       });
     },
-    getapi(self, transactionId) {
+    getapi(transactionId) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
         axios
