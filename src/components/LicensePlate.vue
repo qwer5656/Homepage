@@ -11,7 +11,7 @@
           :type="text"
           label="Search"
           single-line
-          :prepend-inner-icon="'mdi-magnify'"
+          :prepend-inner-icon="mdiMagnify"
           v-model="searchText"
         ></v-text-field>
       </div>

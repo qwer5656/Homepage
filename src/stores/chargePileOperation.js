@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "@/axios";
-export const chargePileStore = defineStore("chargePile", {
+export const chargePileOperationStore = defineStore("ChargePileOperation", {
   state: () => {
     return {
       apiurl: "ChargePileOperation",
@@ -17,11 +17,37 @@ export const chargePileStore = defineStore("chargePile", {
           });
       });
     },
+    QrcodeStartTransaction(chargePileId) {
+      return new Promise((resolve, reject) => {
+        let token = JSON.parse(localStorage.getItem("token"));
+        axios
+          .get(
+            this.apiurl +
+              "/QrcodeRemoteStartTransaction?ChargePointId=" +
+              chargePileId,
+            token,
+            true,
+          )
+          .then((res) => {
+            resolve(res);
+          });
+      });
+    },
     RemoteStopTransaction(self) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
         axios
           .get(this.apiurl + "/RemoteStopTransaction", token, true)
+          .then((res) => {
+            resolve(res);
+          });
+      });
+    },
+    ClientUpdateFirmware(self) {
+      return new Promise((resolve, reject) => {
+        let token = JSON.parse(localStorage.getItem("token"));
+        axios
+          .get(this.apiurl + "/ClientUpdateFirmware", token, true)
           .then((res) => {
             resolve(res);
           });
@@ -46,9 +72,11 @@ export const chargePileStore = defineStore("chargePile", {
     ChangeConfiguration(self) {
       return new Promise((resolve, reject) => {
         let token = JSON.parse(localStorage.getItem("token"));
-        axios.get(this.apiurl + "/ChangeConfiguration", token, true).then((res) => {
-          resolve(res);
-        });
+        axios
+          .get(this.apiurl + "/ChangeConfiguration", token, true)
+          .then((res) => {
+            resolve(res);
+          });
       });
     },
     DataTransfer(self, data) {
@@ -65,7 +93,7 @@ export const chargePileStore = defineStore("chargePile", {
           .get(
             this.apiurl + "/ChangeAvailability?message=" + message,
             token,
-            true
+            true,
           )
           .then((res) => {
             resolve(res);

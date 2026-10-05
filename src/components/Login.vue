@@ -6,7 +6,7 @@
         <div class="logoimg">
           <img src="../assets/img/logo.png" alt="" />
         </div>
-        <div class="title">Log In Account</div>
+        <div class="title">{{ $t("Loginpage.title") }}</div>
         <v-form class="formwrap" ref="entryForm">
           <v-text-field
             variant="solo"
@@ -17,7 +17,7 @@
             @keyup.enter="passwordConfirmationRule"
           ></v-text-field>
           <v-text-field
-            :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+            :append-inner-icon="show1 ? mdiEye : mdiEyeOff "
             :type="show1 ? 'text' : 'password'"
             label="password"
             v-model="passworddata"
@@ -28,10 +28,12 @@
           ></v-text-field>
           <div style="display: flex; justify-content: right; margin: 10px 0">
             <div style="color: #66ff80; cursor: pointer" @click="open">
-              Forget Password?
+              {{ $t("Loginpage.forgetPassword") }}
             </div>
           </div>
-          <div class="chargebt" @click="passwordConfirmationRule">Log in</div>
+          <div class="chargebt" @click="passwordConfirmationRule">
+            {{ $t("Loginpage.login") }}
+          </div>
         </v-form>
       </div>
       <div class="loginchargepilewrap">
@@ -74,7 +76,7 @@
             @click="ResetpasswordConfirmationRule"
             style="background-color: blue; color: white"
           >
-            Reset Password
+            {{ $t("Loginpage.resetPassword") }}
           </div>
         </v-form>
       </div>
@@ -87,7 +89,8 @@ import { ResultStore } from "@/stores/result";
 import { useMainStore } from "@/stores/main";
 import { ref, getCurrentInstance, onBeforeMount, computed } from "vue";
 import UserInfo from "@/components/UserInfo.vue";
-
+import { useI18n } from "vue-i18n";
+const { t,locale  } = useI18n();
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
 const show1 = ref(false);
@@ -99,7 +102,7 @@ const resetaccount = ref("");
 const emaildata = ref("");
 const resetaccounterror = ref("");
 const resetemailerror = ref("");
-
+import { mdiEye, mdiEyeOff } from '@mdi/js'
 const deletedialog = ref(false);
 const passwordrules = ref([
   (value) => {
@@ -109,7 +112,7 @@ const passwordrules = ref([
       return temperror;
     }
     if (value) return true;
-    return "password is not null";
+    return `${t("Loginpage.password")} ${t("notNull")}`;
   },
 ]);
 const accountrules = ref([
@@ -120,7 +123,7 @@ const accountrules = ref([
       return temperror;
     }
     if (value) return true;
-    return "account is not null";
+    return `${t("Loginpage.account")} ${t("notNull")}`;
   },
 ]);
 
@@ -132,7 +135,7 @@ const resetEmailrules = ref([
       return temperror;
     }
     if (value) return true;
-    return "email is not null";
+    return `${t("Loginpage.email")} ${t("notNull")}`;
   },
 ]);
 const resetAccountrules = ref([
@@ -143,7 +146,7 @@ const resetAccountrules = ref([
       return temperror;
     }
     if (value) return true;
-    return "account is not null";
+    return `${t("Loginpage.account")} ${t("notNull")}`;
   },
 ]);
 
@@ -171,10 +174,18 @@ const passwordConfirmationRule = function () {
           if (res.data == undefined) {
             let Result = ResultStore();
             Result.errorres(res);
-          } else if (res.data.error.indexOf("Account") != -1) {
-            accounterror.value = res.data.error;
+          }
+          else if(res.data.error=="Account is Expired"){
+            let Result = ResultStore();
+             let str = `Loginpage.${res.data.error}`;
+             Result.errorres(`${t(str)}`);
+          }
+          else if (res.data.error.indexOf("Account") != -1) {
+            let str = `Loginpage.${res.data.error}`;
+            accounterror.value = `${t(str)}`;
           } else {
-            passworderror.value = res.data.error;
+            let str = `Loginpage.${res.data.error}`;
+            passworderror.value = `${t(str)}`;
           }
 
           proxy.$refs.entryForm.validate();
@@ -221,7 +232,16 @@ const open = function () {
   deletedialog.value = true;
 };
 onBeforeMount(() => {
+  const lang = navigator.language || navigator.userLanguage;
+
+  if (lang.toLowerCase().startsWith("zh")) {
+    locale.value  = "zh";
+  } else {
+    locale.value  = "en";
+  }
+
   let val = localStorage.getItem("token");
+  let useMain = useMainStore();
   if (val != null && useMain.firstLogin == false) {
     proxy.$router.push("/");
   }
@@ -232,6 +252,14 @@ onBeforeMount(() => {
   color: red;
 }
 .loginwrap .v-field {
+  border-radius: 33px;
+  background-color: black;
+  cursor: text;
+  color: white;
+  border: 1px solid rgba(107, 107, 107, 1);
+  margin-bottom: 5px;
+}
+.emaildialog .v-field {
   border-radius: 33px;
   background-color: black;
   cursor: text;
@@ -365,7 +393,7 @@ onBeforeMount(() => {
   .loginwrap .logincotainer {
     width: 90%;
   }
-  .emaildialogwrap  .v-overlay__content{
+  .emaildialogwrap .v-overlay__content {
     width: 100% !important;
   }
   .emaildialogwrap .chargebt {

@@ -14,15 +14,21 @@
           clear-icon="clear"
           :menu-icon="false"
           v-model="selectval"
-          :prepend-inner-icon="'mdi-chevron-down'"
+          :prepend-inner-icon="mdiChevronDown"
         ></v-select>
-        <v-btn
-          :text="$t('Historypage.Export')"
+        <v-icon
+          :icon="mdiCalculator"
+          style="color: white; margin: 0 10px; cursor: pointer"
           @click="changetimeshowValue(true)"
-          style="color: white; background-color: green; padding: 10px"
-        ></v-btn>
+          v-if="selectval == 'month'"
+        ></v-icon>
       </div>
     </div>
+
+    <!-- <div v-if="selectval == 'day'">
+      <v-chart class="chart" :option="dayoption" autoresize />
+    </div> -->
+
     <div style="margin-top: 5px" v-if="selectval == 'month'">
       <v-data-table
         v-model:page="page"
@@ -31,21 +37,23 @@
         :items-per-page="itemsPerPage"
         class="vtablewrap"
       >
+        <!-- 搜尋列 -->
         <template v-slot:body.prepend>
           <tr>
-            <td v-for="header in headers" class="headerwrap">
+            <td v-for="header in headers" :key="header.key" class="headerwrap">
               <v-text-field
-                v-model="obj[`${header.key}`]"
-                type="text"
+                v-model="obj[header.key]"
                 :label="header.title"
                 hide-details
-              ></v-text-field>
+              />
             </td>
           </tr>
         </template>
+
+        <!-- 分頁 -->
         <template v-slot:bottom>
           <div class="text-center pt-2">
-            <v-pagination v-model="page" :length="pageCount"></v-pagination>
+            <v-pagination v-model="page" :length="pageCount" />
           </div>
         </template>
       </v-data-table>
@@ -101,13 +109,52 @@
           </v-row>
           <div class="btwrap">
             <v-btn
-              :text="$t('Historypage.Export')"
+              text="查詢"
               @click="CheckExPortDate"
               style="color: white; background-color: green; padding: 10px"
             ></v-btn>
           </div>
         </v-form>
       </div>
+    </v-dialog>
+    <v-dialog
+      v-model="datashow"
+      persistent
+      width="500"
+      class="statisticsdialogwrap"
+    >
+      <v-card>
+        <v-card-title>
+          <div style="display: flex; align-items: center">
+            <div>統計資料</div>
+            <img
+              src="../assets/img/Close.png"
+              @click="datashow = false"
+              style="margin-left: auto; cursor: pointer"
+              alt=""
+            />
+          </div>
+        </v-card-title>
+        <div style="padding-left: 20px">
+          {{ formatDateSearch(startDate) }} ~ {{ formatDateSearch(endDate) }}
+        </div>
+        <v-card-text>
+          <v-data-table
+            :headers="dataheaders"
+            :items="summaryItems"
+            hide-default-footer
+            class="elevation-1"
+          />
+        </v-card-text>
+
+        <v-card-actions class="justify-end">
+          <v-btn
+            :text="$t('Historypage.Export')"
+            @click="ExePortDate(true)"
+            style="color: white; background-color: green; padding: 10px"
+          ></v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
     <ul style="color: white">
       <li v-for="(product, index) in products" :key="index">
@@ -121,7 +168,7 @@
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import * as echarts from "echarts";
-import { mdiMagnify } from "@mdi/js";
+import { mdiMagnify, mdiChevronDown, mdiCalculator } from "@mdi/js";
 import { ResultStore } from "@/stores/result";
 import { VDateInput } from "vuetify/labs/VDateInput";
 import _ from "lodash";
@@ -142,31 +189,80 @@ import {
 import { historyStore } from "@/stores/history";
 import { useI18n } from "vue-i18n";
 import { exportStore } from "@/stores/export";
-import "@mdi/font/css/materialdesignicons.css";
+
 use([CanvasRenderer, TitleComponent, TooltipComponent, LegendComponent]);
 
-const { locale, messages } = useI18n();
-
+const { locale, messages, t } = useI18n();
+const Result = ResultStore();
 const Daterules = [
   (value) => {
     if (value) return true;
-    return "Date is null";
+    return `${t("Historypage.Dateinput")} ${t("notNull")}`;
   },
 ];
 
 // 使用 computed 確保資料是反應式的
 const headers = computed(() =>
-  locale.value === "en" ? messages.value.en.headers : messages.value.zh.headers
+  locale.value === "en" ? messages.value.en.headers : messages.value.zh.headers,
 );
+
+const dataheaders = [
+  { title: "總時間", key: "time" },
+  { title: "充電度數", key: "degree" },
+  { title: "充電費用", key: "totalAmount" },
+];
+
+// 秒數轉 HH:mm:ss
+const formatTime = (totalSeconds) => {
+  const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+
+  const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(
+    2,
+    "0",
+  );
+
+  const seconds = String(totalSeconds % 60).padStart(2, "0");
+
+  return `${hours}:${minutes}:${seconds}`;
+};
+
+// 加總充電時間
+const totalTime = ref(0);
+const monthtotalDrgee = ref(0);
+const monthTotalAmount = ref(0);
+
+const summaryItems = computed(() => {
+  return [
+    {
+      time: totalTime.value,
+      degree: monthtotalDrgee.value,
+      totalAmount: monthTotalAmount.value,
+    },
+  ];
+});
 
 const dateitems = computed(() =>
   locale.value === "en"
     ? messages.value.en.dateitems
-    : messages.value.zh.dateitems
+    : messages.value.zh.dateitems,
 );
+
+const pagedItems = computed(() => {
+  const start = (page.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+
+  return filterdesserts.value.slice(start, end);
+});
+
+const totalDrgee = computed(() => {
+  return pagedItems.value.reduce((sum, item) => {
+    return sum + Number((item.drgee / 1000) || 0);
+  }, 0);
+});
 
 const selectval = ref("week");
 const timeshow = ref(false);
+const datashow = ref(false);
 let startDate = ref(new Date());
 let endDate = ref(new Date());
 const option = ref({
@@ -212,14 +308,81 @@ const option = ref({
     },
   ],
 });
+const formatDateSearch = function (date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}/${month}/${day}`;
+};
+const dayoption = ref({
+  tooltip: {
+    trigger: "axis",
+    backgroundColor: "rgba(50, 50, 50, 0.7)", // 背景色
+    borderColor: "#ccc", // 邊框顏色
+    borderWidth: 1, // 邊框寬度
+    textStyle: {
+      color: "#fff", // 字體顏色
+      fontSize: 14,
+    },
+  },
+  xAxis: {
+    type: "category",
+    boundaryGap: false,
+    data: [
+      "00:00",
+      "01:00",
+      "02:00",
+      "03:00",
+      "04:00",
+      "05:00",
+      "06:00",
+      "07:00",
+      "08:00",
+      "09:00",
+      "10:00",
+      "11:00",
+      "12:00",
+      "13:00",
+      "14:00",
+      "15:00",
+      "16:00",
+      "17:00",
+      "18:00",
+      "19:00",
+      "20:00",
+      "21:00",
+      "22:00",
+      "23:00",
+    ],
+  },
+  yAxis: {
+    type: "value",
+    boundaryGap: [0, "50%"],
+  },
+
+  series: [
+    {
+      type: "bar",
+      name: "KWh",
+      data: [],
+      barCategoryGap: "80%",
+      itemStyle: {
+        color: "rgba(91, 228, 114, 1)",
+      },
+    },
+  ],
+});
 
 const obj = ref({});
 
 const desserts = ref([]);
 const itemsPerPage = ref(5);
 const page = ref(1);
+const historylist = ref("");
 
 onMounted(() => {
+  getDay();
   var history = historyStore();
   // const { proxy } = getCurrentInstance();
   // history.getapiAll(proxy).then((res) => {
@@ -238,6 +401,9 @@ onMounted(() => {
   history
     .getapiInterval(startMonthDatestring, endMonthDatestring)
     .then((res) => {
+      if (res.data === undefined || res.data === null) {
+        return;
+      }
       res.data.forEach((e) => {
         const input = e.startTime.slice(0, 19) + "Z"; // 當作 UTC 解析
         const dateUtc = new Date(input);
@@ -290,8 +456,8 @@ onMounted(() => {
     res.data.forEach((e) => {
       if (searchTime[e.dateTime] != undefined) {
         val[searchTime[e.dateTime]] = _.round(
-          e.drgee + val[searchTime[e.dateTime]],
-          3
+          (e.drgee/1000) + val[searchTime[e.dateTime]],
+          3,
         );
       }
     });
@@ -309,6 +475,19 @@ let formatDate = function (date) {
 let pageCount = computed(() => {
   return Math.ceil(filterdesserts.value.length / itemsPerPage.value);
 });
+
+let getDay = function () {
+  var history = historyStore();
+
+  history.getAllToday().then((res) => {
+    const energyMap = new Array(24).fill(0);
+    res.data.forEach((item) => {
+      const hour = parseInt(item.dateTime.substring(0, 2)); // 06 -> 6
+      energyMap[hour] = item.energyWh;
+    });
+    dayoption.value.series[0].data = energyMap;
+  });
+};
 
 let filterdesserts = computed(() => {
   return desserts.value.filter((e) => {
@@ -342,18 +521,48 @@ let filterdesserts = computed(() => {
 const instance = getCurrentInstance();
 
 const CheckExPortDate = function () {
-  instance?.proxy.$refs.entryForm.validate().then(function (res) {
-    let Result = ResultStore();
 
-    if (startDate.value > endDate.value) {
-      Result.errorres("The startDate is greater than the endDate");
-      return;
-    }
+  
 
-    if (res.valid == true) {
-      ExportExcel();
-    }
-  });
+
+    const start = new Date(startDate.value);
+    start.setHours(0, 0, 0, 0);
+  const end = new Date(endDate.value);
+  end.setHours(0, 0, 0, 0);
+
+  const maxEnd = new Date(start);
+  maxEnd.setMonth(maxEnd.getMonth() + 6);
+
+  if (start > end) {
+    Result.errorres("開始日期不能大於結束日期");
+    return;
+  }
+
+  if (end > maxEnd) {
+    Result.errorres("查詢區間不可超過半年");
+    return;
+  }
+
+
+  var history = historyStore();
+  datashow.value = true;
+
+  let startMonthDatestring = formatDateToYMD(startDate.value, true);
+  let endMonthDatestring = formatDateToYMD(endDate.value, false);
+
+  history
+    .GetchargeTransactions(startMonthDatestring, endMonthDatestring)
+    .then((res) => {
+      if (res.data != null) {
+        totalTime.value = res.data.time;
+        monthtotalDrgee.value = res.data.degree;
+        monthTotalAmount.value = res.data.totalAmount;
+      }
+    });
+};
+
+const ExePortDate = function () {
+  ExportExcel();
 };
 
 // 定義導出 Excel 的方法
@@ -410,6 +619,10 @@ const downloadFile = (response, fileName) => {
 
 function changetimeshowValue(value) {
   timeshow.value = value;
+}
+
+function changedatashowValue(value) {
+  datashow.value = value;
 }
 </script>
 
@@ -488,6 +701,48 @@ function changetimeshowValue(value) {
   color: white;
   border: 1px solid rgba(107, 107, 107, 1);
 }
+
+/* 統計 Dialog */
+.statisticsdialogwrap .v-card {
+  overflow: hidden;
+  background: rgb(0, 0, 0, 0.8);
+  color: white;
+}
+
+.statisticsdialogwrap .v-card-title {
+  font-size: 20px;
+  font-weight: 600;
+  padding: 20px;
+}
+
+.statisticsdialogwrap .v-table {
+  overflow: hidden;
+}
+
+.statisticsdialogwrap .v-table thead {
+  background-color: #588157;
+}
+
+.statisticsdialogwrap .v-table thead th {
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.statisticsdialogwrap .v-table tbody td {
+  padding: 16px;
+  background-color: rgb(0, 0, 0);
+  color: white;
+  font-weight: bold;
+}
+
+.statisticsdialogwrap .v-card-actions {
+  padding: 16px 24px;
+}
+
+.statisticsdialogwrap .v-btn {
+  border-radius: 30px;
+}
+
 .historydialogwrap .exportwrap {
   background: rgba(0, 0, 0, 1);
 }

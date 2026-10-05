@@ -6,30 +6,34 @@
           <div>{{ $t("EditPasswordPage.NewPassword") }}</div>
           <v-text-field
             :prepend-inner-icon="mdiLockOutline"
-            :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+            :append-inner-icon="show1 ? mdiEye : mdiEyeOff"
             :type="show1 ? 'text' : 'password'"
             label="password"
             @click:append-inner="show1 = !show1"
             variant="solo"
             v-model="newPassword"
             :rules="newPasswordrules"
-               maxlength="16"
+            maxlength="16"
           ></v-text-field>
           <div>{{ $t("EditPasswordPage.ConfirmNewPassword") }}</div>
           <v-text-field
             :prepend-inner-icon="mdiLockOutline"
-            :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+            :append-inner-icon="show ? mdiEye : mdiEyeOff"
             :type="show ? 'text' : 'password'"
             label="password"
             @click:append-inner="show = !show"
             variant="solo"
             v-model="confirmnewPassword"
             :rules="confirmnewPasswordrules"
-               maxlength="16"
+            maxlength="16"
           ></v-text-field>
         </v-form>
         <div class="btwrap">
-          <Nbt title="Save" enabled="true" @click="savedata()" />
+          <Nbt
+            :title="$t('EditPasswordPage.Save')"
+            enabled="true"
+            @click="savedata()"
+          />
         </div>
       </div>
     </div>
@@ -39,11 +43,10 @@
 import Nbt from "./public/Nbt.vue";
 import { useMainStore } from "@/stores/main";
 import { ResultStore } from "@/stores/result";
-import { ref,getCurrentInstance } from "vue";
-import { useI18n } from 'vue-i18n'
-
-
-const { t } = useI18n()
+import { ref, getCurrentInstance, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { mdiEye, mdiEyeOff } from '@mdi/js'
+const { t, locale } = useI18n();
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
 const show1 = ref(false);
@@ -58,7 +61,11 @@ const newPasswordrules = ref([
   },
 ]);
 
-const confirmnewPasswordrules = ref([
+function updateRules() {
+ savedata();
+}
+
+let confirmnewPasswordrules = ref([
   (value) => {
     if (errortxt.value !== "") {
       let temp = errortxt.value;
@@ -69,6 +76,9 @@ const confirmnewPasswordrules = ref([
     return `${t("EditPasswordPage.ConfirmNewPassword")} ${t("notNull")}`;
   },
 ]);
+
+watch(locale, updateRules);
+
 const savedata = function () {
   proxy.$refs.passwordForm.validate().then(function (res) {
     if (res.valid == true) {
@@ -98,8 +108,6 @@ const savedata = function () {
     }
   });
 };
-
-
 </script>
 <style>
 .passwordwrap .v-field {

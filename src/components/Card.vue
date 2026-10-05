@@ -11,7 +11,7 @@
           :type="text"
           label="Search"
           single-line
-          :prepend-inner-icon="'mdi-magnify'"
+          :prepend-inner-icon="mdiMagnify"
           v-model="searchText"
         ></v-text-field>
       </div>
@@ -99,7 +99,7 @@
 import { useMainStore } from "@/stores/main";
 import { cardStore } from "@/stores/card";
 import { ResultStore } from "@/stores/result";
-
+import { mdiMagnify } from "@mdi/js";
 import {
   ref,
   computed,

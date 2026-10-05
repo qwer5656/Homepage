@@ -1,6 +1,6 @@
 <template lang="">
   <div class="languagemodewrap">
-    <h3>Select language</h3>
+    <h3>{{ $t("LanguagePage.SelectLanguage") }}</h3>
     <div class="date">
       <div class="selectwrap">
         <v-select
@@ -15,7 +15,11 @@
       </div>
     </div>
     <div class="nbtwrap">
-      <Nbt title="Save" enabled="true" @click="savelanguage()" />
+      <Nbt
+        :title="$t('LanguagePage.Save')"
+        enabled="true"
+        @click="savelanguage()"
+      />
     </div>
   </div>
 </template>
@@ -58,7 +62,13 @@ onBeforeMount(() => {
   setting.getapi(proxy, "LanguageSetting").then((res) => {
     languagedata.value = res.data;
     if (res.data.chargePointId == "") {
-      languagedata.value.methodsContent = "English";
+      const lang = navigator.language || navigator.userLanguage;
+
+      if (lang.toLowerCase().startsWith("zh")) {
+        languagedata.value.methodsContent = "zh";
+      } else {
+        languagedata.value.methodsContent = "en";
+      }
     }
   });
 });

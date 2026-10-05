@@ -56,12 +56,11 @@ watch(() => data.value.enabled, (val) => {
   init.value = true;
 });
 
-// Computed property for Touchstartmodeimg
 const touchstartmodeimg = computed(() => {
   return data.value.enabled === true ? false : true;
 });
 
-// Lifecycle hook (beforeMount in Vue 2)
+
 onBeforeMount(() => {
   let setting = settingStore();
   setting.getapi(null, "TouchStartmode").then((res) => {

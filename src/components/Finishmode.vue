@@ -7,9 +7,7 @@
           <img src="../assets/img/timer.png" alt="" />
         </div>
         <div class="line"></div>
-        <div class="itembottomtxt">{{
-            time.formatted}}
-        </div>
+        <div class="itembottomtxt">{{ time.formatted }}</div>
       </div>
       <div class="itemwrap">
         <div class="itemtxt">TPC</div>
@@ -29,7 +27,7 @@
 import { useMainStore } from "@/stores/main";
 import { historyStore } from "@/stores/history";
 import { onMounted, ref } from "vue";
-import _ from 'lodash';
+import _ from "lodash";
 let meterValue = ref(0);
 let time = ref(0);
 let finishShow = ref(false);
@@ -44,13 +42,14 @@ onMounted(() => {
 
   mainstore.loading = true;
 
-  setTimeout(() => {
-    history.getapi(mainstore.transactionId).then((res) => {
-   
-      meterValue.value = _.round(res.data.meterStop - res.data.meterStart, 3);
+  setTimeout(function () {
+    history.getfinsh().then((res) => {
+      if (res.data.meterStop != null) {
+        meterValue.value = _.round(res.data.meterStop - res.data.meterStart, 3);
 
-      time.value = getTimeDiff(res.data.startTime, res.data.stopTime);
-      finishShow.value = true;
+        time.value = getTimeDiff(res.data.startTime, res.data.stopTime);
+        finishShow.value = true;
+      }
       mainstore.loading = false;
     });
   }, 1000);

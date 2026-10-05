@@ -48,7 +48,7 @@
           </ul>
         </div>
         <a href="./" class="logowrap">
-          <img src="./assets/img/logo.png" />
+          <img src="./assets/img/logo.png" style="width: 70px" />
         </a>
 
         <div class="midaccountwrap">
@@ -60,7 +60,11 @@
             <img src="./assets/img/Dropdown.png" />
             <ul class="menuwrap" id="languagewrap">
               <li @click.stop="changelanguage('zh')">
-                <a :class="{ active: lang }">中文</a>
+                <a
+                  :class="{ active: lang }"
+                  style="font-size: 13px; font-weight: bold"
+                  >中文</a
+                >
               </li>
               <li @click.stop="changelanguage('en')">
                 <a
@@ -71,6 +75,26 @@
               </li>
             </ul>
           </div>
+          <!-- <div style="position: relative;cursor: pointer;margin: 0 10px;">
+            <div
+              style="
+                background-color: red;
+                border-radius: 50%;
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                left: 10px;
+                top: -5px;
+                z-index: 99;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <div style="color: white;font-size: 12px;font-weight: bold;">99+</div>
+            </div>
+            <v-icon :icon="mdiBell" color="white" />
+          </div> -->
           <div class="midaccount" @click="openmenu('accountwrap')">
             <span class="accountName">{{ userName }}</span>
             <img src="./assets/img/people.png" />
@@ -82,9 +106,30 @@
                   >{{ $t("Apppage.Header.Password") }}</a
                 >
               </li>
+              <li @click.stop="scanQrcode">
+                <a
+                  class=""
+                  style="padding: 0; font-size: 13px; font-weight: bold"
+                  >{{ $t("Apppage.Header.ScanQrcode") }}</a
+                >
+              </li>
+              <li @click.stop="ChargingPileLog">
+                <a
+                  class=""
+                  style="padding: 0; font-size: 13px; font-weight: bold"
+                  >{{ $t("Apppage.Header.ChargingPileLog") }}</a
+                >
+              </li>
+              <li @click.stop="ChargePointRatePlan">
+                <a
+                  class=""
+                  style="padding: 0; font-size: 13px; font-weight: bold"
+                  >{{ $t("Apppage.Header.ChargePointRatePlan") }}</a
+                >
+              </li>
               <li @click.stop="logout">
                 <a class="" style="font-size: 13px; font-weight: bold">
-                  {{ $t("Apppage.Header.Lougt") }}</a
+                  {{ $t("Apppage.Header.Logout") }}</a
                 >
               </li>
             </ul>
@@ -115,27 +160,28 @@
               @click="goto('Reserve')"
             />
           </div>
-          <!-- <div>
-            <img
-              :src="curpage == 'Touchstart' ? Touch_Start_On : Touch_Start_Off"
-              alt=""
-              @click="goto('Touchstart')"
-            />
-          </div>
           <div>
             <img
-              :src="curpage == 'Startmode' ? Mode_On : Mode_Off"
+              :src="curpage == 'AdImageData' ? Mode_On : Mode_Off"
               alt=""
-              @click="goto('Startmode')"
+              @click="goto('AdImageData')"
             />
           </div>
-          <div class="pcwrap">
+          <!-- <div class="icon-wrap">
+            <img
+              :src="curpage == 'Info' ? Info_On : Info_Off"
+              alt=""
+              @click="goto('Info')"
+            />
+            <span class="red-dot" v-if="notify"></span>
+          </div> -->
+          <!-- <div class="pcwrap">
             <img
               :src="curpage == 'Setting' ? Settings_On : Settings_Off"
               alt=""
               @click="goto('Setting')"
             />
-          </div> -->
+          </div>  -->
         </div>
         <div class="leftbarconent">
           <router-view />
@@ -159,8 +205,8 @@ import History_On from "@/assets/img/History_On.png";
 import History_Off from "@/assets/img/History_Off.png";
 import Schdule_On from "@/assets/img/Schdule_On.png";
 import Schdule__Off from "@/assets/img/Schdule__Off.png";
-import Touch_Start_On from "@/assets/img/Touch Start_On.png";
-import Touch_Start_Off from "@/assets/img/Touch Start_Off.png";
+import Info_Off from "@/assets/img/info_Off.png";
+import Info_On from "@/assets/img/info_On.png";
 import Mode_On from "@/assets/img/Mode_On.png";
 import Mode_Off from "@/assets/img/Mode_Off.png";
 import Settings_On from "@/assets/img/Settings_On.png";
@@ -169,8 +215,8 @@ import Result from "@/components/Result.vue";
 import qrcodsscan from "@/assets/img/qrcodsscan.png";
 import QrcodeEnabled from "@/assets/img/QrcodeEnabled.png";
 import { settingStore } from "@/stores/setting";
-import { mdiAccount } from "@mdi/js";
-
+import { mdiAccount, mdiBell } from "@mdi/js";
+import { chargePointStore } from "@/stores/chargePoint";
 export default {
   name: "App",
   components: {
@@ -196,13 +242,14 @@ export default {
   data: () => ({
     loginshow: false,
     mdiAccount,
+    mdiBell,
     footvalue: -1,
     icontouch: false,
     loadingshow: true,
     navbarstatus: false,
     Charger_On,
-    Touch_Start_On,
-    Touch_Start_Off,
+    Info_Off,
+    Info_On,
     Charger_Off,
     History_On,
     History_Off,
@@ -214,8 +261,44 @@ export default {
     Settings_Off,
     languagedata: {},
     userdata: null,
+    notify: false,
   }),
   methods: {
+    async callInfoApi() {
+      try {
+        const chargePoint = chargePointStore();
+        const res = await chargePoint.FirmwareNotify();
+        this.notify = res.success;
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    async pollFirmware() {
+      try {
+        const chargePoint = chargePointStore();
+
+        const res = await chargePoint.FirmwareNotify();
+        this.notify = res.success;
+        console.log(res.success);
+      } catch (err) {
+        console.error("FirmwareNotify error:", err);
+      } finally {
+        this.pollTimer = setTimeout(() => {
+          this.pollFirmware();
+        }, 10000);
+      }
+    },
+
+    startPolling() {
+      this.pollFirmware();
+    },
+
+    stopPolling() {
+      if (this.pollTimer) {
+        clearTimeout(this.pollTimer);
+        this.pollTimer = null;
+      }
+    },
     changenavbarstatus() {
       this.navbarstatus = !this.navbarstatus;
     },
@@ -227,14 +310,27 @@ export default {
       this.footvalue = -1;
       this.$router.push(`/EditPassword`);
     },
+    scanQrcode() {
+      document.querySelector("#accountwrap").style.display = "none";
+      this.footvalue = -1;
+      this.$router.push(`/ScanQrcode`);
+    },
+    ChargingPileLog() {
+      document.querySelector("#accountwrap").style.display = "none";
+      this.footvalue = -1;
+      this.$router.push(`/ChargingPileLog`);
+    },
+    ChargePointRatePlan() {
+      document.querySelector("#accountwrap").style.display = "none";
+      this.footvalue = -1;
+      this.$router.push(`/ChargePointRatePlan`);
+    },
     toucheditpassword() {
       this.footvalue = -1;
       this.$router.push(`/EditPassword`);
       document.querySelector("#accountwrap").style.display = "none";
     },
     openmenu(type) {
-      
-      console.log(type);
       let arr = ["accountwrap", "languagewrap"];
       this.icontouch = type;
 
@@ -286,7 +382,6 @@ export default {
       if (token != null) {
         loginstore.tokenauth(self, token).then((res) => {
           if (res.success === true) {
-            console.log(res);
             if (res.data == "") {
               this.userdata = JSON.parse(localStorage.getItem("userdata"));
               this.loginshow = true;
@@ -308,6 +403,7 @@ export default {
     savelanguage(type) {
       let setting = settingStore();
       this.languagedata.methodsContent = type;
+      this.languagedata.MethodsName = "LanguageSetting";
       if (this.languagedata.chargePointId == "") {
         setting.postapi("", this.languagedata).then((res) => {
           this.languagedata = res.data;
@@ -324,20 +420,34 @@ export default {
     if (this.$route.path == "/") {
       this.checklogin();
     }
+    this.startPolling();
+  },
+  beforeUnmount() {
+    this.stopPolling();
   },
   watch: {
-    "$route.path"(topath, frompath) {
+    "$route.path"(toPath, fromPath) {
       this.checklogin();
+      this.callInfoApi();
 
       let token = JSON.parse(localStorage.getItem("token"));
       if (token != null) {
         let setting = settingStore();
+
         setting.getapi("", "LanguageSetting").then((res) => {
-          self.languagedata = res.data;
+          this.languagedata = res.data;
+
           if (res.data.methodsContent === "") {
-            this.$i18n.locale = "en";
+            const lang = navigator.language || navigator.userLanguage;
+
+            if (lang.toLowerCase().startsWith("zh")) {
+              this.$i18n.locale = "zh";
+            } else {
+              this.$i18n.locale = "en";
+            }
             return;
           }
+
           this.$i18n.locale = res.data.methodsContent;
         });
       }
@@ -345,6 +455,24 @@ export default {
   },
 
   mounted() {
+    let token = JSON.parse(localStorage.getItem("token"));
+    if (token != null) {
+      let setting = settingStore();
+      setting.getapi("", "LanguageSetting").then((res) => {
+        self.languagedata = res.data;
+        if (res.data.methodsContent === "") {
+          const lang = navigator.language || navigator.userLanguage;
+
+          if (lang.toLowerCase().startsWith("zh")) {
+            this.$i18n.locale = "zh";
+          } else {
+            this.$i18n.locale = "en";
+          }
+        } else {
+          this.$i18n.locale = res.data.methodsContent;
+        }
+      });
+    }
     let self = this;
 
     window.addEventListener("resize", function () {
@@ -389,7 +517,8 @@ body {
 }
 @font-face {
   font-family: "SF Pro";
-  src: url("./assets/fonts/SF-Pro.ttf") format("truetype");
+  src: url("./fonts/Inter-Regular.woff2") format("woff2");
+  font-display: swap;
 }
 ::-webkit-scrollbar {
   width: 5px;
@@ -455,7 +584,8 @@ body {
   height: 520px;
   box-sizing: border-box;
   background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.41),
+  box-shadow:
+    0px 8px 30px rgba(0, 0, 0, 0.41),
     inset 0px 0px 12px rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(100px);
   border-radius: 20px;
@@ -517,7 +647,7 @@ body {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.9);
   position: absolute;
   z-index: 9999;
   right: 0;
@@ -561,7 +691,37 @@ body {
 .settingnavbar {
   display: none;
 }
+/* 紅點 */
+.red-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 12px;
+  height: 12px;
+  background: #ff3b30;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
 
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.icon-wrap {
+  position: relative;
+  width: 47px;
+  height: 47px;
+}
 @media (max-width: 576px) {
   .leftbarconent {
     width: 100%;

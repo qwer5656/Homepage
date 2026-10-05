@@ -1,21 +1,20 @@
-// Styles
-import '@mdi/font/css/materialdesignicons.css'
-import 'vuetify/styles'
+
+import "vuetify/styles";
 
 // Vuetify
-import { createVuetify } from 'vuetify'
+import { createVuetify } from "vuetify";
 
-
-import { aliases, mdi } from 'vuetify/iconsets/mdi-svg'
-
-
+import { aliases, mdi } from "vuetify/iconsets/mdi-svg";
 
 export default createVuetify({
+  locale: {
+    locale: "en-CA",
+  },
   icons: {
-    defaultSet: 'mdi',
+    defaultSet: "mdi",
     aliases,
     sets: {
       mdi,
     },
   },
-})
+});

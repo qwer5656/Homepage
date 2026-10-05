@@ -15,18 +15,18 @@ export const ResultStore = defineStore("result", {
   },
   actions: {
     successres(restxt="Success") {
-      let self=this;
+      let self = this;
       self.show = true;
-      self.mode=1;
-      self.resulttext=restxt;
+      self.mode = 1;
+      self.resulttext = restxt;
       setTimeout(() => {
-        self.show=false;
+        self.show = false;
       }, 500);
     },
     errorres(errortxt) {
       this.show = true;
-      this.mode=2;
-      this.resulttext=errortxt;
+      this.mode = 2;
+      this.resulttext = errortxt;
     },
     close(){
       this.show = false;

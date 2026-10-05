@@ -58,6 +58,36 @@ const routes = [
     name: "Language",
     title: "Language",
     component: () => import("@/views/LanguageView.vue"),
+  },
+  {
+    path: "/ScanQrcode",
+    name: "ScanQrcode",
+    title: "ScanQrcode",
+    component: () => import("@/views/ScanQrcodeView.vue"),
+  },
+  {
+    path: "/AdImageData",
+    name: "AdImageData",
+    title: "AdImageData",
+    component: () => import("@/views/AdImageDataView.vue"),
+  },
+  {
+    path: "/ChargingPileLog",
+    name: "ChargingPileLog",
+    title: "ChargingPileLog",
+    component: () => import("@/views/ChargingPileLogView.vue"),
+  },
+  {
+    path: "/Info",
+    name: "Info",
+    title: "Info",
+    component: () => import("@/views/InfoView.vue"),
+  },
+  {
+     path: "/ChargePointRatePlan",
+    name: "ChargePointRatePlan",
+    title: "ChargePointRatePlan",
+    component: () => import("@/views/ChargePointRatePlanView.vue")
   }
   // {
   //   path: "/Bluetooth",

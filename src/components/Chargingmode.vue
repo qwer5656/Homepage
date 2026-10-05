@@ -1,9 +1,26 @@
 <template>
+  <div class="chargepilemode">
+    <div>
+      <img
+        src="../assets/img/Schdule_On.png"
+        alt=""
+        style="vertical-align: middle; cursor: pointer"
+        v-if="isScheduleTask"
+        @click="changeinfodialog(true)"
+      />
+      <span style="vertical-align: middle">
+        {{ $t("ChargingmodePage." + getchargepilemode) }}
+      </span>
+    </div>
+  </div>
   <div class="mainwrap">
     <div class="batterywrap">
       <div class="batterycontainer">
         <div class="batteryoverflow">
-          <div class="batterycontent" :class="{ startmode: getmode }"></div>
+          <div
+            class="batterycontent"
+            :class="{ startmode: getRemoteStopCharge }"
+          ></div>
         </div>
       </div>
     </div>
@@ -71,18 +88,54 @@
       </div>
     </div>
   </div>
-  <div class="chargebt" @click="changemode('finish')" v-if="getmode">
+  <div
+    class="chargebt"
+    @click="changemode('finish')"
+    v-if="getRemoteStopCharge"
+  >
     {{ $t("ChargingmodePage.Stop") }}
   </div>
-  <div class="chargebt" v-if="!getmode" @click="goto('Rfidloading')">
+  <div
+    class="chargebt"
+    v-if="getRemoteStartCharge"
+    @click="goto('Rfidloading')"
+  >
     {{ $t("ChargingmodePage.Remote") }}
   </div>
+
+  <v-dialog v-model="infodialog" persistent width="auto" class="infodialog">
+    <div class="infotitlewrap">
+      <div class="titlewrap">
+        <div class="title">
+          {{ $t("ChargingmodePage.info") }}
+        </div>
+        <div>
+          <img src="../assets/img/Close.png" @click="changeinfodialog(false)" />
+        </div>
+      </div>
+      <div class="curinforesult">
+        <div>
+          <span>{{ $t("ChargingmodePage.ScheduleTitle") }} : </span>
+          {{ ScheduleTaskTitle }}
+        </div>
+        <br />
+        <div>
+          <span>{{ $t("ChargingmodePage.StartTime") }} : </span>{{ Startinfo }}
+        </div>
+        <br />
+        <div>
+          <span>{{ $t("ChargingmodePage.StopTime") }} : </span>{{ Endinfo }}
+        </div>
+      </div>
+    </div>
+  </v-dialog>
 </template>
 <script setup>
 import { useRouter } from "vue-router";
 import { useMainStore } from "@/stores/main";
-import { chargePileStore } from "@/stores/chargePile";
-
+import { chargePileOperationStore } from "@/stores/chargePileOperation";
+import { reverseStore } from "@/stores/reverse";
+import { ResultStore } from "@/stores/result";
 import _ from "lodash";
 import {
   ref,
@@ -93,8 +146,16 @@ import {
   reactive,
 } from "vue";
 const router = useRouter();
+const resultStore = ResultStore();
 const TimeData = ref(null);
+const chargeTimeData = ref(null);
+const chargeTimeStrart = ref(null);
+const isScheduleTask = ref(false);
+const infodialog = ref(false);
 const instance = getCurrentInstance();
+const Startinfo = ref(null);
+const Endinfo = ref(null);
+const ScheduleTaskTitle = ref(null);
 const proxy = instance?.proxy;
 let chargingdata = ref({
   aval: 0,
@@ -111,7 +172,7 @@ const timesval = ref({
 
 const changemode = function (val) {
   const mainstore = useMainStore();
-  let chargePile = chargePileStore();
+  let chargePile = chargePileOperationStore();
   mainstore.apibusy = true;
   chargePile
     .RemoteStopTransaction(proxy)
@@ -119,11 +180,14 @@ const changemode = function (val) {
       let data = JSON.parse(res.data);
       if (data.apiResult.status == "Accepted") {
         mainstore.transactionId = data.TransactionId;
-        mainstore.chargepilemode = val;
+        resultStore.successres();
+      } else {
+        resultStore.errorres("Fail");
       }
       mainstore.apibusy = false;
     })
-    .catch(() => {
+    .catch((ex) => {
+      resultStore.errorres("Fail");
       mainstore.apibusy = false;
     });
 };
@@ -131,21 +195,12 @@ const goto = (val) => {
   router.push(`/${val}`);
 };
 const GetMeterValue = function () {
-  let chargePile = chargePileStore();
+  let chargePile = chargePileOperationStore();
 
   chargePile.GetChargePiledata(proxy).then((res) => {
-    console.log(res.data);
     if (res.data !== null) {
-      console.log(res.data);
-      let Time = res.data.chargeTime;
-      let hour = Math.floor(Time / 3600);
-      let min = Math.floor((Time - 3600 * hour) / 60);
-      let sec = Time - 3600 * hour - 60 * min;
       let MeterStart = res.data.meterStart;
-      timesval.value.hour = hour;
-      timesval.value.min = min;
-      timesval.value.sec = sec;
-
+      chargeTimeStrart.value = res.data.startTime;
       if (res.data.meterValuesRequest != null) {
         res.data.meterValuesRequest.meterValue[0].sampledValue.forEach((e) => {
           if (e.unit == "kW") {
@@ -166,27 +221,146 @@ const GetMeterValue = function () {
   });
 };
 
-onMounted(() => {
-  const mainstore = useMainStore();
-  GetMeterValue();
-  TimeData.value = setInterval(function () {
-    if (mainstore.chargepilemode == "charging") {
-      GetMeterValue();
+const GetScheduleTask = function () {
+  let reverse = reverseStore();
+
+  reverse.getScheduleTask(proxy).then((res) => {
+    if (res.data != null) {
+      let val = res.data;
+      isScheduleTask.value = true;
+      let startTime = convertUtcToLocalString(val.startTime).split("T");
+      let endTime = convertUtcToLocalString(val.endTime).split("T");
+      ScheduleTaskTitle.value = val.title;
+      Startinfo.value = `${startTime[0]} ${startTime[1]}`;
+      Endinfo.value = `${endTime[0]} ${endTime[1]}`;
     }
+  });
+};
+
+onMounted(() => {
+  GetScheduleTask();
+  const mainstore = useMainStore();
+  if (mainstore.chargepilemode == "Charging") {
+    GetMeterValue();
+  }
+  TimeData.value = setInterval(function () {
+    const mainstore = useMainStore();
+    if (mainstore.chargepilemode == "Charging") {
+      GetMeterValue();
+    } else {
+      chargingdata.value = {
+        aval: 0,
+        kwhval: 0,
+        kwval: 0,
+        vval: 0,
+      };
+    }
+  }, 3000);
+
+  chargeTimeData.value = setInterval(function () {
+    chargeTime();
   }, 1000);
 });
+
+const chargeTime = function () {
+  const mainstore = useMainStore();
+
+  if (mainstore.chargepilemode === "Charging") {
+    if (chargeTimeStrart.value != null) {
+      const chargeTime = new Date(chargeTimeStrart.value);
+      const now = new Date();
+
+      // ✅ 加入合法日期檢查
+      if (!isNaN(chargeTime.getTime())) {
+        const Time = now - chargeTime; // 單位：毫秒
+        const TimeInSeconds = Math.floor(Time / 1000); // 轉成秒
+
+        const hour = Math.floor(TimeInSeconds / 3600);
+        const min = Math.floor((TimeInSeconds % 3600) / 60);
+        const sec = TimeInSeconds % 60;
+
+        timesval.value.hour = hour;
+        timesval.value.min = min;
+        timesval.value.sec = sec;
+      } else {
+        timesval.value = {
+          hour: 0,
+          min: 0,
+          sec: 0,
+        };
+      }
+    }
+  } else {
+    timesval.value = {
+      hour: 0,
+      min: 0,
+      sec: 0,
+    };
+  }
+};
 
 onUnmounted(() => {
   if (TimeData.value !== null) {
     clearInterval(TimeData.value);
     TimeData.value = null;
   }
+
+  if (chargeTimeData.value !== null) {
+    clearInterval(chargeTimeData.value);
+    chargeTimeData.value = null;
+  }
 });
 
-const getmode = computed(() => {
+const getRemoteStopCharge = computed(() => {
   const mainstore = useMainStore();
-  return mainstore.chargepilemode == "charging" ? true : false;
+  return mainstore.chargepilemode == "Charging" ? true : false;
 });
+
+const getRemoteStartCharge = computed(() => {
+  const mainstore = useMainStore();
+  return mainstore.chargepilemode == "Preparing" ? true : false;
+});
+
+const getchargepilemode = computed(() => {
+  const mainstore = useMainStore();
+  return mainstore.chargepilemode;
+});
+const changeinfodialog = (val) => {
+  infodialog.value = val;
+};
+function convertUtcToLocalString(utcString, keepT = true) {
+  if (!utcString) return "";
+
+  // 確保格式正確，加上 Z 表示 UTC
+  const input = utcString.slice(0, 19) + "Z";
+  const date = new Date(input);
+
+  if (keepT) {
+    // 回傳格式：yyyy-MM-ddTHH:mm:ss（保留 T）
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hour = String(date.getHours()).padStart(2, "0");
+    const minute = String(date.getMinutes()).padStart(2, "0");
+    const second = String(date.getSeconds()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
+  } else {
+    // 回傳格式：依語系顯示的 yyyy-MM-dd HH:mm:ss（去除 T）
+    const userLocale = navigator.language;
+    return date
+      .toLocaleString(userLocale, {
+        hour12: false,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      })
+      .replace(/\//g, "-")
+      .replace(", ", " ");
+  }
+}
 </script>
 <style scoped>
 .batterywrap {
@@ -248,6 +422,38 @@ const getmode = computed(() => {
   margin-top: 144px !important;
   font-size: 28px !important;
 }
+.infodialog {
+  color: white;
+}
+
+.infodialog .infotitlewrap {
+  width: 605px;
+  height: 519px;
+  padding: 42px 45px 42px 45px;
+  border-radius: 30px;
+  background: #222222cf;
+  display: flex;
+  flex-direction: column;
+}
+
+.infodialog .infotitlewrap .titlewrap {
+  display: flex;
+  align-items: center;
+}
+.infodialog .infotitlewrap .titlewrap img {
+  cursor: pointer;
+}
+.infodialog .title {
+  font-family: SF Pro;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 22.5px;
+  text-align: left;
+  margin-right: auto;
+  padding-bottom: 10px;
+  font-weight: bold;
+}
+
 @keyframes batteryrun {
   from {
     bottom: -100%;
@@ -345,11 +551,17 @@ const getmode = computed(() => {
   border: 1px;
   background: url("../assets/img/background2.png");
   background-size: cover;
-  padding: 36px 29px 0px 29px;
+  padding: 36px 19px 0;
   margin-left: 21px;
   flex-grow: 0;
   flex-shrink: 0;
   flex-basis: auto;
+}
+.chargepilemode {
+  color: white;
+  text-align: center;
+  font-size: 40px;
+  font-weight: bold;
 }
 .txtlen {
   white-space: nowrap;
@@ -390,8 +602,14 @@ const getmode = computed(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 3vh;
+    padding-top: 10px;
   }
+  .infodialog .infotitlewrap {
+    width: 90vw;
+    padding: 15px;
+    flex-direction: column;
+  }
+
   .batterywrap {
     display: flex;
     justify-content: center;
@@ -400,7 +618,7 @@ const getmode = computed(() => {
     flex-direction: column;
     margin: auto 0;
     padding: 0 15px;
-    margin: 0 0 10px 0;
+    margin: 0 0 5px 0;
   }
   .batterycontainer {
     background: url(/src/assets/img/phonebatterybg.png) no-repeat;
@@ -465,7 +683,7 @@ const getmode = computed(() => {
     width: 350px;
     height: 120px;
     padding: 26px 29px 20px 29px;
-    margin-top: 10px;
+    margin-top: 5px;
     margin-left: 0;
   }
   .timetxt {
@@ -481,7 +699,7 @@ const getmode = computed(() => {
     }
   }
   .chargebt {
-    margin: 20px auto;
+    margin: 10px auto;
   }
 
   .txtbottom {
@@ -493,6 +711,9 @@ const getmode = computed(() => {
 
   .txtlen {
     max-width: 90px;
+  }
+  .chargepilemode {
+    font-size: 25px;
   }
 }
 </style>

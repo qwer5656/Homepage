@@ -5,11 +5,10 @@ import router from "./router";
 import { loadFonts } from "./plugins/webfontloader";
 
 import * as echarts from "echarts";
-import {createVuetify} from "vuetify";
-import '@mdi/font/css/materialdesignicons.css'
+
+import vuetify from "./plugins/vuetify";
+// import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
-
-
 
 
 import { createI18n } from "vue-i18n";
@@ -18,7 +17,6 @@ import en from "./locales/en.json";
 import zh from "./locales/zh.json";
 import axios from "./axios";
 const pinia = createPinia()
-
 
 const i18n = createI18n({
   locale: "en",
@@ -31,11 +29,12 @@ const i18n = createI18n({
 });
 
 
-const vuetify=createVuetify({
-  locale: {
-    locale: 'en-CA',
-  },
-})
+// const vuetify=createVuetify({
+//   locale: {
+//     locale: 'en-CA',
+//   },
+  
+// })
 
 loadFonts();
 const app =createApp(App);

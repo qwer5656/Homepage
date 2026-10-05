@@ -2,13 +2,18 @@
   <div class="resultwrap" v-if="show">
     <div class="resultcontent">
       <div class="closewrap">
-        <img  v-if="mode!==1" src="../assets/img/Close.png" @click="close" alt="" />
+        <img
+          v-if="mode !== 1"
+          src="../assets/img/Close.png"
+          @click="close"
+          alt=""
+        />
       </div>
       <div class="resulttxtwrap">
-        <img v-if="mode===1" src="../assets/img/success.png" alt="" />
-        <img v-else-if="mode===2" src="../assets/img/Failure.png" alt="" />
-        <img v-else-if="mode===3" src="../assets/img/Exist.png" alt="" />
-        <div class="txt">{{text}}</div>
+        <img v-if="mode === 1" src="../assets/img/success.png" alt="" />
+        <img v-else-if="mode === 2" src="../assets/img/Failure.png" alt="" />
+        <img v-else-if="mode === 3" src="../assets/img/Exist.png" alt="" />
+        <div class="txt">{{ text }}</div>
       </div>
     </div>
   </div>
@@ -70,13 +75,14 @@ const mode = computed(() => {
   line-height: 25px;
   text-align: center;
   color: white;
+  padding: 10px;
 }
 .resultwrap .resulttxtwrap {
   height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .resultwrap .resulttxtwrap img {
   width: 96px;
@@ -86,7 +92,7 @@ const mode = computed(() => {
   text-align: right;
   cursor: pointer;
   position: absolute;
-  top:15px;
+  top: 15px;
   right: 15px;
 }
 </style>

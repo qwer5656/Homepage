@@ -2,10 +2,14 @@
     "notNull": "不能為空",
     "Apppage": {
         "Header": {
-            "Lougt": "登出",
+            "Logout": "登出",
             "Password": "更改密碼",
             "Remote": "遠端啟動",
-            "Plug": "插槍充電"
+            "Plug": "插槍充電",
+            "Faulted": "故障",
+            "ScanQrcode": "掃描 Qrcode",
+            "ChargingPileLog": "充電樁日誌",
+            "ChargePointRatePlan": "充電樁費率設定"
         },
         "Footer": {
             "Index": "首頁",
@@ -22,21 +26,35 @@
         "V": "電壓",
         "TPC": "度數",
         "P": "功率",
-        "Times": "時間"
+        "Times": "時間",
+        "SuspendedEV": "預備充電",
+        "SuspendedEVSE": "暫停充電",
+        "Charging": "充電中",
+        "Preparing": "準備中",
+        "info": "排程資訊",
+        "StartTime": "開始時間",
+        "StopTime": "結束時間",
+        "ScheduleTitle": "排程標題"
     },
     "RfidloadingPage": {
         "Startingup": "啟動中..."
     },
     "EditPasswordPage": {
         "ConfirmNewPassword": "確認新密碼",
-        "NewPassword": "新密碼"
+        "NewPassword": "新密碼",
+        "Save": "儲存"
+    },
+    "LanguagePage": {
+        "SelectLanguage": "選擇語言",
+        "Save": "儲存"
     },
     "Historypage": {
         "Title": "歷史紀錄",
         "Export": "輸出報表",
         "Date": "充電日期",
         "Time": "充電時間",
-        "Degree": "充電度數"
+        "Degree": "充電度數",
+        "Dateinput": "日期"
     },
     "Indexpage": {},
     "Reservepage": {
@@ -44,9 +62,33 @@
         "schedule": "我的日程",
         "createSchedule": "創建排程",
         "editSchedule": "編輯排程",
+        "create": "創建",
+        "save": "儲存",
         "scheduleTitle": "排程名稱",
         "startDateTime": "開始時間",
-        "endDateTime": "結束時間"
+        "endDateTime": "結束時間",
+        "info": "資訊",
+        "confirm": "確認",
+        "cancel": "取消",
+        "deleteTitle": "你想要移除這個排程任務嗎？",
+        "reserve": "預約排程",
+        "record": "排程紀錄",
+        "periodSetting": "充電電流時段設定",
+        "period": "時段",
+        "periodTitle": "預約時段",
+        "setPeriod": "設定時段",
+        "addPeriod": "新增時段",
+        "periodCount": "已設定 {count} 個時段",
+        "maxPeriods": "最多只能新增 {count} 個時段"
+    },
+    "Common": {
+        "save": "儲存",
+        "cancel": "取消",
+        "close": "關閉",
+        "confirm": "確認",
+        "delete": "刪除",
+        "add": "新增",
+        "action": "操作"
     },
     "Touchstartpage": {
         "title": "觸摸模式",
@@ -80,7 +122,47 @@
         },
         {
             "title": "充電度數",
-            "key": "drgee"
+            "key": "energyWh"
+        },
+        {
+            "title": "充電費用",
+            "key": "totalAmount"
+        }
+    ],
+    "ChargingPileLogheaders": [
+        {
+            "title": "時間",
+            "key": "logTime"
+        },
+        {
+            "title": "訊息",
+            "key": "message"
+        },
+        {
+            "title": "結果",
+            "key": "result"
+        },
+        {
+            "title": "錯誤代碼",
+            "key": "errorCode"
+        }
+    ],
+    "ReverseHistoryheaders": [
+        {
+            "title": "方法",
+            "key": "actionType"
+        },
+        {
+            "title": "執行時間",
+            "key": "executeTime"
+        },
+        {
+            "title": "結果",
+            "key": "status"
+        },
+        {
+            "title": "錯誤訊息",
+            "key": "errorMessage"
         }
     ],
     "dateitems": [
@@ -96,5 +178,76 @@
     "Ocpppage": {
         "describe": "請輸入E-faner提供給您的後台位址。",
         "connectiondescribe": "請等待連接過程。"
+    },
+    "ScanQrcodepage": {
+        "qrcodescan": "QR Code 掃描器",
+        "selectcamera": "選擇攝影機",
+        "startscan": "開始掃描",
+        "stopscan": "停止掃描",
+        "scanresult": "掃描結果",
+        "noresult": "尚未掃描",
+        "unknowncamera": "未知攝影機",
+        "pleaseSelectACamera": "請先選擇攝影機",
+        "launchFailed": "啟動失敗"
+    },
+    "Loginpage": {
+        "title": "登入帳號",
+        "forgetPassword": "忘記密碼?",
+        "login": "登入",
+        "resetPassword": "重置密碼",
+        "updateAccountInformation": "更新帳戶資訊",
+        "firstTimeLogin": "(首次登入)",
+        "sumbit": "確認",
+        "logout": "登出",
+        "password": "密碼",
+        "account": "帳號",
+        "userName": "使用者名稱",
+        "email": "信箱",
+        "emailFormaterror": "Email 格式錯誤",
+        "Account is Expired": "帳戶已過期",
+        "emailFormat": "請輸入常見的信箱提供者（如 gmail.com）",
+        "Account does not Exist": "帳戶不存在",
+        "Wrong Password": "密碼錯誤"
+    },
+    "AdImageDatapage": {
+        "title": "廣告張數",
+        "update": "更新",
+        "upload": "上傳",
+        "advertisement": "廣告",
+        "uploadSuccess": "更新成功",
+        "uploadFail": "充電樁未回應"
+    },
+    "InfoPage": {
+        "title": "裝置資訊",
+        "subtitle": "清晰掌握你的裝置狀態，簡單而直覺。",
+        "deviceStatus": "裝置狀態",
+        "currentVersion": "當前版本：",
+        "firmwareversion": "韌體版本",
+        "deviceSerial": "裝置序號",
+        "latestVersion": "最新版本：",
+        "isLatest": "已是最新",
+        "canUpdate": "可更新",
+        "updateFirmware": "韌體更新",
+        "offline": "離線",
+        "Available": "待機",
+        "Charging": "充電中",
+        "Preparing": "準備中",
+        "SuspendedEVSE": "停用",
+        "SuspendedEV": "停用",
+        "Finishing": "完成",
+        "Reserved": "保留",
+        "Unavailable": "離線",
+        "Faulted": "故障"
+    },
+    "ChargePointRatePlanPage": {
+        "title": "個人充電樁電費設定",
+        "basePrice": "每度基本電價 (元/kWh)",
+        "timeRate": "分時電價",
+        "addTimeRate": "新增時段",
+        "periodName": "名稱",
+        "startTime": "開始時間",
+        "endTime": "結束時間",
+        "pricePerKwh": "電價",
+        "maxTimeRates": "最多只能新增 3 個時段"
     }
 }

@@ -2,10 +2,14 @@
     "notNull": "is not null",
     "Apppage": {
         "Header": {
-            "Lougt": "Lougt",
+            "Logout": "Logout",
             "Password": "Change password",
             "Remote": "Remote Start Charging",
-            "Plug": "Plug in to charge"
+            "Plug": "Plug in to charge",
+            "Faulted": "Faulted",
+            "ScanQrcode": "Scan Qrcode",
+            "ChargingPileLog": "Charging Pile Log",
+            "ChargePointRatePlan": "Charge Point Rate Plan"
         },
         "Footer": {
             "Index": "Index",
@@ -22,31 +26,69 @@
         "V": "V",
         "TPC": "TPC",
         "P": "P",
-        "Times": "Times"
+        "Times": "Times",
+        "SuspendedEV": "SuspendedEV",
+        "SuspendedEVSE": "SuspendedEVSE",
+        "Charging": "Charging",
+        "Preparing": "Preparing",
+        "info": "Schedule Info",
+        "StartTime": "Start Time",
+        "StopTime": "Stop Time",
+        "ScheduleTitle": "Schedule Title"
     },
     "RfidloadingPage": {
         "Startingup": "Starting up..."
     },
     "EditPasswordPage": {
         "ConfirmNewPassword": "Confirm New Password",
-        "NewPassword": "New Password"
+        "NewPassword": "New Password",
+        "Save": "Save"
+    },
+    "LanguagePage": {
+        "SelectLanguage": "Select language",
+        "Save": "Save"
     },
     "Historypage": {
         "Title": "History",
         "Export": "Export Excel",
         "Date": "Charging Date",
         "Time": "Charging Time",
-        "Degree": "Charging Degree"
+        "Degree": "Charging Degree",
+        "Dateinput": "Date"
     },
     "Indexpage": {},
     "Reservepage": {
         "title": "Schedule List",
         "schedule": "My Schedule",
         "createSchedule": "Create Schedule",
+        "create": "Create",
+        "save": "Save",
         "editSchedule": "Edit Schedule",
         "scheduleTitle": "Schedule Title",
         "startDateTime": "Start DateTime",
-        "endDateTime": "End DateTime"
+        "endDateTime": "End DateTime",
+        "info": "Info",
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "deleteTitle": "Do you want to remove this scheduled task?",
+        "reserve": "Reserve",
+        "record": "Record",
+        "periodSetting": "Charging Current Time Slot Settings",
+        "period": "Time Slot",
+        "periodTitle": "Reservation Schedule",
+        "setPeriod": "Configure Time Slots",
+        "addPeriod": "Add Time Slot",
+        "periodCount": "{count} time slots configured",
+        "maxPeriods": "You can add up to {count} time slots."
+    },
+    "Common": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "close": "Close",
+        "confirm": "Confirm",
+        "delete": "Delete",
+        "add": "Add",
+        "action": "Action"
     },
     "Touchstartpage": {
         "title": "Touch Start",
@@ -79,8 +121,48 @@
             "key": "chargetime"
         },
         {
-            "title": "Charging Dgree",
-            "key": "drgee"
+            "title": "Charging Degree",
+            "key": "energyWh"
+        },
+        {
+            "title": "Charging Cost",
+            "key": "totalAmount"
+        }
+    ],
+    "ChargingPileLogheaders": [
+        {
+            "title": "Time",
+            "key": "logTime"
+        },
+        {
+            "title": "message",
+            "key": "message"
+        },
+        {
+            "title": "Result",
+            "key": "result"
+        },
+        {
+            "title": "Error Code",
+            "key": "errorCode"
+        }
+    ],
+    "ReverseHistoryheaders": [
+        {
+            "title": "Method",
+            "key": "actionType"
+        },
+        {
+            "title": "Execute Time",
+            "key": "executeTime"
+        },
+        {
+            "title": "Result",
+            "key": "status"
+        },
+        {
+            "title": "Error",
+            "key": "errorMessage"
         }
     ],
     "dateitems": [
@@ -96,5 +178,76 @@
     "Ocpppage": {
         "describe": "Please key in the backend address provided to you by E-Faner.",
         "connectiondescribe": "Please wait to connection process."
+    },
+    "ScanQrcodepage": {
+        "qrcodescan": "QR Code Scanner",
+        "selectcamera": "Choose The Camera",
+        "startscan": "Start Scanning",
+        "stopscan": "Stop Scanning",
+        "scanresult": "Scan Results",
+        "noresult": "Not Yet Scanned",
+        "unknowncamera": "Unknown camera",
+        "pleaseSelectACamera": "Please select a camera",
+        "launchFailed": "Launch failed"
+    },
+    "Loginpage": {
+        "title": "Log In Account",
+        "forgetPassword": "Forget Password?",
+        "login": "Log in",
+        "resetPassword": "Reset Password",
+        "updateAccountInformation": "Update Account Information",
+        "firstTimeLogin": "(First Time Login)",
+        "sumbit": "Sumbit",
+        "logout": "logout",
+        "password": "password",
+        "account": "account",
+        "userName": "userName",
+        "email": "email",
+        "emailFormaterror": "Email format is incorrect",
+        "emailFormat": "Enter a common email (e.g. gmail.com)",
+        "Account does not Exist": "Account does not Exist",
+        "Account is Expired": "Account is Expired",
+        "Wrong Password": "Wrong Password"
+    },
+    "AdImageDatapage": {
+        "title": "Number of Advertisement",
+        "update": "Update",
+        "upload": "Upload",
+        "advertisement": "Advertisement",
+        "uploadSuccess": "Update Success",
+        "uploadFail": "Charger not responding"
+    },
+    "InfoPage": {
+        "title": "Device Information",
+        "subtitle": "Your device status at a glance.",
+        "deviceStatus": "Device Status",
+        "currentVersion": "Current Version : ",
+        "firmwareversion": "Firmware Version",
+        "deviceSerial": "Device Serial",
+        "latestVersion": "Latest Version : ",
+        "isLatest": "Up to date",
+        "canUpdate": "Update available",
+        "updateFirmware": "Update Firmware",
+        "offline": "Offline",
+        "Available": "Available",
+        "Charging": "Charging",
+        "Preparing": "Preparing",
+        "SuspendedEVSE": "SuspendedEVSE",
+        "SuspendedEV": "SuspendedEV",
+        "Finishing": "Finishing",
+        "Reserved": "Reserved",
+        "Unavailable": "Unavailable",
+        "Faulted": "Faulted"
+    },
+    "ChargePointRatePlanPage": {
+        "title": "Personal Charging Station Rate Plan",
+        "basePrice": "Base Electricity Rate (NT$/kWh)",
+        "timeRate": "Time-of-Use Rates",
+        "addTimeRate": "Add Time Slot",
+        "periodName": "Name",
+        "startTime": "Start Time",
+        "endTime": "End Time",
+        "pricePerKwh": "Price (NT$/kWh)",
+        "maxTimeRates": "You can add up to 3 time slots."
     }
 }

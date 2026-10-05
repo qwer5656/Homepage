@@ -46,7 +46,12 @@
       </div>
     </div>
     <Chargingmode
-      v-if="getchargepilemode == 'charging' || getchargepilemode == 'preparing'"
+      v-if="
+        getchargepilemode == 'Charging' ||
+        getchargepilemode == 'Preparing' ||
+        getchargepilemode == 'SuspendedEVSE' ||
+        getchargepilemode == 'SuspendedEV'
+      "
     />
     <Finishmode v-if="getchargepilemode == 'finish'" />
     <Startmodeselect v-if="getchargepilemode == 'selectmode'" />
@@ -70,7 +75,7 @@
           <div class="contentmid">
             <img
               :class="{ offline: !chargestauts }"
-              src="../assets/img/Device.png"
+              src="../assets/img/Aceloginlogo.png"
               class="deviceimg"
             />
           </div>
@@ -85,11 +90,11 @@
         </div>
 
         <div class="bottomwrap">
-          <div
-            class="chargetxt"
-            v-if="chargestauts"
-          >
-             {{ $t("Apppage.Header.Plug") }}
+          <div class="chargetxt" v-if="chargestauts && !faultedstauts">
+            {{ $t("Apppage.Header.Plug") }}
+          </div>
+          <div class="chargefaultedtxt" v-if="faultedstauts">
+            {{ $t("Apppage.Header.Faulted") }}
           </div>
           <!-- <div
             class="chargebt"
@@ -116,7 +121,7 @@ import Chargingmode from "@/components/Chargingmode.vue";
 import Finishmode from "@/components/Finishmode.vue";
 import Startmodeselect from "@/components/Startmodeselect.vue";
 import { useMainStore } from "@/stores/main";
-import { chargePileStore } from "@/stores/chargePile";
+import { chargePileOperationStore } from "@/stores/chargePileOperation";
 import { ResultStore } from "@/stores/result";
 import { useRouter } from "vue-router";
 import { ref, onMounted, onUnmounted, computed, getCurrentInstance } from "vue";
@@ -128,6 +133,7 @@ const proxy = instance?.proxy;
 const Nowtime = ref("");
 const touchstart = ref(false);
 const chargestauts = ref(false);
+const faultedstauts = ref(false);
 const monthNames = ref([
   "Jan",
   "Feb",
@@ -154,7 +160,7 @@ onMounted(() => {
   setinit();
   TimeData.value = setInterval(function () {
     setinit();
-  }, 2000);
+  }, 3000);
 });
 
 onUnmounted(() => {
@@ -188,54 +194,85 @@ const changemode = function (val) {
 };
 
 const getchargepilestatus = function () {
-  let chargePile = chargePileStore();
+  let chargePile = chargePileOperationStore();
   const mainstore = useMainStore();
 
-  if (mainstore.apibusy == true) {
-    return;
-  }
+  // 如果系統忙碌中，就跳出
+  if (mainstore.apibusy === true) return;
 
   chargePile.GetChargePileStatus(proxy).then((res) => {
-    if (res.data === null || res.data === undefined) {
-      const mainstore = useMainStore();
+    const data = res.data;
+
+    // 狀態為空，設定為 standby 模式
+    if (!data) {
       chargestauts.value = false;
-      mainstore.chargepilemode = "standby";
       lte.value = false;
+      mainstore.chargepilemode = "standby";
       return;
     }
+
+    // 有連線資訊
     lte.value = true;
-    let data = res.data;
     wifi.value = data.wifi;
-    // lte.value = data.lte;
     bluetooth.value = data.bluetooth;
+
+    // 目前有連上充電樁
+    chargestauts.value = true;
+    faultedstauts.value = false;
+
+    // 故障狀態處理
+    if (data.lastStatus === "Faulted") {
+      mainstore.chargepilemode = "standby";
+      faultedstauts.value = true;
+      return;
+    }
+
+    // 若為 Available 且目前為選擇模式，不切換狀態
     if (
-      data.lastStatus == "Available" &&
-      mainstore.chargepilemode == "selectmode"
+      data.lastStatus === "Available" &&
+      mainstore.chargepilemode === "selectmode"
     ) {
       return;
     }
-    if (data.lastStatus == "Finishing") {
-      mainstore.chargepilemode = "finish";
-    }
-    if (data.lastStatus == "Charging" && mainstore.chargepilemode != "finish") {
-      mainstore.chargepilemode = "charging";
-    }
-    if (data.lastStatus == "Preparing") {
-      mainstore.chargepilemode = "preparing";
-    }
-    if (data.lastStatus == "Available") {
-      chargestauts.value = true;
-      mainstore.chargepilemode = "standby";
-    }
-    if (data.lastStatus == "Unavailable") {
-      mainstore.chargepilemode = "standby";
-      chargestauts.value = false;
+
+    // 根據狀態切換模式
+    switch (data.lastStatus) {
+      case "Finishing":
+        const raw = data.lastStatusTime; // e.g. "2025-09-25 08:24:10.0000000"
+        const fixedTimeStr = raw.replace(" ", "T").replace(/\.\d+$/, "") + "Z"; // ➜ 加 Z 保證是 UTC
+
+        const lastTime = new Date(fixedTimeStr);
+        const now = new Date();
+
+        const diffSeconds = (now - lastTime) / 1000;
+        
+        mainstore.chargepilemode = diffSeconds > 10 ? "Preparing" : "finish";
+        break;
+      case "Charging":
+        mainstore.chargepilemode = "Charging";
+        break;
+      case "SuspendedEVSE":
+        mainstore.chargepilemode = "SuspendedEVSE";
+        break;
+      case "SuspendedEV":
+        mainstore.chargepilemode = "SuspendedEV";
+        break;
+      case "Preparing":
+        mainstore.chargepilemode = "Preparing";
+        break;
+      case "Available":
+      case "Unavailable":
+        mainstore.chargepilemode = "standby";
+        if (data.lastStatus === "Unavailable") {
+          chargestauts.value = false;
+        }
+        break;
     }
   });
 };
 const reset = function () {
   if (chargestauts.value == true) {
-    let chargePile = chargePileStore();
+    let chargePile = chargePileOperationStore();
     chargePile.Reset(proxy).then((res) => {
       console.log(res.data);
     });
@@ -244,7 +281,7 @@ const reset = function () {
 
 const dataTransfer = function () {
   if (chargestauts.value == true) {
-    let chargePile = chargePileStore();
+    let chargePile = chargePileOperationStore();
     let senddata = {
       VendorId: "efaner",
       MessageId: "Qrcode",
@@ -262,7 +299,7 @@ const dataTransfer = function () {
 };
 
 const ChangeAvailability = function () {
-  let chargePile = chargePileStore();
+  let chargePile = chargePileOperationStore();
   chargePile
     .ChangeAvailability(proxy, changeAvailabilityData.value)
     .then((res) => {
@@ -275,7 +312,7 @@ const ChangeAvailability = function () {
 };
 
 const ChangeConfiguration = function () {
-  let chargePile = chargePileStore();
+  let chargePile = chargePileOperationStore();
   chargePile.ChangeConfiguration(proxy).then((res) => {
     console.log(res);
     let Result = ResultStore();
@@ -288,10 +325,8 @@ const ChangeConfiguration = function () {
 
 const UnlockConnector = function () {
   if (chargestauts.value == true) {
-    let chargePile = chargePileStore();
-    chargePile.UnlockConnector(proxy).then((res) => {
-     
-    });
+    let chargePile = chargePileOperationStore();
+    chargePile.UnlockConnector(proxy).then((res) => {});
   }
 };
 
@@ -392,6 +427,13 @@ const getchargepileRemote = computed(() => {
   font-size: 20px;
   line-height: 35px;
   color: #6b6b6b;
+  text-align: center;
+}
+.chargefaultedtxt {
+  font-family: "SF Pro";
+  font-weight: 590;
+  color: #ce0000;
+  font-size: 30px;
   text-align: center;
 }
 .bigtxt {

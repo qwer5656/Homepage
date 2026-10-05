@@ -5,8 +5,8 @@
         <div class="logoimg">
           <img src="../assets/img/logo.png" alt="" />
         </div>
-        <div class="title">更新帳號資訊
-          <h6>(首次登入)</h6>
+        <div class="title">{{ $t("Loginpage.updateAccountInformation") }}
+          <h6>{{ $t("Loginpage.firstTimeLogin") }}</h6>
         </div>
         <v-form class="formwrap" ref="entryForm">
           <v-text-field
@@ -27,7 +27,7 @@
             v-model="emaildata"
           ></v-text-field>
           <v-text-field
-            :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+            :append-inner-icon="show1 ? mdiEye : mdiEyeOff"
             :type="show1 ? 'text' : 'password'"
             label="password"
             v-model="passworddata"
@@ -37,8 +37,8 @@
             @keyup.enter="passwordConfirmationRule"
             maxlength="16"
           ></v-text-field>
-          <div class="chargebt" @click="passwordConfirmationRule">Sumbit</div>
-          <div class="logout" @click="logout">Logout</div>
+          <div class="chargebt" @click="passwordConfirmationRule">{{ $t("Loginpage.sumbit") }}</div>
+          <div class="logout" @click="logout">{{ $t("Loginpage.logout") }}</div>
         </v-form>
       </div>
       <div class="loginchargepilewrap">
@@ -52,6 +52,9 @@ import { loginStore } from "@/stores/login";
 import { ResultStore } from "@/stores/result";
 import { ref, getCurrentInstance, onBeforeMount } from "vue";
 import { useMainStore } from "@/stores/main";
+import { useI18n } from "vue-i18n";
+import { mdiEye, mdiEyeOff } from '@mdi/js'
+const { t,locale  } = useI18n();
 const instance = getCurrentInstance();
 const proxy = instance?.proxy;
 const show1 = ref(false);
@@ -63,7 +66,7 @@ const passworderror = ref("");
 const userNameerror = ref("");
 const commonDomains = [
   "gmail.com",
-  "yahoo.com",
+  "yahoo.com.tw",
   "hotmail.com",
   "outlook.com",
   "icloud.com",
@@ -82,7 +85,7 @@ const passwordrules = ref([
       return temperror;
     }
     if (value) return true;
-    return "Password 不可為空";
+     return `${t("Loginpage.password")} ${t("notNull")}`;
   },
 ]);
 const emailrules = ref([
@@ -94,19 +97,21 @@ const emailrules = ref([
     }
 
     if (!value) {
-      return "Email 不可為空";
+      return `${t("Loginpage.email")} ${t("notNull")}`;
     }
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
     if (!emailRegex.test(value)) {
-      return "Email 格式錯誤";
+      return `${t("Loginpage.emailFormaterror")}`;
     }
 
-    const domain = value.split("@")[1];
+    // 👇 新增：檢查 domain
+    const domain = value.split("@")[1]?.toLowerCase();
     if (!commonDomains.includes(domain)) {
-      return "請輸入常見的信箱提供者（如 gmail.com）";
+      return `Email 網域需為常見信箱（${commonDomains.join(", ")}）`;
     }
+
     return true;
   },
 ]);
@@ -118,7 +123,7 @@ const userNamerules = ref([
       return temperror;
     }
     if (value) return true;
-    return "userName 不可為空";
+      return `${t("Loginpage.userName")} ${t("notNull")}`;
   },
 ]);
 

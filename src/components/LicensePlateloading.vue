@@ -15,7 +15,7 @@
   </div>
 </template>
 <script setup>
-import { chargePileStore } from "@/stores/chargePile";
+import { chargePileOperationStore } from "@/stores/chargePileOperation";
 import { ResultStore } from "@/stores/result";
 
 import { ref, onMounted,getCurrentInstance } from "vue";
@@ -31,7 +31,7 @@ const error = function () {
 
 onMounted(() => {
   setTimeout(function () {
-    let chargePile = chargePileStore();
+    let chargePile = chargePileOperationStore();
     chargePile.RemoteStartTransaction(proxy).then((res) => {
       if (res.success == true) {
         let data = JSON.parse(res.data);
